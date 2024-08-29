@@ -1,0 +1,59 @@
+﻿@model HelpDeskSystem.Models.Ticket
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 class="page-title">Ticket details</h3>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="about-info">
+                        <h4>Ticket information</h4>
+                        <div class="media mt-3">
+                            <div class="media-body">
+                                <ul>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Title)</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Title)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Description)</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Description)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Status)</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Status)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Priority)</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Priority)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy)</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.CreatedBy.Name)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn)</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.CreatedOn)</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

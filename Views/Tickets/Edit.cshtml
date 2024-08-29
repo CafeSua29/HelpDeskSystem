@@ -1,0 +1,86 @@
+﻿@model HelpDeskSystem.Models.Ticket
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Edit ticket</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-horizontal">
+                        <div class="col-12">
+                            <h5 class="form-title"><span>Ticket details</span></h5>
+                        </div>
+                        <form asp-action="Edit">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="row">
+                                <input type="hidden" asp-for="Id" />
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Title" class="form-control" placeholder="" />
+                                        <label asp-for="Title" class="control-label"></label>
+                                        <span asp-validation-for="Title" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Description" class="form-control" placeholder="" />
+                                        <label asp-for="Description" class="control-label"></label>
+                                        <span asp-validation-for="Description" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Status" class="form-control" placeholder="" />
+                                        <label asp-for="Status" class="control-label"></label>
+                                        <span asp-validation-for="Status" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Priority" class="form-control" placeholder="" />
+                                        <label asp-for="Priority" class="control-label"></label>
+                                        <span asp-validation-for="Priority" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="CreatedById" class="form-control" asp-items="ViewBag.createdById"></select>
+                                        <label asp-for="CreatedById" class="control-label"></label>
+                                        <span asp-validation-for="CreatedById" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="CreatedOn" class="form-control" placeholder="" />
+                                        <label asp-for="CreatedOn" class="control-label"></label>
+                                        <span asp-validation-for="CreatedOn" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" value="Save" class="btn btn-primary" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
