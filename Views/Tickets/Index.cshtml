@@ -8,6 +8,40 @@
     <div class="page-header">
         <h1>Ticket list</h1>
         <div class="row align-items-center">
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert border-0 bg-light-success alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">
+                                @TempData["Message"]
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dissmiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert border-0 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">
+                                @TempData["Error"]
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dissmiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
             <div class="col-auto text-right float-right ml-auto">
                 <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i></a>
             </div>

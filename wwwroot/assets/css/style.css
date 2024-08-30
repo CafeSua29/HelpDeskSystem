@@ -2148,6 +2148,7 @@ footer p {
 }
 .bg-one .db-icon {
 	background-color: #fdbb38;
+	padding: 13px 15px;
 }
 .bg-two .db-icon {
 	background-color: #19affb;
@@ -2155,9 +2156,11 @@ footer p {
 }
 .bg-three .db-icon {
 	background-color: #f46841;
+	padding: 13px 15px;
 }
 .bg-four .db-icon {
 	background-color: #6e6bfa;
+	padding: 13px 15px;
 }
 .db-info h3 {
 	font-size: 28px;
@@ -2279,18 +2282,18 @@ footer p {
 }
 .fa-twitter {
     color: #5ebbf4;
-    bottom: -10px !important;
-    right: 18px !important;
+    /* bottom: -10px !important;
+    right: 18px !important; */
 }
 .fa-instagram {
     color: #de7099;
-    bottom: -7px !important;
-    right: 20px !important;
+    /* bottom: -7px !important;
+    right: 20px !important; */
 }
 .fa-linkedin-in {
     color: #4a92b5;
-    bottom: -14px !important;
-    right: 23px !important;
+    /* bottom: -14px !important;
+    right: 23px !important; */
 }
 
 /*-----------------
@@ -3054,7 +3057,7 @@ table.table-inbox tbody tr.checked {
 		color: #fff;
 		font-size: 18px;
 	}
-	.fa-twitter {
+	/* .fa-twitter {
 		bottom: -6px !important;
 	}
 	.fa-instagram {
@@ -3062,7 +3065,7 @@ table.table-inbox tbody tr.checked {
 	}
 	.fa-linkedin-in {
 		bottom: -9px !important;
-	}
+	} */
 }
 
 @media (min-width:768px) {

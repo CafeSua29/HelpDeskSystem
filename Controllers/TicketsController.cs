@@ -25,7 +25,6 @@ namespace HelpDeskSystem.Controllers
         {
             var tickets = await _context.Tickets
                 .Include(c => c.CreatedBy)
-                .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
 
             return View(tickets);
@@ -85,6 +84,8 @@ namespace HelpDeskSystem.Controllers
 
             _context.Add(activity);
             await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Ticket Created";
 
             return RedirectToAction(nameof(Index));
 

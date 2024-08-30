@@ -33,7 +33,6 @@ namespace HelpDeskSystem.Controllers
                 .Where(x => x.TicketId == id)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
-                .OrderByDescending(x => x.CreatedOn)
                 .ToListAsync();
 
             return View(comments);

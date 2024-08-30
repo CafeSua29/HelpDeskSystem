@@ -15,7 +15,14 @@ namespace HelpDeskSystem.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            if(!User.Identity.IsAuthenticated)
+            {
+                return this.Redirect("~/identity/account/login");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         public IActionResult Privacy()
