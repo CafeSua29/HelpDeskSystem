@@ -43,10 +43,16 @@
                         <a class="" asp-area="" asp-controller="Tickets" asp-action="Index"><i class="fas fa-ticket"></i> <span>Tickets</span></a>
                     </li>
                     <li>
+                        <a class="" asp-area="" asp-controller="TicketCategories" asp-action="Index"><i class="fas fa-history"></i> <span>Ticket Categories</span></a>
+                    </li>
+                    <li>
+                        <a class="" asp-area="" asp-controller="TicketSubCategories" asp-action="SubCategories"><i class="fas fa-history"></i> <span>Ticket Sub Categories</span></a>
+                    </li>
+                    <li>
                         <a class="" asp-area="" asp-controller="Comments" asp-action="Index"><i class="fas fa-comment"></i> <span>Comments</span></a>
                     </li>
                     <li>
-                        <a class="" asp-area="" asp-controller="AuditTrails" asp-action="Index"><i class="fas fa-history"></i> <span>AuditTrails</span></a>
+                        <a class="" asp-area="" asp-controller="AuditTrails" asp-action="Index"><i class="fas fa-history"></i> <span>Audit Trails</span></a>
                     </li>
                     <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                     <li>

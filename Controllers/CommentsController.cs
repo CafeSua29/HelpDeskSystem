@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using System.Security.Claims;
+using HelpDeskSystem.Data.Migrations;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -27,13 +28,20 @@ namespace HelpDeskSystem.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        public async Task<IActionResult> TicketComments(int id)
+        public async Task<IActionResult> TicketComments(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var comments = await _context.Comments
                 .Where(x => x.TicketId == id)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
                 .ToListAsync();
+
+            ViewBag.TicketId = id;
 
             return View(comments);
         }
@@ -59,12 +67,23 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: Comments/Create
-        public IActionResult Create()
+        public IActionResult Create(int id)
         {
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name");
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Title");
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            return View();
+            var ticket = _context.Comments.FindAsync(id);
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+
+            Comment comment = new Comment();
+            comment.TicketId = id;
+
+            return View(comment);
         }
 
         // POST: Comments/Create
@@ -78,6 +97,7 @@ namespace HelpDeskSystem.Controllers
 
             comment.CreatedOn = DateTime.Now;
             comment.CreatedById = userId;
+            comment.Id = 0;
 
             _context.Add(comment);
             await _context.SaveChangesAsync();
@@ -96,7 +116,7 @@ namespace HelpDeskSystem.Controllers
             _context.Add(activity);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("TicketComments", new { id = comment.TicketId });
 
             ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", comment.CreatedById);
             ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Title", comment.TicketId);

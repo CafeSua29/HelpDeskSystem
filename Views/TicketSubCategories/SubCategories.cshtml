@@ -1,24 +1,22 @@
-﻿@model IEnumerable<HelpDeskSystem.Models.Comment>
+﻿@model HelpDeskSystem.ViewModels.TicketSubCategoriesVM
 
 @{
-    ViewData["Title"] = "Recent Comments";
-
-    int ticketid = ViewBag.TicketId;
+    ViewData["Title"] = "Index";
 }
 
-<h1>Recent Comments</h1>
+<h1>Index</h1>
 
-<p>
-    <a asp-action="Create" asp-route-id="@ticketid">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @Html.DisplayNameFor(model => model.Category)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Ticket)
+                @Html.DisplayNameFor(model => model.Code)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedBy)
@@ -30,14 +28,17 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.TicketSubCategories)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Description)
+                    @Html.DisplayFor(modelItem => item.Category.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Ticket.Title)
+                    @Html.DisplayFor(modelItem => item.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.CreatedBy.Name)
