@@ -1,6 +1,6 @@
 ﻿namespace HelpDeskSystem.Models
 {
-    public class TicketSubCategory:UserActivity
+    public class TicketSubCategory : UserActivity
     {
         public int Id { get; set; }
 

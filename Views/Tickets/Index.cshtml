@@ -8,37 +8,26 @@
     <div class="page-header">
         <h1>Ticket list</h1>
         <div class="row align-items-center">
+
             @if (TempData["Message"] != null)
             {
-                <div class="alert border-0 bg-light-success alert-dismissible fade show py-2">
-                    <div class="d-flex align-items-center">
-                        <div class="fs-3 text-success">
-                            <i class="bi bi-check-circle-fill"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="text-success">
-                                @TempData["Message"]
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dissmiss="alert" aria-label="Close"></button>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check"></i>
+                    @TempData["Message"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
             }
 
             @if (TempData["Error"] != null)
             {
-                <div class="alert border-0 bg-light-danger alert-dismissible fade show py-2">
-                    <div class="d-flex align-items-center">
-                        <div class="fs-3 text-danger">
-                            <i class="bi bi-x-circle-fill"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="text-danger">
-                                @TempData["Error"]
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dissmiss="alert" aria-label="Close"></button>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-close"></i>
+                    @TempData["Error"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
             }
 
@@ -68,6 +57,9 @@
                                         @Html.DisplayNameFor(model => model.Priority)
                                     </th>
                                     <th>
+                                        @Html.DisplayNameFor(model => model.SubCategory)
+                                    </th>
+                                    <th>
                                         @Html.DisplayNameFor(model => model.CreatedBy)
                                     </th>
                                     <th>
@@ -95,6 +87,9 @@
                                             @Html.DisplayFor(modelItem => item.Priority)
                                         </td>
                                         <td>
+                                            @Html.DisplayFor(modelItem => item.SubCategory.Name)
+                                        </td>
+                                        <td>
                                             @Html.DisplayFor(modelItem => item.CreatedBy.Name)
                                         </td>
                                         <td>
@@ -108,10 +103,19 @@
                                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2">
                                                     <i class="fas fa-pen"></i>
                                                 </a>
-                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm bg-danger" onclick="return confirm('Are you sure you want to delete this ticket ?')">
+                                                @* <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm bg-danger" onclick="return confirm('Are you sure you want to delete this ticket ?')">
                                                     <i class="fas fa-trash"></i>
-                                                </a>
-                                                <a href="#" class="btn btn-sm bg-danger" onclick="showDeleteModal('@item.Id', '@item.Title', '@item.Description', '@item.Status', '@item.Priority', '@item.CreatedBy.Name', '@item.CreatedOn')">
+                                                </a> *@
+                                                <a href="#" class="btn btn-sm bg-danger" data-toggle="modal"
+                                                   data-target="#deleteConfirmationModal"
+                                                   data-id="@item.Id"
+                                                   data-title="@item.Title"
+                                                   data-description="@item.Description"
+                                                   data-status="@item.Status"
+                                                   data-priority="@item.Priority"
+                                                   data-sub="@item.SubCategory.Name"
+                                                   data-by="@item.CreatedBy.Name"
+                                                   data-on="@item.CreatedOn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -128,7 +132,7 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -150,27 +154,31 @@
                                 <div class="media-body">
                                     <ul>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Title)</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Title):</span>
                                             <span class="info-span" id="itemTitle"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Description)</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Description):</span>
                                             <span class="info-span" id="itemDesc"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Status)</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Status):</span>
                                             <span class="info-span" id="itemStatus"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Priority)</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Priority):</span>
                                             <span class="info-span" id="itemPriority"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy)</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.SubCategory):</span>
+                                            <span class="info-span" id="itemSub"></span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
                                             <span class="info-span" id="itemBy"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn)</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
                                             <span class="info-span" id="itemOn"></span>
                                         </li>
                                     </ul>
@@ -179,48 +187,49 @@
                         </div>
                     </div>
                 </div>
-                <input type="hidden" id="itemId" />
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" action="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-
-
 @section Scripts
 {
-    <script type="text/javascript">
-        function showDeleteModal(itemId, itemTitle, itemDesc, itemStatus, itemPriority, itemBy, itemOn) {
-            $('#itemId').val(itemId);
-            $('#itemTitle').text(itemTitle);
-            $('#itemDesc').text(itemDesc);
-            $('#itemStatus').text(itemStatus);
-            $('#itemPriority').text(itemPriority);
-            $('#itemBy').text(itemBy);
-            $('#itemOn').text(itemOn);
-            $('#deleteModal').modal('show');
-        }
+    <script>
+        $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+        });
 
-        function confirmDelete() {
-            var itemId = $('#itemId').val();
+        $('#deleteConfirmationModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); 
+            var id = button.data('id'); 
+            var title = button.data('title'); 
+            var description = button.data('description');
+            var status = button.data('status');
+            var priority = button.data('priority');
+            var sub = button.data('sub');
+            var by = button.data('by');
+            var on = button.data('on');
+            var action = '/Tickets/Delete/' + id;
 
-            $.ajax({
-                url: '/Tickets/Delete/' + itemId,
-                type: 'POST',
-                success: function (result) {
-                    // Handle success (e.g., remove item from UI or refresh page)
-                    $('#deleteModal').modal('hide');
-                },
-                error: function (xhr, status, error) {
-                    // Handle error
-                    alert('Error: ' + error);
-                }
-            });
-        }
+            var modal = $(this);
+            modal.find('#deleteForm').attr('action', action);
+            modal.find('#itemTitle').text(title); 
+            modal.find('#itemDesc').text(description);
+            modal.find('#itemStatus').text(status);
+            modal.find('#itemPriority').text(priority);
+            modal.find('#itemSub').text(sub);
+            modal.find('#itemBy').text(by);
+            modal.find('#itemOn').text(on);
+        });
     </script>
-
 }

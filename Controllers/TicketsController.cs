@@ -25,6 +25,7 @@ namespace HelpDeskSystem.Controllers
         {
             var tickets = await _context.Tickets
                 .Include(c => c.CreatedBy)
+                .Include(t => t.SubCategory)
                 .ToListAsync();
 
             return View(tickets);
@@ -52,7 +53,7 @@ namespace HelpDeskSystem.Controllers
         // GET: Tickets/Create
         public IActionResult Create()
         {
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name");
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
             return View();
         }
 
@@ -61,12 +62,13 @@ namespace HelpDeskSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Ticket ticket)
+        public async Task<IActionResult> Create(Ticket ticket, int categoryId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             ticket.CreatedOn = DateTime.Now;
             ticket.CreatedById = userId;
+            //ticket.SubCategoryId = 1;
 
             _context.Add(ticket);
             await _context.SaveChangesAsync();
@@ -86,6 +88,8 @@ namespace HelpDeskSystem.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Message"] = "Ticket Created";
+
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
 
             return RedirectToAction(nameof(Index));
 
@@ -160,16 +164,19 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            //return View(ticket);
+            return View(ticket);
 
-            ticket = await _context.Tickets.FindAsync(id);
-            if (ticket != null)
-            {
-                _context.Tickets.Remove(ticket);
-            }
+            //ticket = await _context.Tickets.FindAsync(id);
+            //if (ticket != null)
+            //{
+            //    _context.Tickets.Remove(ticket);
+            //}
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            //await _context.SaveChangesAsync();
+
+            //TempData["Message"] = "Ticket Deleted";
+
+            //return RedirectToAction(nameof(Index));
         }
 
         // POST: Tickets/Delete/5
@@ -184,6 +191,9 @@ namespace HelpDeskSystem.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Ticket Deleted";
+
             return RedirectToAction(nameof(Index));
         }
 
