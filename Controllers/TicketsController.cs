@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using System.Security.Claims;
+using HelpDeskSystem.Data.Migrations;
 
 namespace HelpDeskSystem.Controllers
 {
     public class TicketsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public TicketsController(ApplicationDbContext context)
+        public TicketsController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // GET: Tickets
@@ -25,6 +28,8 @@ namespace HelpDeskSystem.Controllers
         {
             var tickets = await _context.Tickets
                 .Include(c => c.CreatedBy)
+                .Include(c => c.Status)
+                .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .ToListAsync();
 
@@ -41,7 +46,11 @@ namespace HelpDeskSystem.Controllers
 
             var ticket = await _context.Tickets
                 .Include(t => t.CreatedBy)
+                .Include(c => c.Status)
+                .Include(c => c.Priority)
+                .Include(t => t.SubCategory)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (ticket == null)
             {
                 return NotFound();
@@ -53,6 +62,8 @@ namespace HelpDeskSystem.Controllers
         // GET: Tickets/Create
         public IActionResult Create()
         {
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
             ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
             return View();
         }
@@ -62,13 +73,24 @@ namespace HelpDeskSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Ticket ticket, int categoryId)
+        public async Task<IActionResult> Create(Ticket ticket, IFormFile attachment)
         {
+            if(attachment.Length > 0)
+            {
+                var filename = "Ticket_Attachment_" + DateTime.Now.ToString("yyyyMMdd") + "_" + attachment.FileName;
+
+                var path = _configuration["FileSettings:UploadsFolder"];
+                var filepath = Path.Combine(path, filename);
+
+                var stream = new FileStream(filepath, FileMode.Create);
+                await attachment.CopyToAsync(stream);
+                ticket.Attachment = filename;
+            }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             ticket.CreatedOn = DateTime.Now;
             ticket.CreatedById = userId;
-            //ticket.SubCategoryId = 1;
 
             _context.Add(ticket);
             await _context.SaveChangesAsync();
@@ -89,6 +111,8 @@ namespace HelpDeskSystem.Controllers
 
             TempData["Message"] = "Ticket Created";
 
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
             ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
 
             return RedirectToAction(nameof(Index));
@@ -110,7 +134,11 @@ namespace HelpDeskSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", ticket.CreatedById);
+
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
+
             return View(ticket);
         }
 
@@ -142,6 +170,11 @@ namespace HelpDeskSystem.Controllers
                     throw;
                 }
             }
+
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
+
             return RedirectToAction(nameof(Index));
 
             ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", ticket.CreatedById);

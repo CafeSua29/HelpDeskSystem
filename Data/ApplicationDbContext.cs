@@ -21,6 +21,12 @@ namespace HelpDeskSystem.Data
 
         public DbSet<TicketSubCategory> TicketSubCategories { get; set; }
 
+        public DbSet<SystemCode> SystemCodes { get; set; }
+
+        public DbSet<SystemCodeDetail> SystemCodeDetails { get; set; }
+
+        public DbSet<Department> Departments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -53,6 +59,24 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.ModifiedBy)
                 .WithMany()
                 .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<SystemCodeDetail>()
+                .HasOne(c => c.SystemCode)
+                .WithMany()
+                .HasForeignKey(c => c.SystemCodeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Ticket>()
+                .HasOne(c => c.Priority)
+                .WithMany()
+                .HasForeignKey(c => c.PriorityId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Ticket>()
+                .HasOne(c => c.Status)
+                .WithMany()
+                .HasForeignKey(c => c.StatusId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

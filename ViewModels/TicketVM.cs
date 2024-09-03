@@ -15,10 +15,10 @@ namespace HelpDeskSystem.ViewModels
         public string Description { get; set; }
 
         [DisplayName("Status")]
-        public string Status { get; set; }
+        public int StatusId { get; set; }
 
         [DisplayName("Priority")]
-        public string Priority { get; set; }
+        public int PriorityId { get; set; }
 
         [DisplayName("Ticket Category")]
         public int CategoryId { get; set; }
@@ -29,5 +29,8 @@ namespace HelpDeskSystem.ViewModels
         public TicketSubCategory SubCategory { get; set; }
 
         public List<Ticket> Tickets { get; set; }
+
+        [DisplayName("Attachment")]
+        public string Attachment { get; set; }
     }
 }

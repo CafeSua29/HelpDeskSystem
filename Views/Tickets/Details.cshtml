@@ -22,31 +22,35 @@
                             <div class="media-body">
                                 <ul>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Title)</span>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Title):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.Title)</span>
                                     </li>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Description)</span>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Description):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.Description)</span>
                                     </li>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Status)</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.Status)</span>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Status):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Status.Description)</span>
                                     </li>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Priority)</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.Priority)</span>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Priority):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Priority.Description)</span>
                                     </li>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.SubCategory)</span>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.SubCategory):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.SubCategory.Name)</span>
                                     </li>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy)</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.CreatedBy.Name)</span>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.SubCategory):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.SubCategory.Name)</span>
                                     </li>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn)</span>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Attachment):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Attachment)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.CreatedOn)</span>
                                     </li>
                                 </ul>

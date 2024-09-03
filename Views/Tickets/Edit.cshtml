@@ -10,6 +10,18 @@
             <div class="col">
                 <h3 class="page-title">Edit ticket</h3>
             </div>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-close"></i>
+                    @TempData["Error"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
         </div>
     </div>
 
@@ -41,32 +53,34 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input asp-for="Status" class="form-control" placeholder="" />
-                                        <label asp-for="Status" class="control-label"></label>
-                                        <span asp-validation-for="Status" class="text-danger"></span>
+                                        <select asp-for="PriorityId" class="form-control" placeholder="" asp-items="ViewBag.PriorityId"></select>
+                                        <label asp-for="PriorityId" class="control-label"></label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input asp-for="Priority" class="form-control" placeholder="" />
-                                        <label asp-for="Priority" class="control-label"></label>
-                                        <span asp-validation-for="Priority" class="text-danger"></span>
+                                        <select asp-for="StatusId" class="form-control" placeholder="" asp-items="ViewBag.StatusId"></select>
+                                        <label asp-for="StatusId" class="control-label"></label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <select asp-for="CreatedById" class="form-control" asp-items="ViewBag.createdById"></select>
-                                        <label asp-for="CreatedById" class="control-label"></label>
-                                        <span asp-validation-for="CreatedById" class="text-danger"></span>
+                                        <select class="form-control" id="Category" placeholder="" asp-items="ViewBag.CategoryId">
+                                            <option value=""> -- Category -- </option>
+                                        </select>
+                                        <label class="control-label">Category</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input asp-for="CreatedOn" class="form-control" placeholder="" />
-                                        <label asp-for="CreatedOn" class="control-label"></label>
-                                        <span asp-validation-for="CreatedOn" class="text-danger"></span>
+                                        <select asp-for="SubCategoryId" class="form-control" id="SubCategory">
+                                            <option value=""> -- Sub-Category -- </option>
+                                        </select>
+                                        <label asp-for="SubCategoryId" class="control-label"></label>
                                     </div>
                                 </div>
+                                <input type="hidden" asp-for="CreatedById" />
+                                <input type="hidden" asp-for="CreatedOn" />
                             </div>
                             <div class="form-group">
                                 <input type="submit" value="Save" class="btn btn-primary" />
@@ -83,4 +97,27 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        $(document).ready(function () {
+            $('#Category').change(function () {
+                var categoryId = $(this).val();
+                $('#SubCategory').empty();
+                $('#SubCategory').append('<option value=""> -- Sub-Category -- </option>');
+
+                if (categoryId) {
+                    $.ajax({
+                        url: '@Url.Action("GetTicketSubCategories", "Datas")',
+                        type: 'GET',
+                        data: { categoryId: categoryId },
+                        success: function (subCategories) {
+                            $.each(subCategories, function (index, subCategory) {
+                                $('#SubCategory').append('<option value="' + subCategory.id + '">' + subCategory.name + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }

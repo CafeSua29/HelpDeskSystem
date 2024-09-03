@@ -14,10 +14,17 @@ namespace HelpDeskSystem.Models
         public string Description { get; set; }
 
         [DisplayName("Status")]
-        public string Status { get; set; }
+        public int StatusId { get; set; }
+
+        public SystemCodeDetail Status { get; set; }
 
         [DisplayName("Priority")]
-        public string Priority { get; set; }
+        public int PriorityId { get; set; }
+
+        public SystemCodeDetail Priority { get; set; }
+
+        [DisplayName("Attachment")]
+        public string Attachment { get; set; }
 
         [DisplayName("Created By")]
         public string CreatedById { get; set; }
