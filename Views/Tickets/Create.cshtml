@@ -1,4 +1,4 @@
-﻿@model HelpDeskSystem.ViewModels.TicketVM
+﻿@model HelpDeskSystem.Models.Ticket
 
 @{
     ViewData["Title"] = "Create";
@@ -64,10 +64,10 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <select asp-for="CategoryId" class="form-control" id="Category" placeholder="" asp-items="ViewBag.CategoryId">
+                                        <select class="form-control" id="Category" placeholder="" asp-items="ViewBag.CategoryId">
                                             <option value=""> -- Category -- </option>
                                         </select>
-                                        <label asp-for="CategoryId" class="control-label"></label>
+                                        <label class="control-label">Category</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">

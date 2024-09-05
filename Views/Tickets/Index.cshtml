@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HelpDeskSystem.Models.Ticket>
+﻿@model IEnumerable<HelpDeskSystem.ViewModels.TicketVM>
 
 @{
     ViewData["Title"] = "Index";
@@ -34,25 +34,25 @@
                             <thead>
                                 <tr>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Title)
+                                        @Html.DisplayNameFor(model => model.Ticket.Title)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Description)
+                                        @Html.DisplayNameFor(model => model.Ticket.Priority)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Status)
+                                        @Html.DisplayNameFor(model => model.Ticket.SubCategory)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.Priority)
+                                        @Html.DisplayNameFor(model => model.Ticket.CreatedBy)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.SubCategory)
+                                        @Html.DisplayNameFor(model => model.Ticket.CreatedOn)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.CreatedBy)
+                                        @Html.DisplayNameFor(model => model.Ticket.Status)
                                     </th>
                                     <th>
-                                        @Html.DisplayNameFor(model => model.CreatedOn)
+                                        @Html.DisplayNameFor(model => model.Comments)
                                     </th>
                                     <th class="text-right">Action</th>
                                 </tr>
@@ -60,36 +60,56 @@
                             <tbody>
                                 @foreach (var item in Model)
                                 {
+                                    var colorcode = "Gray";
+
+                                    switch (item.Ticket.Status.Code)
+                                    {
+                                        case "Resolved":
+                                            colorcode = "Green";
+                                            break;
+
+                                        case "InProgress":
+                                            colorcode = "Yellow";
+                                            break;
+
+                                        case "Reassigned":
+                                            colorcode = "Purple";
+                                            break;
+
+                                        case "Waiting":
+                                            colorcode = "Red";
+                                            break;
+                                    }
+
                                     <tr>
                                         <td>
-                                            <a asp-action="Details" asp-route-id="@item.Id">
-                                                @Html.DisplayFor(modelItem => item.Title)
+                                            <a asp-action="Details" asp-route-id="@item.Ticket.Id">
+                                                @Html.DisplayFor(modelItem => item.Ticket.Title)
                                             </a>
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Description)
+                                            @Html.DisplayFor(modelItem => item.Ticket.Priority.Description)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Status.Description)
+                                            @Html.DisplayFor(modelItem => item.Ticket.SubCategory.Name)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Priority.Description)
+                                            @Html.DisplayFor(modelItem => item.Ticket.CreatedBy.Name)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.SubCategory.Name)
+                                            @Html.DisplayFor(modelItem => item.Ticket.CreatedOn)
                                         </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                                        <td style="background-color: @colorcode">
+                                            @Html.DisplayFor(modelItem => item.Ticket.Status.Description)
                                         </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.CreatedOn)
+                                        <td style="text-align: right">
+                                            <a asp-controller="Comments" asp-action="TicketComments" asp-route-id="@item.Ticket.Id">
+                                                @Html.DisplayFor(modelItem => item.Comments)
+                                            </a>
                                         </td>
                                         <td class="text-right">
                                             <div class="actions">
-                                                <a asp-controller="Comments" asp-action="TicketComments" asp-route-id="@item.Id" class="btn btn-sm btn-secondary mr-2">
-                                                    <i class="fas fa-comment"></i>
-                                                </a>
-                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2">
+                                                <a asp-action="Edit" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2">
                                                     <i class="fas fa-pen"></i>
                                                 </a>
                                                 @* <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm bg-danger" onclick="return confirm('Are you sure you want to delete this ticket ?')">
@@ -97,14 +117,14 @@
                                                 </a> *@
                                                 <a href="#" class="btn btn-sm bg-danger" data-toggle="modal"
                                                    data-target="#deleteConfirmationModal"
-                                                   data-id="@item.Id"
-                                                   data-title="@item.Title"
-                                                   data-description="@item.Description"
-                                                   data-status="@item.Status.Description"
-                                                   data-priority="@item.Priority.Description"
-                                                   data-sub="@item.SubCategory.Name"
-                                                   data-by="@item.CreatedBy.Name"
-                                                   data-on="@item.CreatedOn">
+                                                   data-id="@item.Ticket.Id"
+                                                   data-title="@item.Ticket.Title"
+                                                   data-description="@item.Ticket.Description"
+                                                   data-status="@item.Ticket.Status.Description"
+                                                   data-priority="@item.Ticket.Priority.Description"
+                                                   data-sub="@item.Ticket.SubCategory.Name"
+                                                   data-by="@item.Ticket.CreatedBy.Name"
+                                                   data-on="@item.Ticket.CreatedOn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -143,32 +163,32 @@
                                 <div class="media-body">
                                     <ul>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Title):</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.Title):</span>
                                             <span class="info-span" id="itemTitle"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Description):</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.Description):</span>
                                             <span class="info-span" id="itemDesc"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Status):</span>
-                                            <span class="info-span" id="itemStatus"></span>
-                                        </li>
-                                        <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Priority):</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.Priority):</span>
                                             <span class="info-span" id="itemPriority"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.SubCategory):</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.SubCategory):</span>
                                             <span class="info-span" id="itemSub"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.CreatedBy):</span>
                                             <span class="info-span" id="itemBy"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.CreatedOn):</span>
                                             <span class="info-span" id="itemOn"></span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.Status):</span>
+                                            <span class="info-span" id="itemStatus"></span>
                                         </li>
                                     </ul>
                                 </div>

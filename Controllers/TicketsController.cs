@@ -9,6 +9,7 @@ using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using System.Security.Claims;
 using HelpDeskSystem.Data.Migrations;
+using HelpDeskSystem.ViewModels;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -33,7 +34,24 @@ namespace HelpDeskSystem.Controllers
                 .Include(t => t.SubCategory)
                 .ToListAsync();
 
-            return View(tickets);
+            List<TicketVM> ticketVMs = new List<TicketVM>();
+
+            foreach (var ticket in tickets)
+            {
+                TicketVM ticketVM = new TicketVM();
+
+                ticketVM.Ticket = ticket;
+
+                ticketVM.Comments = _context.Comments
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Where(c => c.TicketId == ticket.Id)
+                .Count();
+
+                ticketVMs.Add(ticketVM);
+            }
+
+            return View(ticketVMs);
         }
 
         // GET: Tickets/Details/5
@@ -50,6 +68,12 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            ViewBag.Comments = await _context.Comments
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Where(c => c.TicketId == id)
+                .ToListAsync();
 
             if (ticket == null)
             {
@@ -233,6 +257,44 @@ namespace HelpDeskSystem.Controllers
         private bool TicketExists(int id)
         {
             return _context.Tickets.Any(e => e.Id == id);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int id, string Desc)
+        {
+            Comment comment = new Comment();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            comment.CreatedOn = DateTime.Now;
+            comment.CreatedById = userId;
+            comment.Id = 0;
+            comment.TicketId = id;
+            comment.Description = Desc;
+
+            _context.Add(comment);
+            await _context.SaveChangesAsync();
+
+            //log the audit trail
+            var activity = new AuditTrail
+            {
+                Action = "Create",
+                TimeStamp = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                UserId = userId,
+                Module = "Comments",
+                AffectedTable = "Comments"
+            };
+
+            _context.Add(activity);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = id });
+
+            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", comment.CreatedById);
+            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Title", comment.TicketId);
+            return View(comment);
         }
     }
 }
