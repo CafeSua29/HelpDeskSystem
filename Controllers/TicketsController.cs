@@ -296,5 +296,72 @@ namespace HelpDeskSystem.Controllers
             ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Title", comment.TicketId);
             return View(comment);
         }
+
+        public async Task<IActionResult> Resolve(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var ticket = await _context.Tickets
+                .Include(t => t.CreatedBy)
+                .Include(c => c.Status)
+                .Include(c => c.Priority)
+                .Include(t => t.SubCategory)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            ViewBag.Comments = await _context.Comments
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Where(c => c.TicketId == id)
+                .ToListAsync();
+
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus"), "Id", "Description");
+
+            return View(ticket);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResolveConfirm(int id, string Desc, int StatusId)
+        {
+            TicketResolution resolution = new TicketResolution();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            resolution.CreatedOn = DateTime.Now;
+            resolution.CreatedById = userId;
+            resolution.Id = 0;
+            resolution.TicketId = id;
+            resolution.Description = Desc;
+            resolution.StatusId = StatusId;
+
+            _context.Add(resolution);
+            await _context.SaveChangesAsync();
+
+            //log the audit trail
+            var activity = new AuditTrail
+            {
+                Action = "Create",
+                TimeStamp = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                UserId = userId,
+                Module = "TicketResolutions",
+                AffectedTable = "TicketResolutions"
+            };
+
+            _context.Add(activity);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Resolve", new { id = id });
+
+            return View(resolution);
+        }
     }
 }

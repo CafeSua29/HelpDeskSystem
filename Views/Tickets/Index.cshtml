@@ -127,6 +127,9 @@
                                                    data-on="@item.Ticket.CreatedOn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
+                                                <a asp-action="Resolve" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>

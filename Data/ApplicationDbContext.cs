@@ -27,6 +27,8 @@ namespace HelpDeskSystem.Data
 
         public DbSet<Department> Departments { get; set; }
 
+        public DbSet<TicketResolution> TicketResolutions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -77,6 +79,18 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.Status)
                 .WithMany()
                 .HasForeignKey(c => c.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<TicketResolution>()
+                .HasOne(c => c.Status)
+                .WithMany()
+                .HasForeignKey(c => c.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<TicketResolution>()
+                .HasOne(c => c.Ticket)
+                .WithMany()
+                .HasForeignKey(c => c.TicketId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
