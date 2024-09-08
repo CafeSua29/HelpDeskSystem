@@ -32,6 +32,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Status)
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
+                .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
 
             List<TicketVM> ticketVMs = new List<TicketVM>();
@@ -75,10 +76,20 @@ namespace HelpDeskSystem.Controllers
                 .Where(c => c.TicketId == id)
                 .ToListAsync();
 
+            ViewBag.Resolutions = await _context.TicketResolutions
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Include(c => c.Status)
+                .Where(c => c.TicketId == id)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
+
             if (ticket == null)
             {
                 return NotFound();
             }
+
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
 
             return View(ticket);
         }
@@ -171,7 +182,7 @@ namespace HelpDeskSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Ticket ticket)
+        public async Task<IActionResult> Edit(int id, Ticket ticket, IFormFile attachment)
         {
             if (id != ticket.Id)
             {
@@ -180,6 +191,18 @@ namespace HelpDeskSystem.Controllers
 
             try
             {
+                if (attachment.Length > 0)
+                {
+                    var filename = "Ticket_Attachment_" + DateTime.Now.ToString("yyyyMMdd") + "_" + attachment.FileName;
+
+                    var path = _configuration["FileSettings:UploadsFolder"];
+                    var filepath = Path.Combine(path, filename);
+
+                    var stream = new FileStream(filepath, FileMode.Create);
+                    await attachment.CopyToAsync(stream);
+                    ticket.Attachment = filename;
+                }
+
                 _context.Update(ticket);
                 await _context.SaveChangesAsync();
             }
@@ -279,7 +302,7 @@ namespace HelpDeskSystem.Controllers
             //log the audit trail
             var activity = new AuditTrail
             {
-                Action = "Create",
+                Action = "Comment",
                 TimeStamp = DateTime.Now,
                 IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
                 UserId = userId,
@@ -315,6 +338,15 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
                 .Where(c => c.TicketId == id)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
+
+            ViewBag.Resolutions = await _context.TicketResolutions
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Include(c => c.Status)
+                .Where(c => c.TicketId == id)
+                .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
 
             if (ticket == null)
@@ -322,7 +354,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
 
             return View(ticket);
         }
@@ -343,12 +375,110 @@ namespace HelpDeskSystem.Controllers
             resolution.StatusId = StatusId;
 
             _context.Add(resolution);
+
+            var ticket = await _context.Tickets.FindAsync(id);
+            ticket.StatusId = StatusId;
+
+            _context.Update(ticket);
+
             await _context.SaveChangesAsync();
 
             //log the audit trail
             var activity = new AuditTrail
             {
-                Action = "Create",
+                Action = "ResolveConfirm",
+                TimeStamp = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                UserId = userId,
+                Module = "TicketResolutions",
+                AffectedTable = "TicketResolutions"
+            };
+
+            _context.Add(activity);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Resolve", new { id = id });
+
+            return View(resolution);
+        }
+
+        public async Task<IActionResult> Close(int id)
+        {
+            var closedstatusid = await _context.SystemCodeDetails
+                .Include(c => c.SystemCode)
+                .Where(c => c.SystemCode.Code == "Status" && c.Code == "Closed")
+                .FirstOrDefaultAsync();
+
+            TicketResolution resolution = new TicketResolution();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            resolution.CreatedOn = DateTime.Now;
+            resolution.CreatedById = userId;
+            resolution.Id = 0;
+            resolution.TicketId = id;
+            resolution.Description = "Closed by owner";
+            resolution.StatusId = closedstatusid.Id;
+
+            _context.Add(resolution);
+
+            var ticket = await _context.Tickets.FindAsync(id);
+            ticket.StatusId = closedstatusid.Id;
+
+            _context.Update(ticket);
+
+            await _context.SaveChangesAsync();
+
+            //log the audit trail
+            var activity = new AuditTrail
+            {
+                Action = "Close",
+                TimeStamp = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                UserId = userId,
+                Module = "TicketResolutions",
+                AffectedTable = "TicketResolutions"
+            };
+
+            _context.Add(activity);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+
+            return View(resolution);
+        }
+
+        public async Task<IActionResult> ReOpen(int id)
+        {
+            var pendingstatusid = await _context.SystemCodeDetails
+                .Include(c => c.SystemCode)
+                .Where(c => c.SystemCode.Code == "Status" && c.Code == "Pending")
+                .FirstOrDefaultAsync();
+
+            TicketResolution resolution = new TicketResolution();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            resolution.CreatedOn = DateTime.Now;
+            resolution.CreatedById = userId;
+            resolution.Id = 0;
+            resolution.TicketId = id;
+            resolution.Description = "Re-open by owner";
+            resolution.StatusId = pendingstatusid.Id;
+
+            _context.Add(resolution);
+
+            var ticket = await _context.Tickets.FindAsync(id);
+            ticket.StatusId = pendingstatusid.Id;
+
+            _context.Update(ticket);
+
+            await _context.SaveChangesAsync();
+
+            //log the audit trail
+            var activity = new AuditTrail
+            {
+                Action = "ReOpen",
                 TimeStamp = DateTime.Now,
                 IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
                 UserId = userId,

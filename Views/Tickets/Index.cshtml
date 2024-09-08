@@ -103,12 +103,35 @@
                                             @Html.DisplayFor(modelItem => item.Ticket.Status.Description)
                                         </td>
                                         <td style="text-align: right">
-                                            <a asp-controller="Comments" asp-action="TicketComments" asp-route-id="@item.Ticket.Id">
+
+                                            @if (item.Ticket.Status.Code != "Closed")
+                                            {
+                                                <a asp-controller="Comments" asp-action="TicketComments" asp-route-id="@item.Ticket.Id">
+                                                    @Html.DisplayFor(modelItem => item.Comments)
+                                                </a>
+                                            }
+                                            else
+                                            {
                                                 @Html.DisplayFor(modelItem => item.Comments)
-                                            </a>
+                                            }
+
                                         </td>
                                         <td class="text-right">
                                             <div class="actions">
+
+                                                @if (item.Ticket.Status.Code != "Closed")
+                                                {
+                                                    <a asp-action="Resolve" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-action="ReOpen" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
+                                                }
+
                                                 <a asp-action="Edit" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2">
                                                     <i class="fas fa-pen"></i>
                                                 </a>
@@ -127,9 +150,7 @@
                                                    data-on="@item.Ticket.CreatedOn">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
-                                                <a asp-action="Resolve" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
+
                                             </div>
                                         </td>
                                     </tr>

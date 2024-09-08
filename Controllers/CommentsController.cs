@@ -39,6 +39,7 @@ namespace HelpDeskSystem.Controllers
                 .Where(x => x.TicketId == id)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
+                .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
 
             ViewBag.TicketId = id;
