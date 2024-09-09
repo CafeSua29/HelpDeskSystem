@@ -32,6 +32,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Status)
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
+                .Include(t => t.AssignedTo)
                 .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
 
@@ -68,6 +69,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Status)
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
+                .Include(t => t.AssignedTo)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             ViewBag.Comments = await _context.Comments
@@ -89,7 +91,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus"), "Id", "Description");
 
             return View(ticket);
         }
@@ -110,7 +112,7 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Ticket ticket, IFormFile attachment)
         {
-            if(attachment.Length > 0)
+            if(attachment != null && attachment.Length > 0)
             {
                 var filename = "Ticket_Attachment_" + DateTime.Now.ToString("yyyyMMdd") + "_" + attachment.FileName;
 
@@ -319,7 +321,6 @@ namespace HelpDeskSystem.Controllers
             ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Title", comment.TicketId);
             return View(comment);
         }
-
         public async Task<IActionResult> Resolve(int? id)
         {
             if (id == null)
@@ -332,6 +333,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Status)
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
+                .Include(t => t.AssignedTo)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             ViewBag.Comments = await _context.Comments
@@ -354,7 +356,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus"), "Id", "Description");
 
             return View(ticket);
         }
@@ -490,6 +492,100 @@ namespace HelpDeskSystem.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Resolve", new { id = id });
+
+            return View(resolution);
+        }
+
+        public async Task<IActionResult> Assign(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var ticket = await _context.Tickets
+                .Include(t => t.CreatedBy)
+                .Include(c => c.Status)
+                .Include(c => c.Priority)
+                .Include(t => t.SubCategory)
+                .Include(t => t.AssignedTo)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            ViewBag.Comments = await _context.Comments
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Where(c => c.TicketId == id)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
+
+            ViewBag.Resolutions = await _context.TicketResolutions
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Include(c => c.Status)
+                .Where(c => c.TicketId == id)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
+
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["UsersId"] = new SelectList(_context.Users, "Id", "Name");
+
+            return View(ticket);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignConfirm(int id, string UserId)
+        {
+            TicketResolution resolution = new TicketResolution();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var user = await _context.Users.FindAsync(UserId);
+
+            var assignedstatusid = await _context.SystemCodeDetails
+                .Include(c => c.SystemCode)
+                .Where(c => c.SystemCode.Code == "Status" && c.Code == "Assigned")
+                .FirstOrDefaultAsync();
+
+            resolution.CreatedOn = DateTime.Now;
+            resolution.CreatedById = userId;
+            resolution.Id = 0;
+            resolution.TicketId = id;
+            resolution.Description = "Assign to user " + user.Name;
+            resolution.StatusId = assignedstatusid.Id;
+
+            _context.Add(resolution);
+
+            var ticket = await _context.Tickets.FindAsync(id);
+
+            ticket.AssignedToId = UserId;
+            ticket.AssignedTo = user;
+            ticket.AssignedOn = DateTime.Now;
+            ticket.StatusId = assignedstatusid.Id;
+
+            _context.Update(ticket);
+
+            await _context.SaveChangesAsync();
+
+            //log the audit trail
+            var activity = new AuditTrail
+            {
+                Action = "AssignConfirm",
+                TimeStamp = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                UserId = userId,
+                Module = "TicketResolutions",
+                AffectedTable = "TicketResolutions"
+            };
+
+            _context.Add(activity);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Assign", new { id = id });
 
             return View(resolution);
         }

@@ -49,6 +49,9 @@
                                         @Html.DisplayNameFor(model => model.Ticket.CreatedOn)
                                     </th>
                                     <th>
+                                        @Html.DisplayNameFor(model => model.Ticket.AssignedTo)
+                                    </th>
+                                    <th>
                                         @Html.DisplayNameFor(model => model.Ticket.Status)
                                     </th>
                                     <th>
@@ -60,27 +63,6 @@
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                    var colorcode = "Gray";
-
-                                    switch (item.Ticket.Status.Code)
-                                    {
-                                        case "Resolved":
-                                            colorcode = "Green";
-                                            break;
-
-                                        case "InProgress":
-                                            colorcode = "Yellow";
-                                            break;
-
-                                        case "Reassigned":
-                                            colorcode = "Purple";
-                                            break;
-
-                                        case "Waiting":
-                                            colorcode = "Red";
-                                            break;
-                                    }
-
                                     <tr>
                                         <td>
                                             <a asp-action="Details" asp-route-id="@item.Ticket.Id">
@@ -99,8 +81,26 @@
                                         <td>
                                             @Html.DisplayFor(modelItem => item.Ticket.CreatedOn)
                                         </td>
-                                        <td style="background-color: @colorcode">
-                                            @Html.DisplayFor(modelItem => item.Ticket.Status.Description)
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Ticket.AssignedTo.Name)
+                                        </td>
+                                        <td>
+
+                                            @switch (item.Ticket.Status.Code)
+                                            {
+                                                case "Resolved":
+                                                    <span class="badge badge-success">@Html.DisplayFor(modelItem => item.Ticket.Status.Description)</span>
+                                                    break;
+
+                                                case "Closed":
+                                                    <span class="badge badge-danger">@Html.DisplayFor(modelItem => item.Ticket.Status.Description)</span>
+                                                    break;
+
+                                                default:
+                                                    <span class="badge badge-warning">@Html.DisplayFor(modelItem => item.Ticket.Status.Description)</span>
+                                                    break;
+                                            }
+
                                         </td>
                                         <td style="text-align: right">
 
@@ -121,6 +121,9 @@
 
                                                 @if (item.Ticket.Status.Code != "Closed")
                                                 {
+                                                    <a asp-action="Assign" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
                                                     <a asp-action="Resolve" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2">
                                                         <i class="fas fa-pen"></i>
                                                     </a>
@@ -136,8 +139,8 @@
                                                     <i class="fas fa-pen"></i>
                                                 </a>
                                                 @* <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm bg-danger" onclick="return confirm('Are you sure you want to delete this ticket ?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </a> *@
+                                            <i class="fas fa-trash"></i>
+                                            </a> *@
                                                 <a href="#" class="btn btn-sm bg-danger" data-toggle="modal"
                                                    data-target="#deleteConfirmationModal"
                                                    data-id="@item.Ticket.Id"
@@ -243,9 +246,9 @@
         });
 
         $('#deleteConfirmationModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget); 
-            var id = button.data('id'); 
-            var title = button.data('title'); 
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var title = button.data('title');
             var description = button.data('description');
             var status = button.data('status');
             var priority = button.data('priority');
@@ -256,7 +259,7 @@
 
             var modal = $(this);
             modal.find('#deleteForm').attr('action', action);
-            modal.find('#itemTitle').text(title); 
+            modal.find('#itemTitle').text(title);
             modal.find('#itemDesc').text(description);
             modal.find('#itemStatus').text(status);
             modal.find('#itemPriority').text(priority);

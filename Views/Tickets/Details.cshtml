@@ -53,6 +53,14 @@
                                         <span class="info-span">@Html.DisplayFor(model => model.CreatedOn)</span>
                                     </li>
                                     <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.AssignedTo):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.AssignedTo.Name)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.AssignedOn):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.AssignedOn)</span>
+                                    </li>
+                                    <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.Status):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.Status.Description)</span>
                                     </li>

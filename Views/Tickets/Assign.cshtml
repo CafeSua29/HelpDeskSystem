@@ -1,7 +1,7 @@
 ﻿@model HelpDeskSystem.Models.Ticket
 
 @{
-    ViewData["Title"] = "Resolve";
+    ViewData["Title"] = "Assign";
 
     List<Comment> comments = ViewBag.Comments;
     List<TicketResolution> resolutions = ViewBag.Resolutions;
@@ -11,7 +11,7 @@
     <div class="page-header">
         <div class="row">
             <div class="col-sm-12">
-                <h3 class="page-title">Resolve ticket</h3>
+                <h3 class="page-title">Assign ticket</h3>
             </div>
         </div>
     </div>
@@ -70,9 +70,6 @@
                                     </li>
                                 </ul>
                             </div>
-                        </div>
-                        <div>
-                            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a>
                         </div>
                         <div class="row mt-3">
                             <div class="col-md-12">
@@ -164,19 +161,15 @@
                         @if (Model?.Status.Code != "Closed")
                         {
                             <div>
-                                <form asp-action="ResolveConfirm" asp-route-id="@Model?.Id">
+                                <form asp-action="AssignConfirm" asp-route-id="@Model?.Id">
                                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                                    <div class="form-group">
-                                        <textarea name="Desc" class="form-control" required></textarea>
-                                    </div>
                                     <div class="form-group form-floating">
-                                        <select class="form-control" name="StatusId" placeholder="" asp-items="ViewBag.StatusId">
+                                        <select class="form-control" name="UserId" placeholder="" asp-items="ViewBag.UsersId">
                                         </select>
-                                        <label class="control-label">Status</label>
+                                        <label class="control-label">User</label>
                                     </div>
                                     <div class="form-group">
-                                        <input type="submit" value="Change Resolution" class="btn btn-primary" />
-                                        <a asp-controller="Tickets" asp-action="Close" asp-route-id="@Model?.Id" class="btn btn-primary">Close this ticket</a>
+                                        <input type="submit" value="Assign" class="btn btn-primary" />
                                     </div>
                                 </form>
                             </div>

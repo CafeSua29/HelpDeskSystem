@@ -92,6 +92,12 @@ namespace HelpDeskSystem.Data
                 .WithMany()
                 .HasForeignKey(c => c.TicketId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Ticket>()
+                .HasOne(c => c.AssignedTo)
+                .WithMany()
+                .HasForeignKey(c => c.AssignedToId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

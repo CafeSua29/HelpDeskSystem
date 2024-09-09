@@ -4,6 +4,7 @@ using HelpDeskSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HelpDeskSystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240909085935_assticket")]
+    partial class assticket
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -345,10 +348,14 @@ namespace HelpDeskSystem.Data.Migrations
                     b.Property<DateTime?>("AssignedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("AssignedToId")
+                    b.Property<int>("AssignedToId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AssignedToId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Attachment")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CreatedById")
@@ -383,7 +390,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssignedToId");
+                    b.HasIndex("AssignedToId1");
 
                     b.HasIndex("CreatedById");
 
@@ -765,8 +772,7 @@ namespace HelpDeskSystem.Data.Migrations
                 {
                     b.HasOne("HelpDeskSystem.Models.AppUser", "AssignedTo")
                         .WithMany()
-                        .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("AssignedToId1");
 
                     b.HasOne("HelpDeskSystem.Models.AppUser", "CreatedBy")
                         .WithMany()

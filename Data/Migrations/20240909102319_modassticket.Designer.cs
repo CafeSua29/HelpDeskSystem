@@ -4,6 +4,7 @@ using HelpDeskSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HelpDeskSystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240909102319_modassticket")]
+    partial class modassticket
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -346,9 +349,11 @@ namespace HelpDeskSystem.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("AssignedToId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Attachment")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CreatedById")
@@ -766,7 +771,8 @@ namespace HelpDeskSystem.Data.Migrations
                     b.HasOne("HelpDeskSystem.Models.AppUser", "AssignedTo")
                         .WithMany()
                         .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("HelpDeskSystem.Models.AppUser", "CreatedBy")
                         .WithMany()

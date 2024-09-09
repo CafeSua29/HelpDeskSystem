@@ -24,7 +24,7 @@ namespace HelpDeskSystem.Models
         public SystemCodeDetail Priority { get; set; }
 
         [DisplayName("Attachment")]
-        public string Attachment { get; set; }
+        public string? Attachment { get; set; }
 
         [DisplayName("Created By")]
         public string CreatedById { get; set; }
@@ -38,6 +38,14 @@ namespace HelpDeskSystem.Models
         public int SubCategoryId { get; set; }
 
         public TicketSubCategory SubCategory { get; set; }
+
+        [DisplayName("Assigned To")]
+        public string? AssignedToId { get; set; }
+
+        public AppUser AssignedTo { get; set; }
+
+        [DisplayName("Assigned On")]
+        public DateTime? AssignedOn { get; set; }
 
         public DateTime? DelTime { get; set; }
 
