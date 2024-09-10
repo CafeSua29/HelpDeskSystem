@@ -10,6 +10,7 @@ using HelpDeskSystem.Models;
 using System.Security.Claims;
 using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.ViewModels;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -25,16 +26,45 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: Tickets
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string Title, int StatusId, string CreatedById, string AssignedToId, DateTime CreatedOn)
         {
-            var tickets = await _context.Tickets
+            var allticket = _context.Tickets
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Status)
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .Include(t => t.AssignedTo)
                 .OrderByDescending(c => c.CreatedOn)
-                .ToListAsync();
+                .AsQueryable();
+
+            if(!string.IsNullOrEmpty(Title))
+            {
+                allticket = allticket.Where(x => x.Title.Contains(Title) || x.Description.Contains(Title));
+            }
+
+            if(StatusId > 0)
+            {
+                allticket = allticket.Where(x => x.StatusId == StatusId);
+            }
+
+            if (!string.IsNullOrEmpty(CreatedById))
+            {
+                allticket = allticket.Where(x => x.CreatedById == CreatedById);
+            }
+
+            if (!string.IsNullOrEmpty(AssignedToId))
+            {
+                allticket = allticket.Where(x => x.AssignedToId == AssignedToId);
+            }
+
+            DateTime dt = new DateTime();
+
+            if (DateTime.Compare(CreatedOn, dt) > 0)
+            {
+                allticket = allticket.Where(x => DateOnly.FromDateTime(x.CreatedOn).CompareTo(DateOnly.FromDateTime(CreatedOn)) == 0);
+            }
+
+            var tickets = await allticket.ToListAsync();
 
             List<TicketVM> ticketVMs = new List<TicketVM>();
 
@@ -52,6 +82,11 @@ namespace HelpDeskSystem.Controllers
 
                 ticketVMs.Add(ticketVM);
             }
+
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
+            ViewData["UsersId"] = new SelectList(_context.Users, "Id", "Name");
 
             return View(ticketVMs);
         }
@@ -365,6 +400,16 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResolveConfirm(int id, string Desc, int StatusId)
         {
+            var statuscode = await _context.SystemCodeDetails
+                .Include(c => c.SystemCode)
+                .Where(c => c.SystemCode.Code == "ResolutionStatus" && c.Id == StatusId)
+                .FirstOrDefaultAsync();
+
+            var statusid = await _context.SystemCodeDetails
+                .Include(c => c.SystemCode)
+                .Where(c => c.SystemCode.Code == "Status" && c.Code == statuscode.Code)
+                .FirstOrDefaultAsync();
+
             TicketResolution resolution = new TicketResolution();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -374,12 +419,12 @@ namespace HelpDeskSystem.Controllers
             resolution.Id = 0;
             resolution.TicketId = id;
             resolution.Description = Desc;
-            resolution.StatusId = StatusId;
+            resolution.StatusId = statusid.Id;
 
             _context.Add(resolution);
 
             var ticket = await _context.Tickets.FindAsync(id);
-            ticket.StatusId = StatusId;
+            ticket.StatusId = statusid.Id;
 
             _context.Update(ticket);
 
