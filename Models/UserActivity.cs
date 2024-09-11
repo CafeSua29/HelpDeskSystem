@@ -7,6 +7,7 @@ namespace HelpDeskSystem.Models
         [DisplayName("Created By")]
         public string CreatedById { get; set; }
 
+        [DisplayName("Created By")]
         public AppUser CreatedBy { get; set; }
 
         [DisplayName("Created On")]
@@ -15,7 +16,8 @@ namespace HelpDeskSystem.Models
         [DisplayName("Modified By")]
         public string? ModifiedById { get; set; }
 
-        public AppUser ModifiedBy { get; set; }
+        [DisplayName("Modified By")]
+        public AppUser? ModifiedBy { get; set; }
 
         [DisplayName("Modified On")]
         public DateTime? ModifiedOn { get; set; }

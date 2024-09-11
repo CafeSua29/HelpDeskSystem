@@ -156,6 +156,11 @@ namespace HelpDeskSystem.Controllers
 
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                comment.ModifiedOn = DateTime.Now;
+                comment.ModifiedById = userId;
+
                 _context.Update(comment);
                 await _context.SaveChangesAsync();
             }

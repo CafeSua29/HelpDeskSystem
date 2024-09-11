@@ -12,9 +12,5 @@ namespace HelpDeskSystem.Models
 
         [DisplayName("Category Name")]
         public string Name { get; set; }
-
-        public DateTime? DelTime { get; set; }
-
-        public string? Note { get; set; }
     }
 }

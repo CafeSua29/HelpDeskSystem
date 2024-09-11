@@ -1,6 +1,6 @@
 ﻿namespace HelpDeskSystem.Models
 {
-    public class AuditTrail
+    public class AuditTrail : SystemLog
     {
         public int Id { get; set; }
 
@@ -23,9 +23,5 @@
         public string? NewValues { get; set; }
 
         public string? AffectedColumns { get; set; }
-
-        public DateTime? DelTime { get; set; }
-
-        public string? Note { get; set; }
     }
 }

@@ -29,6 +29,10 @@ namespace HelpDeskSystem.Data
 
         public DbSet<TicketResolution> TicketResolutions { get; set; }
 
+        public DbSet<SystemTask> SystemTasks { get; set; }
+
+        public DbSet<SystemSetting> SystemSettings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -39,10 +43,22 @@ namespace HelpDeskSystem.Data
                 .HasForeignKey(c => c.CreatedById)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<Ticket>()
+                .HasOne(c => c.ModifiedBy)
+                .WithMany()
+                .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Entity<Comment>()
                 .HasOne(c => c.CreatedBy)
                 .WithMany()
                 .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Comment>()
+                .HasOne(c => c.ModifiedBy)
+                .WithMany()
+                .HasForeignKey(c => c.ModifiedById)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Comment>()
@@ -58,6 +74,48 @@ namespace HelpDeskSystem.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<TicketCategory>()
+                .HasOne(c => c.ModifiedBy)
+                .WithMany()
+                .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<TicketSubCategory>()
+                .HasOne(c => c.CreatedBy)
+                .WithMany()
+                .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<TicketSubCategory>()
+                .HasOne(c => c.ModifiedBy)
+                .WithMany()
+                .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<TicketSubCategory>()
+                .HasOne(c => c.Category)
+                .WithMany()
+                .HasForeignKey(c => c.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<SystemCode>()
+                .HasOne(c => c.CreatedBy)
+                .WithMany()
+                .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<SystemCode>()
+                .HasOne(c => c.ModifiedBy)
+                .WithMany()
+                .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<SystemCodeDetail>()
+                .HasOne(c => c.CreatedBy)
+                .WithMany()
+                .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<SystemCodeDetail>()
                 .HasOne(c => c.ModifiedBy)
                 .WithMany()
                 .HasForeignKey(c => c.ModifiedById)
@@ -97,6 +155,42 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.AssignedTo)
                 .WithMany()
                 .HasForeignKey(c => c.AssignedToId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AppUser>()
+                .HasOne(c => c.CreatedBy)
+                .WithMany()
+                .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AppUser>()
+                .HasOne(c => c.ModifiedBy)
+                .WithMany()
+                .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Department>()
+                .HasOne(c => c.CreatedBy)
+                .WithMany()
+                .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Department>()
+                .HasOne(c => c.ModifiedBy)
+                .WithMany()
+                .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<SystemTask>()
+                .HasOne(c => c.CreatedBy)
+                .WithMany()
+                .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<SystemTask>()
+                .HasOne(c => c.ModifiedBy)
+                .WithMany()
+                .HasForeignKey(c => c.ModifiedById)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

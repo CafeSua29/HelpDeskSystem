@@ -88,6 +88,12 @@ namespace HelpDeskSystem.Controllers
                 .Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
             ViewData["UsersId"] = new SelectList(_context.Users, "Id", "Name");
 
+            var ss = await _context.SystemSettings
+                .Where(x => x.Code == "TicketResolutionDays")
+                .FirstOrDefaultAsync();
+
+            ViewBag.Duration = ss.Value;
+
             return View(ticketVMs);
         }
 
@@ -239,6 +245,11 @@ namespace HelpDeskSystem.Controllers
                     await attachment.CopyToAsync(stream);
                     ticket.Attachment = filename;
                 }
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                ticket.ModifiedOn = DateTime.Now;
+                ticket.ModifiedById = userId;
 
                 _context.Update(ticket);
                 await _context.SaveChangesAsync();

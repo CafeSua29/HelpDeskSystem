@@ -2,7 +2,7 @@
 
 namespace HelpDeskSystem.Models
 {
-    public class Ticket
+    public class Ticket : UserActivity
     {
         [DisplayName("No")]
         public int Id { get; set; }
@@ -26,14 +26,6 @@ namespace HelpDeskSystem.Models
         [DisplayName("Attachment")]
         public string? Attachment { get; set; }
 
-        [DisplayName("Created By")]
-        public string CreatedById { get; set; }
-
-        public AppUser CreatedBy { get; set; }
-
-        [DisplayName("Created On")]
-        public DateTime CreatedOn { get; set; }
-
         [DisplayName("Ticket Sub-Category")]
         public int SubCategoryId { get; set; }
 
@@ -42,13 +34,24 @@ namespace HelpDeskSystem.Models
         [DisplayName("Assigned To")]
         public string? AssignedToId { get; set; }
 
-        public AppUser AssignedTo { get; set; }
+        public AppUser? AssignedTo { get; set; }
 
         [DisplayName("Assigned On")]
         public DateTime? AssignedOn { get; set; }
 
-        public DateTime? DelTime { get; set; }
+        public int? Duration
+        {
+            get
+            {
+                if (CreatedOn == null)
+                    return null;
 
-        public string? Note { get; set; }
+                DateTime now = DateTime.UtcNow;
+
+                TimeSpan difference = now.Subtract(CreatedOn);
+
+                return difference.Days;
+            }
+        }
     }
 }

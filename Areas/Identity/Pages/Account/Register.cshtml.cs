@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using HelpDeskSystem.Data.Migrations;
+using System.Security.Claims;
 
 namespace HelpDeskSystem.Areas.Identity.Pages.Account
 {
@@ -130,6 +132,8 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 user.Name = Input.Name;
                 user.DOB = Input.DOB;
                 user.Gender = Input.Gender;
+                user.CreatedOn = DateTime.Now;
+                user.CreatedById = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
