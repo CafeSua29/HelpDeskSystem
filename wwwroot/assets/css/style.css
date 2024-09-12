@@ -3206,9 +3206,9 @@ table.table-inbox tbody tr.checked {
 	#toggle_btn {
 		display: none;
 	}
-	.top-nav-search {
+	/* .top-nav-search {
 		display: none;
-	}
+	} */
 	.login-wrapper .loginbox .login-left {
 		padding: 80px 50px;
 		width: 50%;

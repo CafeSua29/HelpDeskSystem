@@ -33,6 +33,8 @@ namespace HelpDeskSystem.Data
 
         public DbSet<SystemSetting> SystemSettings { get; set; }
 
+        public DbSet<UserRoleProfile> UserRoleProfiles { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

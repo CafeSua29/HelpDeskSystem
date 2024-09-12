@@ -92,7 +92,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
 
             [Required]
             [Display(Name = "Gender")]
-            public string Gender { get; set; }
+            public int GenderId { get; set; }
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -131,7 +131,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
 
                 user.Name = Input.Name;
                 user.DOB = Input.DOB;
-                user.Gender = Input.Gender;
+                user.GenderId = Input.GenderId;
                 user.CreatedOn = DateTime.Now;
                 user.CreatedById = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

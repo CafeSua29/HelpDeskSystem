@@ -9,7 +9,15 @@ namespace HelpDeskSystem.Models
 
         public DateOnly DOB { get; set; }
 
-        public string Gender { get; set; }
+        public int GenderId { get; set; }
+
+        public SystemCodeDetail Gender { get; set; }
+
+        [DisplayName("System Role")]
+        public string RoleId { get; set; }
+
+        [DisplayName("System Role")]
+        public IdentityRole Role { get; set; }
 
         [DisplayName("Created By")]
         public string? CreatedById { get; set; }
