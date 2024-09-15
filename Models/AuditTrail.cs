@@ -12,7 +12,7 @@
 
         public DateTime TimeStamp { get; set; } = DateTime.Now;
 
-        public string IpAddress { get; set; }
+        //public string IpAddress { get; set; }
 
         public string UserId { get; set; }
 
@@ -23,5 +23,7 @@
         public string? NewValues { get; set; }
 
         public string? AffectedColumns { get; set; }
+
+        public string? PrimaryKey { get; set; }
     }
 }

@@ -25,9 +25,6 @@
                 @Html.DisplayNameFor(model => model.TimeStamp)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IpAddress)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.User)
             </th>
             <th>
@@ -40,10 +37,7 @@
                 @Html.DisplayNameFor(model => model.AffectedColumns)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DelTime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Note)
+                @Html.DisplayNameFor(model => model.PrimaryKey)
             </th>
             <th></th>
         </tr>
@@ -64,9 +58,6 @@
                 @Html.DisplayFor(modelItem => item.TimeStamp)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IpAddress)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.User.Name)
             </td>
             <td>
@@ -79,10 +70,7 @@
                 @Html.DisplayFor(modelItem => item.AffectedColumns)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DelTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Note)
+                @Html.DisplayFor(modelItem => item.PrimaryKey)
             </td>
             <td>
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> 

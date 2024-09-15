@@ -22,7 +22,9 @@ namespace HelpDeskSystem.Controllers
         // GET: AuditTrails
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.AuditTrails.Include(a => a.User);
+            var applicationDbContext = _context.AuditTrails
+                .Include(a => a.User)
+                .OrderByDescending(c => c.TimeStamp);
             return View(await applicationDbContext.ToListAsync());
         }
 

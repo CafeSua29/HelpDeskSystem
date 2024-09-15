@@ -101,21 +101,7 @@ namespace HelpDeskSystem.Controllers
             comment.Id = 0;
 
             _context.Add(comment);
-            await _context.SaveChangesAsync();
-
-            //log the audit trail
-            var activity = new AuditTrail
-            {
-                Action = "Create",
-                TimeStamp = DateTime.Now,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                UserId = userId,
-                Module = "Comments",
-                AffectedTable = "Comments"
-            };
-
-            _context.Add(activity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
 
             return RedirectToAction("TicketComments", new { id = comment.TicketId });
 
@@ -162,7 +148,7 @@ namespace HelpDeskSystem.Controllers
                 comment.ModifiedById = userId;
 
                 _context.Update(comment);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(userId);
             }
             catch (DbUpdateConcurrencyException)
             {

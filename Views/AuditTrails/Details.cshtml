@@ -35,16 +35,10 @@
             @Html.DisplayFor(model => model.TimeStamp)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IpAddress)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IpAddress)
-        </dd>
-        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.User)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
+            @Html.DisplayFor(model => model.User.Name)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.OldValues)
@@ -64,17 +58,11 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.AffectedColumns)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DelTime)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PrimaryKey)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DelTime)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Note)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Note)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PrimaryKey)
         </dd>
     </dl>
 </div>

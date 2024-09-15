@@ -21,6 +21,9 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using HelpDeskSystem.Data.Migrations;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using HelpDeskSystem.Data;
 
 namespace HelpDeskSystem.Areas.Identity.Pages.Account
 {
@@ -32,13 +35,15 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<AppUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly ApplicationDbContext _context;
 
         public RegisterModel(
             UserManager<AppUser> userManager,
             IUserStore<AppUser> userStore,
             SignInManager<AppUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -46,6 +51,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         /// <summary>
@@ -118,6 +124,11 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
+
+            ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Gender"), "Id", "Description");
+
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
@@ -134,6 +145,12 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 user.GenderId = Input.GenderId;
                 user.CreatedOn = DateTime.Now;
                 user.CreatedById = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var normaluserid = await _context.Roles
+                .Where(c => c.Name == "Normal User")
+                .FirstOrDefaultAsync();
+
+                user.RoleId = normaluserid.Id;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -167,11 +184,15 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 }
                 foreach (var error in result.Errors)
                 {
+
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
             // If we got this far, something failed, redisplay form
+            ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Gender"), "Id", "Description");
             return Page();
         }
 

@@ -171,21 +171,7 @@ namespace HelpDeskSystem.Controllers
             ticket.CreatedById = userId;
 
             _context.Add(ticket);
-            await _context.SaveChangesAsync();
-
-            //log the audit trail
-            var activity = new AuditTrail
-            {
-                Action = "Create",
-                TimeStamp = DateTime.Now,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                UserId = userId,
-                Module = "Tickets",
-                AffectedTable = "Tickets"
-            };
-
-            _context.Add(activity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
 
             TempData["Message"] = "Ticket Created";
 
@@ -252,7 +238,7 @@ namespace HelpDeskSystem.Controllers
                 ticket.ModifiedById = userId;
 
                 _context.Update(ticket);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(userId);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -345,21 +331,7 @@ namespace HelpDeskSystem.Controllers
             comment.Description = Desc;
 
             _context.Add(comment);
-            await _context.SaveChangesAsync();
-
-            //log the audit trail
-            var activity = new AuditTrail
-            {
-                Action = "Comment",
-                TimeStamp = DateTime.Now,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                UserId = userId,
-                Module = "Comments",
-                AffectedTable = "Comments"
-            };
-
-            _context.Add(activity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
 
             return RedirectToAction("Details", new { id = id });
 
@@ -439,21 +411,7 @@ namespace HelpDeskSystem.Controllers
 
             _context.Update(ticket);
 
-            await _context.SaveChangesAsync();
-
-            //log the audit trail
-            var activity = new AuditTrail
-            {
-                Action = "ResolveConfirm",
-                TimeStamp = DateTime.Now,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                UserId = userId,
-                Module = "TicketResolutions",
-                AffectedTable = "TicketResolutions"
-            };
-
-            _context.Add(activity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
 
             return RedirectToAction("Resolve", new { id = id });
 
@@ -485,21 +443,7 @@ namespace HelpDeskSystem.Controllers
 
             _context.Update(ticket);
 
-            await _context.SaveChangesAsync();
-
-            //log the audit trail
-            var activity = new AuditTrail
-            {
-                Action = "Close",
-                TimeStamp = DateTime.Now,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                UserId = userId,
-                Module = "TicketResolutions",
-                AffectedTable = "TicketResolutions"
-            };
-
-            _context.Add(activity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
 
             return RedirectToAction("Index");
 
@@ -531,21 +475,7 @@ namespace HelpDeskSystem.Controllers
 
             _context.Update(ticket);
 
-            await _context.SaveChangesAsync();
-
-            //log the audit trail
-            var activity = new AuditTrail
-            {
-                Action = "ReOpen",
-                TimeStamp = DateTime.Now,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                UserId = userId,
-                Module = "TicketResolutions",
-                AffectedTable = "TicketResolutions"
-            };
-
-            _context.Add(activity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
 
             return RedirectToAction("Resolve", new { id = id });
 
@@ -625,21 +555,7 @@ namespace HelpDeskSystem.Controllers
 
             _context.Update(ticket);
 
-            await _context.SaveChangesAsync();
-
-            //log the audit trail
-            var activity = new AuditTrail
-            {
-                Action = "AssignConfirm",
-                TimeStamp = DateTime.Now,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                UserId = userId,
-                Module = "TicketResolutions",
-                AffectedTable = "TicketResolutions"
-            };
-
-            _context.Add(activity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
 
             return RedirectToAction("Assign", new { id = id });
 

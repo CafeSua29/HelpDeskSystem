@@ -43,9 +43,8 @@
 
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input asp-for="Input.Gender" class="form-control" placeholder="" />
-                                        <label asp-for="Input.Gender" class="control-label">Gender</label>
-                                        <span asp-validation-for="Input.Gender" class="text-danger"></span>
+                                        <select asp-for="Input.GenderId" class="form-control" asp-items="ViewBag.GenderId"></select>
+                                        <label asp-for="Input.GenderId" class="control-label"></label>
                                     </div>
                                 </div>
 

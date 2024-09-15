@@ -3,6 +3,7 @@ using HelpDeskSystem.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -26,7 +27,10 @@ namespace HelpDeskSystem.Controllers
         // GET: UsersController
         public async Task<ActionResult> Index()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _context.Users
+                .Include(x => x.Role)
+                .Include(x => x.Gender)
+                .ToListAsync();
 
             return View(users);
         }
@@ -40,6 +44,12 @@ namespace HelpDeskSystem.Controllers
         // GET: UsersController/Create
         public ActionResult Create()
         {
+            ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Gender"), "Id", "Description");
+
+            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
+
             return View();
         }
 
@@ -60,7 +70,8 @@ namespace HelpDeskSystem.Controllers
 
                 user1.Name = user.Name;
                 user1.DOB = user.DOB;
-                user1.Gender = user.Gender;
+                user1.GenderId = user.GenderId;
+                user1.RoleId = user.RoleId;
                 user1.PhoneNumber = user.PhoneNumber;
                 user1.PhoneNumberConfirmed = true;
 
@@ -68,20 +79,6 @@ namespace HelpDeskSystem.Controllers
 
                 if (result.Succeeded)
                 {
-                    //log the audit trail
-                    var activity = new AuditTrail
-                    {
-                        Action = "Create",
-                        TimeStamp = DateTime.Now,
-                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                        UserId = userId,
-                        Module = "Users",
-                        AffectedTable = "Users"
-                    };
-
-                    _context.Add(activity);
-                    await _context.SaveChangesAsync();
-
                     return RedirectToAction(nameof(Index));
                 }
                 else

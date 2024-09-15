@@ -1,4 +1,6 @@
-﻿using HelpDeskSystem.Models;
+﻿using HelpDeskSystem.AuditsManager;
+using HelpDeskSystem.Models;
+using Humanizer;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +36,78 @@ namespace HelpDeskSystem.Data
         public DbSet<SystemSetting> SystemSettings { get; set; }
 
         public DbSet<UserRoleProfile> UserRoleProfiles { get; set; }
+
+        public virtual async Task<int> SaveChangesAsync(string userid = null)
+        {
+            OnBeforeSaveChanges(userid);
+
+            var result = await base.SaveChangesAsync();
+
+            return result;
+        }
+
+        private void OnBeforeSaveChanges(string userid)
+        {
+            ChangeTracker.DetectChanges();
+
+            var auditEntries = new List<AuditEntry>();
+
+            foreach(var entry in ChangeTracker.Entries())
+            {
+                if(entry.Entity is AuditTrail || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                    continue;
+
+                var auditEntry = new AuditEntry(entry);
+                auditEntry.AffectedTable = entry.Entity.GetType().Name;
+                auditEntry.Module = entry.Entity.GetType().Name;
+                auditEntry.UserId = userid;
+                //auditEntry.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                auditEntries.Add(auditEntry);
+
+                foreach(var property in entry.Properties)
+                {
+                    string name = property.Metadata.Name;
+
+                    if(property.Metadata.IsPrimaryKey())
+                    {
+                        auditEntry.KeyValues[name] = property.CurrentValue;
+
+                        continue;
+                    }
+
+                    switch(entry.State)
+                    {
+                        case EntityState.Added:
+                            auditEntry.AuditType = AuditType.Create;
+                            auditEntry.NewValues[name] = property.CurrentValue;
+
+                            break;
+
+                        case EntityState.Modified:
+                            if(property.IsModified)
+                            {
+                                auditEntry.AffectedColumns.Add(name);
+                                auditEntry.AuditType = AuditType.Update;
+                                auditEntry.NewValues[name] = property.CurrentValue;
+                                auditEntry.NewValues[name] = property.CurrentValue;
+                            }
+
+                            break;
+
+                        case EntityState.Deleted:
+                            auditEntry.AuditType = AuditType.Delete;
+                            auditEntry.OldValues[name] = property.OriginalValue;
+
+                            break;
+                    }
+                }
+            }
+
+            foreach(var auditEntry in auditEntries)
+            {
+                AuditTrails.Add(auditEntry.ToAudit());
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -193,6 +267,18 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.ModifiedBy)
                 .WithMany()
                 .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AppUser>()
+                .HasOne(c => c.Gender)
+                .WithMany()
+                .HasForeignKey(c => c.GenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AppUser>()
+                .HasOne(c => c.Role)
+                .WithMany()
+                .HasForeignKey(c => c.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

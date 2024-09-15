@@ -72,7 +72,7 @@ namespace HelpDeskSystem.Controllers
             systemCodeDetail.CreatedById = userId;
 
             _context.Add(systemCodeDetail);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
             return RedirectToAction(nameof(Index));
 
             ViewData["SystemCodeId"] = new SelectList(_context.SystemCodes, "Id", "Description", systemCodeDetail.SystemCodeId);
@@ -116,7 +116,7 @@ namespace HelpDeskSystem.Controllers
                 systemCodeDetail.ModifiedById = userId;
 
                 _context.Update(systemCodeDetail);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(userId);
             }
             catch (DbUpdateConcurrencyException)
             {

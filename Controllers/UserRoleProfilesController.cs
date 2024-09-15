@@ -70,7 +70,7 @@ namespace HelpDeskSystem.Controllers
             userRoleProfile.CreatedById = userId;
 
             _context.Add(userRoleProfile);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
             return RedirectToAction(nameof(Index));
 
             ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name", userRoleProfile.RoleId);
@@ -116,7 +116,7 @@ namespace HelpDeskSystem.Controllers
                 userRoleProfile.ModifiedById = userId;
 
                 _context.Update(userRoleProfile);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(userId);
             }
             catch (DbUpdateConcurrencyException)
             {
