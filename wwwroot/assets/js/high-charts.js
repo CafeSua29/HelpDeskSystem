@@ -472,7 +472,7 @@ Highcharts.chart('piechart3d', {
         }
     },
     title: {
-        text: 'Ticket per Category',
+        text: 'Ticket per Status',
         align: 'left'
     },
     subtitle: {
@@ -502,7 +502,7 @@ Highcharts.chart('piechart3d', {
         type: 'pie',
         name: 'Share',
         data: [
-            ['Samsung', 23],
+            ['Assigned Tickets', @Model.TicketsSummary.AssignedTickets],
             ['Apple', 18],
             {
                 name: 'Xiaomi',

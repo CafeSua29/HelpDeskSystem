@@ -1,11 +1,14 @@
-﻿using HelpDeskSystem.Data;
+﻿using HelpDeskSystem.ClaimsManagement;
+using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
+using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -25,6 +28,7 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: UsersController
+        //[Permission("DASHBOARD:VIEW")]
         public async Task<ActionResult> Index()
         {
             var users = await _context.Users
@@ -58,9 +62,15 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(AppUser user)
         {
+            ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Gender"), "Id", "Description");
+
+            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
+
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userId = User.GetUserId();
 
                 AppUser user1 = new();
 
@@ -75,10 +85,14 @@ namespace HelpDeskSystem.Controllers
                 user1.PhoneNumber = user.PhoneNumber;
                 user1.PhoneNumberConfirmed = true;
 
+                var rolesdetails = await _context.Roles.Where(x => x.Id == user.RoleId).FirstOrDefaultAsync();
+
                 var result = await _userManager.CreateAsync(user1, user.PasswordHash);
 
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user1, rolesdetails.Name);
+
                     return RedirectToAction(nameof(Index));
                 }
                 else

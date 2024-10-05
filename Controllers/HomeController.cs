@@ -1,5 +1,8 @@
+using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
+using HelpDeskSystem.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace HelpDeskSystem.Controllers
@@ -8,12 +11,15 @@ namespace HelpDeskSystem.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly ApplicationDbContext _context;
+
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(TicketDashboardVM vm)
         {
             if(!User.Identity.IsAuthenticated)
             {
@@ -21,7 +27,11 @@ namespace HelpDeskSystem.Controllers
             }
             else
             {
-                return View();
+                vm.TicketsSummary = await _context.TicketsSummaryView.FirstOrDefaultAsync();
+
+                vm.TicketsPriority = await _context.TicketsPriorityView.FirstOrDefaultAsync();
+
+                return View(vm);
             }
         }
 

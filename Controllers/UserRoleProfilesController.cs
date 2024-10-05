@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using System.Security.Claims;
+using HelpDeskSystem.Services;
+using HelpDeskSystem.ViewModels;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -64,7 +66,7 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserRoleProfile userRoleProfile)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.GetUserId();
 
             userRoleProfile.CreatedOn = DateTime.Now;
             userRoleProfile.CreatedById = userId;
@@ -110,7 +112,7 @@ namespace HelpDeskSystem.Controllers
 
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userId = User.GetUserId();
 
                 userRoleProfile.ModifiedOn = DateTime.Now;
                 userRoleProfile.ModifiedById = userId;
@@ -176,6 +178,81 @@ namespace HelpDeskSystem.Controllers
         private bool UserRoleProfileExists(int id)
         {
             return _context.UserRoleProfiles.Any(e => e.Id == id);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UserRights(string id)
+        {
+            ProfileVM vm = new ProfileVM();
+
+            vm.RoleId = id;
+            var allroles = await _context.Roles
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            ViewBag.RoleId = new SelectList(allroles, "Id", "Name", id);
+
+            vm.SystemTasks = await _context.SystemTasks
+                .Include("ChildTasks.ChildTasks.ChildTasks")
+                .OrderBy(x => x.OrderNo)
+                .Where(x => x.Parent == null)
+                .ToListAsync();
+
+            vm.RightsIdAssigned = await _context.UserRoleProfiles
+                .Where(x => x.RoleId == id)
+                .Select(x => x.TaskId)
+                .ToListAsync();
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UserRights(ProfileVM vm)
+        {
+            try
+            {
+                var allprofile = _context.UserRoleProfiles.Where(x => x.RoleId == vm.RoleId).ToList();
+                _context.UserRoleProfiles.RemoveRange(allprofile);
+
+                foreach(var taskId in vm.Ids)
+                {
+                    var right = new UserRoleProfile
+                    {
+                        TaskId = taskId,
+                        RoleId = vm.RoleId,
+                        CreatedOn = DateTime.Now,
+                        CreatedById = User.GetUserId()
+                    };
+
+                    _context.UserRoleProfiles.Add(right);
+                }
+
+                await _context.SaveChangesAsync(User.GetUserId());
+                TempData["Message"] = "Role rights assigned";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error: " + ex.Message;
+            }
+
+            var allroles = await _context.Roles
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            ViewBag.RoleId = new SelectList(allroles, "Id", "Name", vm.RoleId);
+
+            vm.SystemTasks = await _context.SystemTasks
+                .Include("ChildTasks.ChildTasks.ChildTasks")
+                .OrderBy(x => x.OrderNo)
+                .Where(x => x.Parent == null)
+                .ToListAsync();
+
+            vm.RightsIdAssigned = await _context.UserRoleProfiles
+                .Where(x => x.RoleId == vm.RoleId)
+                .Select(x => x.TaskId)
+                .ToListAsync();
+
+            return View(vm);
         }
     }
 }

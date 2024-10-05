@@ -37,6 +37,10 @@ namespace HelpDeskSystem.Data
 
         public DbSet<UserRoleProfile> UserRoleProfiles { get; set; }
 
+        public DbSet<TicketsSummaryView> TicketsSummaryView { get; set; }
+
+        public DbSet<TicketsPriorityView> TicketsPriorityView { get; set; }
+
         public virtual async Task<int> SaveChangesAsync(string userid = null)
         {
             OnBeforeSaveChanges(userid);
@@ -112,6 +116,19 @@ namespace HelpDeskSystem.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            foreach (var relationship in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            }
+
+            builder.Entity<TicketsSummaryView>()
+                .HasNoKey()
+                .ToTable(nameof(TicketsSummaryView), k => k.ExcludeFromMigrations());
+
+            builder.Entity<TicketsPriorityView>()
+                .HasNoKey()
+                .ToTable(nameof(TicketsPriorityView), k => k.ExcludeFromMigrations());
 
             builder.Entity<Ticket>()
                 .HasOne(c => c.CreatedBy)

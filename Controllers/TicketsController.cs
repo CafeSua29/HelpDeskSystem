@@ -11,6 +11,8 @@ using System.Security.Claims;
 using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.ViewModels;
 using Microsoft.IdentityModel.Tokens;
+using AutoMapper;
+using HelpDeskSystem.Services;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -19,10 +21,13 @@ namespace HelpDeskSystem.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
 
-        public TicketsController(ApplicationDbContext context, IConfiguration configuration)
+        private readonly IMapper _mapper;
+
+        public TicketsController(ApplicationDbContext context, IConfiguration configuration, IMapper mapper)
         {
             _context = context;
             _configuration = configuration;
+            _mapper = mapper;
         }
 
         // GET: Tickets
@@ -165,10 +170,13 @@ namespace HelpDeskSystem.Controllers
                 ticket.Attachment = filename;
             }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.GetUserId();
 
             ticket.CreatedOn = DateTime.Now;
             ticket.CreatedById = userId;
+
+            //automapper
+            //var ticket = _mapper.Map(vm, new Ticket());
 
             _context.Add(ticket);
             await _context.SaveChangesAsync(userId);
@@ -232,7 +240,7 @@ namespace HelpDeskSystem.Controllers
                     ticket.Attachment = filename;
                 }
 
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userId = User.GetUserId();
 
                 ticket.ModifiedOn = DateTime.Now;
                 ticket.ModifiedById = userId;
@@ -322,7 +330,7 @@ namespace HelpDeskSystem.Controllers
         {
             Comment comment = new Comment();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.GetUserId();
 
             comment.CreatedOn = DateTime.Now;
             comment.CreatedById = userId;
@@ -395,7 +403,7 @@ namespace HelpDeskSystem.Controllers
 
             TicketResolution resolution = new TicketResolution();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.GetUserId();
 
             resolution.CreatedOn = DateTime.Now;
             resolution.CreatedById = userId;
@@ -427,7 +435,7 @@ namespace HelpDeskSystem.Controllers
 
             TicketResolution resolution = new TicketResolution();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.GetUserId();
 
             resolution.CreatedOn = DateTime.Now;
             resolution.CreatedById = userId;
@@ -459,7 +467,7 @@ namespace HelpDeskSystem.Controllers
 
             TicketResolution resolution = new TicketResolution();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.GetUserId();
 
             resolution.CreatedOn = DateTime.Now;
             resolution.CreatedById = userId;
@@ -528,7 +536,7 @@ namespace HelpDeskSystem.Controllers
         {
             TicketResolution resolution = new TicketResolution();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.GetUserId();
 
             var user = await _context.Users.FindAsync(UserId);
 

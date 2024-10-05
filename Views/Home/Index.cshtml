@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
+@model HelpDeskSystem.ViewModels.TicketDashboardVM
 
 @{
     ViewData["Title"] = "Home Page";
@@ -28,7 +29,7 @@
                                 <i class="fas fa-ticket"></i>
                             </div>
                             <div class="db-info">
-                                <h3>8542</h3>
+                                <h3>@Model.TicketsSummary.TotalTickets</h3>
                                 <h6>Total Tickets</h6>
                             </div>
                         </div>
@@ -43,8 +44,8 @@
                                 <i class="fas fa-ticket"></i>
                             </div>
                             <div class="db-info">
-                                <h3>12.5M</h3>
-                                <h6>Urgent Tickets</h6>
+                                <h3>@Model.TicketsSummary.AssignedTickets</h3>
+                                <h6>Assigned Tickets</h6>
                             </div>
                         </div>
                     </div>
@@ -58,7 +59,7 @@
                                 <i class="fas fa-ticket"></i>
                             </div>
                             <div class="db-info">
-                                <h3>64.5K</h3>
+                                <h3>@Model.TicketsSummary.ClosedTickets</h3>
                                 <h6>Closed Tickets</h6>
                             </div>
                         </div>
@@ -73,8 +74,8 @@
                                 <i class="fas fa-ticket"></i>
                             </div>
                             <div class="db-info">
-                                <h3>25.8K</h3>
-                                <h6>Escalated Tickets</h6>
+                                <h3>@Model.TicketsSummary.ResolvedTickets</h3>
+                                <h6>Resolved Tickets</h6>
                             </div>
                         </div>
                     </div>
@@ -129,7 +130,7 @@
             </div>
             <div class="col-xl-6 col-sm-6 col-12">
                 <div class="card flex-fill sm-box">
-                    <div id="linechart"></div>
+                    <div id="barchart2"></div>
                 </div>
             </div>
         </div>
@@ -141,4 +142,247 @@ else
         <h1 class="display-4">Welcome</h1>
         <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
     </div>
+}
+
+@section Scripts
+{
+    <script>
+        // Data retrieved from https://netmarketshare.com/
+        // Build the chart
+        Highcharts.chart('piechart3d', {
+            chart: {
+                type: 'pie',
+                options3d: {
+                    enabled: true,
+                    alpha: 45,
+                    beta: 0
+                }
+            },
+            title: {
+                text: 'Ticket per Status',
+                align: 'left'
+            },
+            subtitle: {
+                text: '',
+                align: 'left'
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: '%'
+                }
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    depth: 35,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.name}'
+                    }
+                }
+            },
+            series: [{
+                type: 'pie',
+                name: 'Share',
+                data: [
+                    ['Pending', @Model.TicketsSummary.PendingTickets],
+                    ['Assigned', @Model.TicketsSummary.AssignedTickets],
+                    ['Resolved', @Model.TicketsSummary.ResolvedTickets],
+                    ['Closed', @Model.TicketsSummary.ClosedTickets]
+                ]
+            }]
+        });
+
+        Highcharts.chart('piechart', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'Ticket per Priority',
+                align: 'left'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: '%'
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: false
+                    },
+                    showInLegend: true
+                }
+            },
+            series: [{
+                name: 'Priority',
+                colorByPoint: true,
+                data: [{
+                    name: 'Low',
+                    y: @Model.TicketsPriority.LowTickets,
+                    sliced: true,
+                    selected: true
+                }, {
+                    name: 'Medium',
+                    y: @Model.TicketsPriority.MediumTickets
+                }, {
+                    name: 'High',
+                    y: @Model.TicketsPriority.HighTickets
+                }]
+            }]
+        });
+
+        //Data retrieved from https://gs.statcounter.com/browser-market-share#monthly-202201-202201-bar
+
+        //Create the chart
+        Highcharts.chart('barchart', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                align: 'left',
+                text: 'Ticket per Status'
+            },
+            subtitle: {
+                align: 'left',
+                text: ''
+            },
+            accessibility: {
+                announceNewData: {
+                    enabled: true
+                }
+            },
+            xAxis: {
+                type: 'category'
+            },
+            yAxis: {
+                title: {
+                    text: 'Total percent Ticket Status'
+                }
+
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y:.1f}%'
+                    }
+                }
+            },
+
+            tooltip: {
+                headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                pointFormat: '<span style="color:{point.color}">{point.name}</span>: ' +
+                    '<b>{point.y:.2f}%</b> of total<br/>'
+            },
+
+            series: [
+                {
+                    name: 'Tickets',
+                    colorByPoint: true,
+                    data: [
+                        {
+                            name: 'Pending',
+                            y: @Model.TicketsSummary.PendingTickets
+                        },
+                        {
+                            name: 'Assigned',
+                            y: @Model.TicketsSummary.AssignedTickets
+                        },
+                        {
+                            name: 'Resolved',
+                            y: @Model.TicketsSummary.ResolvedTickets
+                        },
+                        {
+                            name: 'Closed',
+                            y: @Model.TicketsSummary.ClosedTickets
+                        }
+                    ]
+                }
+            ]
+        });
+
+        Highcharts.chart('barchart2', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                align: 'left',
+                text: 'Ticket per Priority'
+            },
+            subtitle: {
+                align: 'left',
+                text: ''
+            },
+            accessibility: {
+                announceNewData: {
+                    enabled: true
+                }
+            },
+            xAxis: {
+                type: 'category'
+            },
+            yAxis: {
+                title: {
+                    text: 'Total percent Ticket Priority'
+                }
+
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y:.1f}%'
+                    }
+                }
+            },
+
+            tooltip: {
+                headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                pointFormat: '<span style="color:{point.color}">{point.name}</span>: ' +
+                    '<b>{point.y:.2f}%</b> of total<br/>'
+            },
+
+            series: [
+                {
+                    name: 'Tickets',
+                    colorByPoint: true,
+                    data: [
+                        {
+                            name: 'Low',
+                            y: @Model.TicketsPriority.LowTickets
+                        },
+                        {
+                            name: 'Medium',
+                            y: @Model.TicketsPriority.MediumTickets
+                        },
+                        {
+                            name: 'High',
+                            y: @Model.TicketsPriority.HighTickets
+                        }
+                    ]
+                }
+            ]
+        });
+    </script>
 }

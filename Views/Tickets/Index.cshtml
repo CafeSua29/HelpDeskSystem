@@ -4,6 +4,10 @@
     ViewData["Title"] = "Index";
 
     int duration = ViewBag.Duration;
+
+    var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
+
+    var canCreateTicket = allUserPermissions.Contains("|TICKETS:CREATE");
 }
 
 <div class="content container-fluid">
@@ -52,10 +56,12 @@
                     </div>
                 </form>
             </div>
-
-            <div class="col-auto text-right float-right ml-auto p-2">
-                <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i></a>
-            </div>
+            @if (canCreateTicket)
+            {
+                <div class="col-auto text-right float-right ml-auto p-2">
+                    <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i></a>
+                </div>
+            }
         </div>
     </div>
     <div class="row">

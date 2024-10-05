@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using System.Security.Claims;
+using HelpDeskSystem.Services;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -60,7 +61,7 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TicketCategory ticketCategory)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.GetUserId();
 
             ticketCategory.CreatedOn = DateTime.Now;
             ticketCategory.CreatedById = userId;
@@ -101,7 +102,7 @@ namespace HelpDeskSystem.Controllers
 
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userId = User.GetUserId();
 
                 ticketCategory.ModifiedOn = DateTime.Now;
                 ticketCategory.ModifiedById = userId;

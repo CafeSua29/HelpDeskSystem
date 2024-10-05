@@ -1,0 +1,98 @@
+﻿@model HelpDeskSystem.ViewModels.ProfileVM
+
+@{
+    ViewData["Title"] = "User Rights";
+
+    var id = ViewContext.RouteData.Values["id"];
+}
+
+<h1>Create</h1>
+
+<h4>UserRoleProfile</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="UserRights">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="RoleId" class="control-label"></label>
+                <select asp-for="RoleId" class="form-control onchange" asp-items="ViewBag.RoleId"></select>
+                <a class="CurrentRootUrl" href="~/UserRoleProfiles/UserRights/"></a>
+            </div>
+
+            <div id="treeview_container" class="hummingbird-treeview">
+                <ul id="treeview" class="hummingbird-base">
+                    <li data-id="0">
+                        <i class="fa fa-plus"></i>
+                        <label>
+                            <input class="grandparent" id="xnode-0" data-id="custom-0" rel="0" value="0" name="AllRights[]" type="checkbox" /> All Modules
+                        </label>
+                        <ul>
+                            @foreach (var item in Model.SystemTasks)
+                            {
+                                <li data-id="1" id="li_@item.Id">
+                                    <i class="fa fa-plus"></i>
+                                    <label>
+                                        @if (Model.RightsIdAssigned.Contains(item.Id))
+                                        {
+                                            <input class="parent" type="checkbox" rel="@item.Id" value="@item.Id" name="Ids[]" checked="checked" /> <span>@item.Name</span>
+                                        }
+                                        else
+                                        {
+                                            <input class="parent" type="checkbox" rel="@item.Id" value="@item.Id" name="Ids[]" /> <span>@item.Name</span>
+                                        }
+                                    </label>
+                                    <ul>
+                                        @foreach (var child in item.ChildTasks.OrderBy(c => c.OrderNo))
+                                        {
+                                            <li data-id="2" id="li_@child.Id">
+                                                <label>
+                                                    @if (Model.RightsIdAssigned.Contains(child.Id))
+                                                    {
+                                                        <input class="child" type="checkbox" value="@child.Id" name="Ids[]" checked="checked" /> <span>@child.Name</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <input class="child" type="checkbox" value="@child.Id" name="Ids[]" /> <span>@child.Name</span>
+                                                    }
+                                                </label>
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success pull-right">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $("#treeview").hummingbird();
+        })
+
+        $.fn.hummingbird.defaults.SymbolPrefix = "fas";
+        $.fn.hummingbird.defaults.collapsedSymbol = "fa-angle-right";
+        $.fn.hummingbird.defaults.expandedSymbol = "fa-angle-down";
+
+        $('.onchange').on('change', function () {
+            window.location = $('.CurrentRootUrl').attr('href') + $('.onchange option:selected').val();
+        });
+
+        // $('input.grandparent,input.parent,input.child').change(function () {
+        //     $(this).siblings().find("input[type='checkbox']").prop('checked', this.checked);
+        // });
+    </script>
+}
+

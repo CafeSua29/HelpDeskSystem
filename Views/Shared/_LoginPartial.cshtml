@@ -2,8 +2,15 @@
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
 
-@if (SignInManager.IsSignedIn(User))
+@* @if (SignInManager.IsSignedIn(User)) *@
+@if (User.Identity.IsAuthenticated)
 {
+    var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
+
+    var canViewTicket = allUserPermissions.Contains("|TICKETS:VIEW");
+
+    var canViewDashboard = allUserPermissions.Contains("|DASHBOARD:VIEW");
+
     <div class="header">
         <div class="header-left">
             <a href="~/Home/Index" class="logo">
@@ -54,9 +61,12 @@
                     <li>
                         <a class="" asp-area="" asp-controller="UserRoleProfiles" asp-action="Index"><i class="fas fa-user"></i> <span>User Role Profiles</span></a>
                     </li>
-                    <li>
-                        <a class="" asp-area="" asp-controller="Tickets" asp-action="Index"><i class="fas fa-ticket"></i> <span>Tickets</span></a>
-                    </li>
+                    @if (canViewTicket)
+                    {
+                        <li>
+                            <a class="" asp-area="" asp-controller="Tickets" asp-action="Index"><i class="fas fa-ticket"></i> <span>Tickets</span></a>
+                        </li>
+                    }
                     <li>
                         <a class="" asp-area="" asp-controller="TicketCategories" asp-action="Index"><i class="fas fa-history"></i> <span>Ticket Categories</span></a>
                     </li>
