@@ -13,6 +13,7 @@ using HelpDeskSystem.ViewModels;
 using Microsoft.IdentityModel.Tokens;
 using AutoMapper;
 using HelpDeskSystem.Services;
+using ElmahCore;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -158,39 +159,46 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Ticket ticket, IFormFile attachment)
         {
-            if(attachment != null && attachment.Length > 0)
+            try
             {
-                var filename = "Ticket_Attachment_" + DateTime.Now.ToString("yyyyMMdd") + "_" + attachment.FileName;
+                if (attachment != null && attachment.Length > 0)
+                {
+                    var filename = "Ticket_Attachment_" + DateTime.Now.ToString("yyyyMMdd") + "_" + attachment.FileName;
 
-                var path = _configuration["FileSettings:UploadsFolder"];
-                var filepath = Path.Combine(path, filename);
+                    var path = _configuration["FileSettings:UploadsFolder"];
+                    var filepath = Path.Combine(path, filename);
 
-                var stream = new FileStream(filepath, FileMode.Create);
-                await attachment.CopyToAsync(stream);
-                ticket.Attachment = filename;
+                    var stream = new FileStream(filepath, FileMode.Create);
+                    await attachment.CopyToAsync(stream);
+                    ticket.Attachment = filename;
+                }
+
+                var userId = User.GetUserId();
+
+                ticket.CreatedOn = DateTime.Now;
+                ticket.CreatedById = userId;
+
+                //automapper
+                //var ticket = _mapper.Map(vm, new Ticket());
+
+                _context.Add(ticket);
+                await _context.SaveChangesAsync(userId);
+
+                TempData["Message"] = "Ticket Created";
+
+                ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
+                ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
+                ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
+
+                return RedirectToAction(nameof(Index));
             }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
 
-            var userId = User.GetUserId();
-
-            ticket.CreatedOn = DateTime.Now;
-            ticket.CreatedById = userId;
-
-            //automapper
-            //var ticket = _mapper.Map(vm, new Ticket());
-
-            _context.Add(ticket);
-            await _context.SaveChangesAsync(userId);
-
-            TempData["Message"] = "Ticket Created";
-
-            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
-            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
-
-            return RedirectToAction(nameof(Index));
-
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", ticket.CreatedById);
-            return View(ticket);
+                return View(ticket);
+            }
         }
 
         // GET: Tickets/Edit/5
@@ -228,7 +236,7 @@ namespace HelpDeskSystem.Controllers
 
             try
             {
-                if (attachment.Length > 0)
+                if (attachment != null)
                 {
                     var filename = "Ticket_Attachment_" + DateTime.Now.ToString("yyyyMMdd") + "_" + attachment.FileName;
 
@@ -306,13 +314,15 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var userId = User.GetUserId();
+
             var ticket = await _context.Tickets.FindAsync(id);
             if (ticket != null)
             {
                 _context.Tickets.Remove(ticket);
             }
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(userId);
 
             TempData["Message"] = "Ticket Deleted";
 
