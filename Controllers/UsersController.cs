@@ -180,7 +180,7 @@ namespace HelpDeskSystem.Controllers
                     _context.Update(user);
                     await _context.SaveChangesAsync(userId);
 
-                    await _userManager.AddToRoleAsync(user1, rolesdetails.Name);
+                    await _userManager.AddToRoleAsync(user, rolesdetails.Name);
 
                     return RedirectToAction(nameof(Index));
                 }

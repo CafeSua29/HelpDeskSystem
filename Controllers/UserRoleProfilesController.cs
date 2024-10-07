@@ -214,17 +214,20 @@ namespace HelpDeskSystem.Controllers
                 var allprofile = _context.UserRoleProfiles.Where(x => x.RoleId == vm.RoleId).ToList();
                 _context.UserRoleProfiles.RemoveRange(allprofile);
 
-                foreach(var taskId in vm.Ids)
+                if (vm.Ids != null)
                 {
-                    var right = new UserRoleProfile
+                    foreach (var taskId in vm.Ids)
                     {
-                        TaskId = taskId,
-                        RoleId = vm.RoleId,
-                        CreatedOn = DateTime.Now,
-                        CreatedById = User.GetUserId()
-                    };
+                        var right = new UserRoleProfile
+                        {
+                            TaskId = taskId,
+                            RoleId = vm.RoleId,
+                            CreatedOn = DateTime.Now,
+                            CreatedById = User.GetUserId()
+                        };
 
-                    _context.UserRoleProfiles.Add(right);
+                        _context.UserRoleProfiles.Add(right);
+                    }
                 }
 
                 await _context.SaveChangesAsync(User.GetUserId());

@@ -7,7 +7,7 @@
 {
     var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
 
-    var canViewTicket = allUserPermissions.Contains("|TICKETS:VIEW");
+    var canViewTicket = allUserPermissions.Contains("|TICKETS:TICKET COMMENTS");
 
     var canViewDashboard = allUserPermissions.Contains("|DASHBOARD:VIEW");
 
@@ -63,11 +63,11 @@
                     </li>
                     @if (canViewTicket)
                     {
-                        
+                        <li>
+                            <a class="" asp-area="" asp-controller="Tickets" asp-action="Index"><i class="fas fa-ticket"></i> <span>Tickets</span></a>
+                        </li>
                     }
-                    <li>
-                        <a class="" asp-area="" asp-controller="Tickets" asp-action="Index"><i class="fas fa-ticket"></i> <span>Tickets</span></a>
-                    </li>
+                    
                     <li>
                         <a class="" asp-area="" asp-controller="TicketCategories" asp-action="Index"><i class="fas fa-history"></i> <span>Ticket Categories</span></a>
                     </li>

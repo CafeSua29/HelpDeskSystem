@@ -10,19 +10,22 @@ namespace HelpDeskSystem.ClaimsManagement
         where TRequirement : IAuthorizationRequirement 
         where TAttribute : Attribute
     {
-        private static IEnumerable<TAttribute> GetAttributesFromEndpoint(object resource)
+        private readonly IHttpContextAccessor _contextAccessor;
+
+        protected AttributeAuthorizationHandler(IHttpContextAccessor contextAccessor)
         {
-            var endpoint = resource as Endpoint;
-
-            if (endpoint != null)
-                return endpoint.Metadata.OfType<TAttribute>().ToList();
-
-            return Enumerable.Empty<TAttribute>();
+            _contextAccessor = contextAccessor;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, TRequirement requirement)
         {
-            var attrs = GetAttributesFromEndpoint(context.Resource);
+            List<PermissionAttribute> attrs = new List<PermissionAttribute>();
+
+            var action = _contextAccessor.HttpContext.GetEndpoint().Metadata;
+
+            var allPermission = (PermissionAttribute)action.FirstOrDefault(x => x.GetType() == typeof(PermissionAttribute));
+
+            attrs.Add(allPermission);
 
             return HandleRequirementAsync(context, requirement, attrs);
         }
@@ -30,7 +33,7 @@ namespace HelpDeskSystem.ClaimsManagement
         protected abstract Task HandleRequirementAsync(
             AuthorizationHandlerContext context, 
             TRequirement requirement, 
-            IEnumerable<TAttribute> attrs);
+            IEnumerable<PermissionAttribute> attrs);
     }
 
     public class PermissionAuthorizationRequirement : IAuthorizationRequirement
@@ -51,7 +54,16 @@ namespace HelpDeskSystem.ClaimsManagement
 
     public class PermissionAuthorizationHandler : AttributeAuthorizationHandler<PermissionAuthorizationRequirement, PermissionAttribute>
     {
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionAuthorizationRequirement requirement, IEnumerable<PermissionAttribute> attrs)
+        public PermissionAuthorizationHandler(IHttpContextAccessor contextAccessor)
+            :base(contextAccessor)
+        {
+            
+        }
+
+        protected override async Task HandleRequirementAsync(
+            AuthorizationHandlerContext context, 
+            PermissionAuthorizationRequirement requirement, 
+            IEnumerable<PermissionAttribute> attrs)
         {
             if (attrs == null || !attrs.Any())
             {

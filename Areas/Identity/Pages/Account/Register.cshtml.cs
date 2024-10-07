@@ -24,6 +24,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Data;
+using System.Runtime.Intrinsics.X86;
 
 namespace HelpDeskSystem.Areas.Identity.Pages.Account
 {
@@ -120,7 +121,6 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
         }
 
-
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
@@ -154,10 +154,16 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                var role = await _context.Roles.Where(x => x.Name == "Normal User").FirstOrDefaultAsync();
+                var rolesdetails = await _context.Roles.Where(x => x.Id == role.Id).FirstOrDefaultAsync();
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, rolesdetails.Name);
+
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
