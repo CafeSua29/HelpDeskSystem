@@ -10,9 +10,11 @@ using HelpDeskSystem.Models;
 using HelpDeskSystem.Data.Migrations;
 using System.Security.Claims;
 using HelpDeskSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HelpDeskSystem.Controllers
 {
+    [Authorize]
     public class SystemTasksController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -1,12 +1,14 @@
 using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using HelpDeskSystem.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace HelpDeskSystem.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

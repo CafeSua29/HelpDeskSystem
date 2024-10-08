@@ -11,9 +11,11 @@ using HelpDeskSystem.Data.Migrations;
 using System.Security.Claims;
 using HelpDeskSystem.ViewModels;
 using HelpDeskSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HelpDeskSystem.Controllers
 {
+    [Authorize]
     public class TicketSubCategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;

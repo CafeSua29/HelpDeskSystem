@@ -19,6 +19,9 @@ namespace HelpDeskSystem.Models
         [DisplayName("System Role")]
         public IdentityRole Role { get; set; }
 
+        [DisplayName("Locked")]
+        public bool? IsLocked { get; set; }
+
         [DisplayName("Created By")]
         public string? CreatedById { get; set; }
 

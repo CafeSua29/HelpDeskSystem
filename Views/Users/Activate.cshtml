@@ -1,0 +1,86 @@
+﻿@model HelpDeskSystem.Models.AppUser
+
+@{
+    ViewData["Title"] = "Activate";
+}
+
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Activate user</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-horizontal">
+                        <div class="col-12">
+                            <h5 class="form-title"><span>User details</span></h5>
+                        </div>
+                        <form asp-action="Activate">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="row">
+                                <input type="hidden" asp-for="Id" />
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Name" class="form-control" placeholder="" disabled />
+                                        <label asp-for="Name" class="control-label"></label>
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="DOB" type="date" class="form-control" placeholder="" disabled />
+                                        <label asp-for="DOB" class="control-label"></label>
+                                        <span asp-validation-for="DOB" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="GenderId" class="form-control" asp-items="ViewBag.GenderId" disabled></select>
+                                        <label asp-for="GenderId" class="control-label"></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="RoleId" class="form-control" asp-items="ViewBag.RoleId" disabled></select>
+                                        <label asp-for="RoleId" class="control-label"></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Email" class="form-control" placeholder="" disabled />
+                                        <label asp-for="Email" class="control-label"></label>
+                                        <span asp-validation-for="Email" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="PhoneNumber" class="form-control" placeholder="" disabled />
+                                        <label asp-for="PhoneNumber" class="control-label"></label>
+                                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <input type="hidden" asp-for="CreatedById" />
+                                <input type="hidden" asp-for="CreatedOn" />
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" value="Activate" class="w-100 btn btn-lg btn-primary" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
