@@ -4,6 +4,29 @@
     ViewData["Title"] = "Index";
 }
 
+@* <div class="col-md-12">
+    <form asp-action="Index" method="post">
+        <div class="row">
+            <div class="col-md-2 top-nav-search">
+                <input name="Name" class="form-control" placeholder="Search Category" />
+            </div>
+            <div class="col-md-2 top-nav-search">
+                <select name="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
+                    <option value="">Category</option>
+                </select>
+            </div>
+            <div class="col-md-2 top-nav-search">
+                <select name="CreatedById" class="form-control" asp-items="ViewBag.UsersId">
+                    <option value="">Created By</option>
+                </select>
+            </div>
+            <div class="col-md-1 text-right float-right ml-auto top-nav-search">
+                <button class="btn"><i class="fas fa-search"> Search</i></button>
+            </div>
+        </div>
+    </form>
+</div> *@
+
 <h1>Index</h1>
 
 <p>

@@ -31,23 +31,33 @@ namespace HelpDeskSystem.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        public async Task<IActionResult> TicketComments(int? id)
+        public async Task<IActionResult> TicketComments(int? id, string Desc, string CreatedById)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var comments = await _context.Comments
+            var comments = _context.Comments
                 .Where(x => x.TicketId == id)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
                 .OrderByDescending(c => c.CreatedOn)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(Desc))
+            {
+                comments = comments.Where(x => x.Description.Contains(Desc));
+            }
+
+            if (!string.IsNullOrEmpty(CreatedById))
+            {
+                comments = comments.Where(x => x.CreatedById == CreatedById);
+            }
 
             ViewBag.TicketId = id;
 
-            return View(comments);
+            return View(await comments.ToListAsync());
         }
 
         // GET: Comments/Details/5

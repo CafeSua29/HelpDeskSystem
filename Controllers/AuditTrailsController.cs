@@ -22,12 +22,45 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: AuditTrails
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string ActionCode, string Module, string AffectedTable, string ByUserId)
         {
-            var applicationDbContext = _context.AuditTrails
+            var actioncode = await _context.SystemCodes.Where(x => x.Code == "Action").FirstOrDefaultAsync();
+
+            ViewData["UsersId"] = new SelectList(_context.Users, "Id", "Name");
+            ViewData["ActionCode"] = new SelectList(_context.SystemCodeDetails.Where(x => x.SystemCodeId == actioncode.Id), "Code", "Description");
+
+            var allaudit = _context.AuditTrails
                 .Include(a => a.User)
-                .OrderByDescending(c => c.TimeStamp);
-            return View(await applicationDbContext.ToListAsync());
+                .OrderByDescending(c => c.TimeStamp)
+                .AsQueryable();
+
+            var a = allaudit.Count();
+
+            if (!string.IsNullOrEmpty(ActionCode))
+            {
+                allaudit = allaudit.Where(x => x.Action.Contains(ActionCode));
+            }
+
+            a = allaudit.Count();
+
+            if (!string.IsNullOrEmpty(Module))
+            {
+                allaudit = allaudit.Where(x => x.Module.Contains(Module));
+            }
+
+            a = allaudit.Count();
+
+            if (!string.IsNullOrEmpty(AffectedTable))
+            {
+                allaudit = allaudit.Where(x => x.AffectedTable.Contains(AffectedTable));
+            }
+
+            if (!string.IsNullOrEmpty(ByUserId))
+            {
+                allaudit = allaudit.Where(x => x.UserId == ByUserId);
+            }
+
+            return View(await allaudit.ToListAsync());
         }
 
         // GET: AuditTrails/Details/5

@@ -34,14 +34,36 @@ namespace HelpDeskSystem.Controllers
 
         // GET: UsersController
         //[Permission("DASHBOARD:VIEW")]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(string Name, string Email, string Phone, string RoleId)
         {
-            var users = await _context.Users
+            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
+
+            var users = _context.Users
                 .Include(x => x.Role)
                 .Include(x => x.Gender)
-                .ToListAsync();
+                .AsQueryable();
 
-            return View(users);
+            if (!string.IsNullOrEmpty(Name))
+            {
+                users = users.Where(x => x.Name.Contains(Name));
+            }
+
+            if (!string.IsNullOrEmpty(Email))
+            {
+                users = users.Where(x => x.Email.Contains(Email));
+            }
+
+            if (!string.IsNullOrEmpty(Phone))
+            {
+                users = users.Where(x => x.PhoneNumber.Contains(Phone));
+            }
+
+            if (!string.IsNullOrEmpty(RoleId))
+            {
+                users = users.Where(x => x.RoleId.Contains(RoleId));
+            }
+
+            return View(await users.ToListAsync());
         }
 
         // GET: UsersController/Details/5

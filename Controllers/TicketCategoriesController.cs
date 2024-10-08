@@ -24,10 +24,26 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: TicketCategories
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string Name, string CreatedById)
         {
-            var applicationDbContext = _context.TicketCategories.Include(t => t.CreatedBy).Include(t => t.ModifiedBy);
-            return View(await applicationDbContext.ToListAsync());
+            ViewData["UsersId"] = new SelectList(_context.Users, "Id", "Name");
+
+            var allcategory = _context.TicketCategories
+                .Include(t => t.CreatedBy)
+                .Include(t => t.ModifiedBy)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(Name))
+            {
+                allcategory = allcategory.Where(x => x.Name.Contains(Name));
+            }
+
+            if (!string.IsNullOrEmpty(CreatedById))
+            {
+                allcategory = allcategory.Where(x => x.CreatedById == CreatedById);
+            }
+
+            return View(await allcategory.ToListAsync());
         }
 
         // GET: TicketCategories/Details/5

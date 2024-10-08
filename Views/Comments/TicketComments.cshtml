@@ -6,6 +6,24 @@
     int ticketid = ViewBag.TicketId;
 }
 
+<div class="col-md-12">
+    <form asp-action="TicketComments" method="post">
+        <div class="row">
+            <div class="col-md-2 top-nav-search">
+                <input name="Desc" class="form-control" placeholder="Search Comment" />
+            </div>
+            <div class="col-md-2 top-nav-search">
+                <select name="CreatedById" class="form-control" asp-items="ViewBag.UsersId">
+                    <option value="">Created By</option>
+                </select>
+            </div>
+            <div class="col-md-1 text-right float-right ml-auto top-nav-search">
+                <button class="btn"><i class="fas fa-search"> Search</i></button>
+            </div>
+        </div>
+    </form>
+</div>
+
 <h1>Recent Comments</h1>
 
 <p>
