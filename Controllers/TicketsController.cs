@@ -404,7 +404,7 @@ namespace HelpDeskSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResolveConfirm(int id, string Desc, int StatusId)
+        public async Task<IActionResult> Resolve(int id, string Desc, int StatusId)
         {
             var statuscode = await _context.SystemCodeDetails
                 .Include(c => c.SystemCode)
@@ -500,7 +500,7 @@ namespace HelpDeskSystem.Controllers
 
             await _context.SaveChangesAsync(userId);
 
-            return RedirectToAction("Resolve", new { id = id });
+            return RedirectToAction("Index");
 
             return View(resolution);
         }
@@ -547,7 +547,7 @@ namespace HelpDeskSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignConfirm(int id, string UserId)
+        public async Task<IActionResult> Assign(int id, string UserId)
         {
             TicketResolution resolution = new TicketResolution();
 

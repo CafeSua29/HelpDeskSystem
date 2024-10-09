@@ -164,7 +164,7 @@
                         @if (Model?.Status.Code != "Closed")
                         {
                             <div>
-                                <form asp-action="ResolveConfirm" asp-route-id="@Model?.Id">
+                                <form asp-action="Resolve" asp-route-id="@Model?.Id">
                                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                     <div class="form-group">
                                         <textarea name="Desc" class="form-control" required></textarea>

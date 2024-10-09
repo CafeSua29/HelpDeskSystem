@@ -161,7 +161,7 @@
                         @if (Model?.Status.Code != "Closed")
                         {
                             <div>
-                                <form asp-action="AssignConfirm" asp-route-id="@Model?.Id">
+                                <form asp-action="Assign" asp-route-id="@Model?.Id">
                                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                     <div class="form-group form-floating">
                                         <select class="form-control" name="UserId" placeholder="" asp-items="ViewBag.UsersId">

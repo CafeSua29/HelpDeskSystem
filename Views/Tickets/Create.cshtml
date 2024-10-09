@@ -52,18 +52,6 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <select asp-for="PriorityId" class="form-control" placeholder="" asp-items="ViewBag.PriorityId"></select>
-                                        <label asp-for="PriorityId" class="control-label"></label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select asp-for="StatusId" class="form-control" placeholder="" asp-items="ViewBag.StatusId"></select>
-                                        <label asp-for="StatusId" class="control-label"></label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
                                         <select class="form-control" id="Category" placeholder="" asp-items="ViewBag.CategoryId">
                                             <option value=""> -- Category -- </option>
                                         </select>
@@ -80,6 +68,18 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
+                                        <select asp-for="PriorityId" class="form-control" placeholder="" asp-items="ViewBag.PriorityId"></select>
+                                        <label asp-for="PriorityId" class="control-label"></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="StatusId" class="form-control" placeholder="" asp-items="ViewBag.StatusId"></select>
+                                        <label asp-for="StatusId" class="control-label"></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
                                         <input asp-for="Attachment" class="form-control" type="file" accept=".png,.jpg,.pdf,.doc,.jpeg" id="attachment" name="attachment" placeholder="" />
                                         <label asp-for="Attachment" class="control-label"></label>
                                         <span asp-validation-for="Attachment" class="text-danger"></span>
@@ -88,6 +88,10 @@
                             </div>
                             <div class="form-group">
                                 <input type="submit" value="Create" class="w-100 btn btn-lg btn-primary" />
+                            </div>
+                            <div class="form-group">
+                                <a asp-action="Index" class="btn btn-warning float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
+                                <input type="submit" value="Create" class="btn btn-primary float-end" />
                             </div>
                         </form>
                     </div>
