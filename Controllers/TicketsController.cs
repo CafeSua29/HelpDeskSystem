@@ -45,6 +45,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .Include(t => t.AssignedTo)
+                .Where(t => t.DelTime == null)
                 .OrderByDescending(c => c.CreatedOn)
                 .AsQueryable();
 
@@ -164,11 +165,15 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Ticket ticket, IFormFile attachment)
         {
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
+
             try
             {
                 if (attachment != null && attachment.Length > 0)
                 {
-                    var filename = "Ticket_Attachment_" + DateTime.Now.ToString("yyyyMMdd") + "_" + attachment.FileName;
+                    var filename = ticket.Title + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + attachment.FileName;
 
                     var path = _configuration["FileSettings:UploadsFolder"];
                     var filepath = Path.Combine(path, filename);
@@ -190,10 +195,6 @@ namespace HelpDeskSystem.Controllers
                 await _context.SaveChangesAsync(userId);
 
                 TempData["Message"] = "Ticket Created";
-
-                ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
-                ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
-                ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
 
                 return RedirectToAction(nameof(Index));
             }
@@ -234,6 +235,10 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Ticket ticket, IFormFile attachment)
         {
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
+
             if (id != ticket.Id)
             {
                 return NotFound();
@@ -243,7 +248,7 @@ namespace HelpDeskSystem.Controllers
             {
                 if (attachment != null)
                 {
-                    var filename = "Ticket_Attachment_" + DateTime.Now.ToString("yyyyMMdd") + "_" + attachment.FileName;
+                    var filename = ticket.Title + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + attachment.FileName;
 
                     var path = _configuration["FileSettings:UploadsFolder"];
                     var filepath = Path.Combine(path, filename);
@@ -260,27 +265,18 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Update(ticket);
                 await _context.SaveChangesAsync(userId);
+
+                TempData["Message"] = "Ticket Updated";
+
+                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!TicketExists(ticket.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(ticket);
             }
-
-            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
-            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
-
-            return RedirectToAction(nameof(Index));
-
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", ticket.CreatedById);
-            return View(ticket);
         }
 
         // GET: Tickets/Delete/5
@@ -321,15 +317,27 @@ namespace HelpDeskSystem.Controllers
         {
             var userId = User.GetUserId();
 
-            var ticket = await _context.Tickets.FindAsync(id);
-            if (ticket != null)
+            try
             {
-                _context.Tickets.Remove(ticket);
+                var ticket = await _context.Tickets.FindAsync(id);
+                if (ticket != null)
+                {
+                    //_context.Tickets.Remove(ticket);
+
+                    ticket.DelTime = DateTime.Now;
+
+                    _context.Update(ticket);
+                }
+
+                await _context.SaveChangesAsync(userId);
+
+                TempData["Message"] = "Ticket Deleted";
             }
-
-            await _context.SaveChangesAsync(userId);
-
-            TempData["Message"] = "Ticket Deleted";
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+            }
 
             return RedirectToAction(nameof(Index));
         }
@@ -343,24 +351,28 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddComment(int id, string Desc)
         {
-            Comment comment = new Comment();
+            try
+            {
+                Comment comment = new Comment();
 
-            var userId = User.GetUserId();
+                var userId = User.GetUserId();
 
-            comment.CreatedOn = DateTime.Now;
-            comment.CreatedById = userId;
-            comment.Id = 0;
-            comment.TicketId = id;
-            comment.Description = Desc;
+                comment.CreatedOn = DateTime.Now;
+                comment.CreatedById = userId;
+                comment.Id = 0;
+                comment.TicketId = id;
+                comment.Description = Desc;
 
-            _context.Add(comment);
-            await _context.SaveChangesAsync(userId);
+                _context.Add(comment);
+                await _context.SaveChangesAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+            }
 
             return RedirectToAction("Details", new { id = id });
-
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", comment.CreatedById);
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Title", comment.TicketId);
-            return View(comment);
         }
         public async Task<IActionResult> Resolve(int? id)
         {
@@ -406,103 +418,128 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Resolve(int id, string Desc, int StatusId)
         {
-            var statuscode = await _context.SystemCodeDetails
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus"), "Id", "Description");
+
+            try
+            {
+                var statuscode = await _context.SystemCodeDetails
                 .Include(c => c.SystemCode)
                 .Where(c => c.SystemCode.Code == "ResolutionStatus" && c.Id == StatusId)
                 .FirstOrDefaultAsync();
 
-            var statusid = await _context.SystemCodeDetails
-                .Include(c => c.SystemCode)
-                .Where(c => c.SystemCode.Code == "Status" && c.Code == statuscode.Code)
-                .FirstOrDefaultAsync();
+                var statusid = await _context.SystemCodeDetails
+                    .Include(c => c.SystemCode)
+                    .Where(c => c.SystemCode.Code == "Status" && c.Code == statuscode.Code)
+                    .FirstOrDefaultAsync();
 
-            TicketResolution resolution = new TicketResolution();
+                TicketResolution resolution = new TicketResolution();
 
-            var userId = User.GetUserId();
+                var userId = User.GetUserId();
 
-            resolution.CreatedOn = DateTime.Now;
-            resolution.CreatedById = userId;
-            resolution.Id = 0;
-            resolution.TicketId = id;
-            resolution.Description = Desc;
-            resolution.StatusId = statusid.Id;
+                resolution.CreatedOn = DateTime.Now;
+                resolution.CreatedById = userId;
+                resolution.Id = 0;
+                resolution.TicketId = id;
+                resolution.Description = Desc;
+                resolution.StatusId = statusid.Id;
 
-            _context.Add(resolution);
+                _context.Add(resolution);
 
-            var ticket = await _context.Tickets.FindAsync(id);
-            ticket.StatusId = statusid.Id;
+                var ticket = await _context.Tickets.FindAsync(id);
+                ticket.StatusId = statusid.Id;
 
-            _context.Update(ticket);
+                _context.Update(ticket);
 
-            await _context.SaveChangesAsync(userId);
+                await _context.SaveChangesAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+            }
 
             return RedirectToAction("Resolve", new { id = id });
-
-            return View(resolution);
         }
 
         public async Task<IActionResult> Close(int id)
         {
-            var closedstatusid = await _context.SystemCodeDetails
+            try
+            {
+                var closedstatusid = await _context.SystemCodeDetails
                 .Include(c => c.SystemCode)
                 .Where(c => c.SystemCode.Code == "Status" && c.Code == "Closed")
                 .FirstOrDefaultAsync();
 
-            TicketResolution resolution = new TicketResolution();
+                TicketResolution resolution = new TicketResolution();
 
-            var userId = User.GetUserId();
+                var userId = User.GetUserId();
 
-            resolution.CreatedOn = DateTime.Now;
-            resolution.CreatedById = userId;
-            resolution.Id = 0;
-            resolution.TicketId = id;
-            resolution.Description = "Closed by owner";
-            resolution.StatusId = closedstatusid.Id;
+                resolution.CreatedOn = DateTime.Now;
+                resolution.CreatedById = userId;
+                resolution.Id = 0;
+                resolution.TicketId = id;
+                resolution.Description = "Closed by owner";
+                resolution.StatusId = closedstatusid.Id;
 
-            _context.Add(resolution);
+                _context.Add(resolution);
 
-            var ticket = await _context.Tickets.FindAsync(id);
-            ticket.StatusId = closedstatusid.Id;
+                var ticket = await _context.Tickets.FindAsync(id);
+                ticket.StatusId = closedstatusid.Id;
 
-            _context.Update(ticket);
+                _context.Update(ticket);
 
-            await _context.SaveChangesAsync(userId);
+                await _context.SaveChangesAsync(userId);
 
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
 
-            return View(resolution);
+                var ticket = await _context.Tickets.FindAsync(id);
+                return View(ticket);
+            }
         }
 
         public async Task<IActionResult> ReOpen(int id)
         {
-            var pendingstatusid = await _context.SystemCodeDetails
+            try
+            {
+                var pendingstatusid = await _context.SystemCodeDetails
                 .Include(c => c.SystemCode)
                 .Where(c => c.SystemCode.Code == "Status" && c.Code == "Pending")
                 .FirstOrDefaultAsync();
 
-            TicketResolution resolution = new TicketResolution();
+                TicketResolution resolution = new TicketResolution();
 
-            var userId = User.GetUserId();
+                var userId = User.GetUserId();
 
-            resolution.CreatedOn = DateTime.Now;
-            resolution.CreatedById = userId;
-            resolution.Id = 0;
-            resolution.TicketId = id;
-            resolution.Description = "Re-open by owner";
-            resolution.StatusId = pendingstatusid.Id;
+                resolution.CreatedOn = DateTime.Now;
+                resolution.CreatedById = userId;
+                resolution.Id = 0;
+                resolution.TicketId = id;
+                resolution.Description = "Re-open by owner";
+                resolution.StatusId = pendingstatusid.Id;
 
-            _context.Add(resolution);
+                _context.Add(resolution);
 
-            var ticket = await _context.Tickets.FindAsync(id);
-            ticket.StatusId = pendingstatusid.Id;
+                var ticket = await _context.Tickets.FindAsync(id);
+                ticket.StatusId = pendingstatusid.Id;
 
-            _context.Update(ticket);
+                _context.Update(ticket);
 
-            await _context.SaveChangesAsync(userId);
+                await _context.SaveChangesAsync(userId);
 
-            return RedirectToAction("Index");
+                TempData["Message"] = "Re-opened Ticket";
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+            }
 
-            return View(resolution);
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Assign(int? id)
@@ -549,40 +586,48 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Assign(int id, string UserId)
         {
-            TicketResolution resolution = new TicketResolution();
+            ViewData["UsersId"] = new SelectList(_context.Users, "Id", "Name");
 
-            var userId = User.GetUserId();
+            try
+            {
+                TicketResolution resolution = new TicketResolution();
 
-            var user = await _context.Users.FindAsync(UserId);
+                var userId = User.GetUserId();
 
-            var assignedstatusid = await _context.SystemCodeDetails
-                .Include(c => c.SystemCode)
-                .Where(c => c.SystemCode.Code == "Status" && c.Code == "Assigned")
-                .FirstOrDefaultAsync();
+                var user = await _context.Users.FindAsync(UserId);
 
-            resolution.CreatedOn = DateTime.Now;
-            resolution.CreatedById = userId;
-            resolution.Id = 0;
-            resolution.TicketId = id;
-            resolution.Description = "Assign to user " + user.Name;
-            resolution.StatusId = assignedstatusid.Id;
+                var assignedstatusid = await _context.SystemCodeDetails
+                    .Include(c => c.SystemCode)
+                    .Where(c => c.SystemCode.Code == "Status" && c.Code == "Assigned")
+                    .FirstOrDefaultAsync();
 
-            _context.Add(resolution);
+                resolution.CreatedOn = DateTime.Now;
+                resolution.CreatedById = userId;
+                resolution.Id = 0;
+                resolution.TicketId = id;
+                resolution.Description = "Assign to user " + user.Name;
+                resolution.StatusId = assignedstatusid.Id;
 
-            var ticket = await _context.Tickets.FindAsync(id);
+                _context.Add(resolution);
 
-            ticket.AssignedToId = UserId;
-            ticket.AssignedTo = user;
-            ticket.AssignedOn = DateTime.Now;
-            ticket.StatusId = assignedstatusid.Id;
+                var ticket = await _context.Tickets.FindAsync(id);
 
-            _context.Update(ticket);
+                ticket.AssignedToId = UserId;
+                ticket.AssignedTo = user;
+                ticket.AssignedOn = DateTime.Now;
+                ticket.StatusId = assignedstatusid.Id;
 
-            await _context.SaveChangesAsync(userId);
+                _context.Update(ticket);
+
+                await _context.SaveChangesAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+            }
 
             return RedirectToAction("Assign", new { id = id });
-
-            return View(resolution);
         }
     }
 }
