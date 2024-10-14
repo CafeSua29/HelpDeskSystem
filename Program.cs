@@ -6,12 +6,16 @@ using HelpDeskSystem.ClaimsManagement;
 using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using HelpDeskSystem.Services;
+using HelpDeskSystem.Jobs;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 using XmlFileErrorLog = ElmahCore.XmlFileErrorLog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -73,6 +77,12 @@ var config = new MapperConfiguration(
 var mapper = config.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
+//builder.Services.AddHostedService<HelpDeskSystem.Services.QuartzHostedService>();
+//builder.Services.AddSingleton<IJobFactory, SingletonJobFactory>();
+//builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+//builder.Services.AddSingleton<JobReminders>();
+//builder.Services.AddSingleton(new MyJob(type: typeof(JobReminders), expression: "0/30 0/1 * 1/1 * ? *"));
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -96,6 +106,21 @@ builder.Services.AddElmah<XmlFileErrorLog>(options =>
     options.Path = "ErrorLogs/errors";
     options.LogPath = builder.Configuration["FileSettings:LogsFolder"];
 });
+
+builder.Services.AddQuartz(q =>
+{
+    // Just use the name of your job that you created in the Jobs folder.
+    var jobKey = new JobKey("CleanDbJob");
+    q.AddJob<CleanDbJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("CleanDbJob-trigger")
+        //This Cron interval can be described as "run every minute" (when second is zero)
+        .WithCronSchedule("0 * * ? * *")
+    );
+});
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 
