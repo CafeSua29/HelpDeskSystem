@@ -114,7 +114,7 @@ namespace HelpDeskSystem.Controllers
             comment.Id = 0;
 
             _context.Add(comment);
-            await _context.SaveChangesAsync(userId);
+            await _context.MySaveChangesAsync(userId);
 
             return RedirectToAction("TicketComments", new { id = comment.TicketId });
 
@@ -161,7 +161,7 @@ namespace HelpDeskSystem.Controllers
                 comment.ModifiedById = userId;
 
                 _context.Update(comment);
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
             }
             catch (DbUpdateConcurrencyException)
             {

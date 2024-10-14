@@ -72,7 +72,7 @@ namespace HelpDeskSystem.Controllers
             systemTask.CreatedById = userId;
 
             _context.Add(systemTask);
-            await _context.SaveChangesAsync(userId);
+            await _context.MySaveChangesAsync(userId);
             return RedirectToAction(nameof(Index));
 
             ViewData["ParentId"] = new SelectList(_context.SystemTasks, "Id", "Name", systemTask.ParentId);
@@ -116,7 +116,7 @@ namespace HelpDeskSystem.Controllers
                 systemTask.ModifiedById = userId;
 
                 _context.Update(systemTask);
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
             }
             catch (DbUpdateConcurrencyException)
             {

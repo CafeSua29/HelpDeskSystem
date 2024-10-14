@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Create";
+
+    var admin = false;
 }
 
 <div class="content container-fluid">
@@ -66,18 +68,23 @@
                                         <label asp-for="SubCategoryId" class="control-label"></label>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select asp-for="PriorityId" class="form-control" placeholder="" asp-items="ViewBag.PriorityId"></select>
-                                        <label asp-for="PriorityId" class="control-label"></label>
+
+                                @if (admin)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="PriorityId" class="form-control" placeholder="" asp-items="ViewBag.PriorityId"></select>
+                                            <label asp-for="PriorityId" class="control-label"></label>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select asp-for="StatusId" class="form-control" placeholder="" asp-items="ViewBag.StatusId"></select>
-                                        <label asp-for="StatusId" class="control-label"></label>
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <select asp-for="StatusId" class="form-control" placeholder="" asp-items="ViewBag.StatusId"></select>
+                                            <label asp-for="StatusId" class="control-label"></label>
+                                        </div>
                                     </div>
-                                </div>
+                                }
+
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
                                         <input asp-for="Attachment" class="form-control" type="file" accept=".png,.jpg,.pdf,.doc,.jpeg" id="attachment" name="attachment" placeholder="" />
@@ -86,11 +93,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            @* <div class="form-group">
                                 <input type="submit" value="Create" class="w-100 btn btn-lg btn-primary" />
-                            </div>
+                            </div> *@
                             <div class="form-group">
-                                <a asp-action="Index" class="btn btn-warning float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
+                                <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
                                 <input type="submit" value="Create" class="btn btn-primary float-end" />
                             </div>
                         </form>
@@ -108,6 +115,12 @@
 
     <script>
         $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+
             $('#Category').change(function () {
                 var categoryId = $(this).val();
                 $('#SubCategory').empty();

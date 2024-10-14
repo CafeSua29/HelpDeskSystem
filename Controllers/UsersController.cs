@@ -204,7 +204,7 @@ namespace HelpDeskSystem.Controllers
                         user.AccessFailedCount = 0;
 
                         _context.Update(user);
-                        await _context.SaveChangesAsync(userId);
+                        await _context.MySaveChangesAsync(userId);
 
                         await _userManager.AddToRoleAsync(user, rolesdetails.Name);
 
@@ -310,7 +310,7 @@ namespace HelpDeskSystem.Controllers
                     user.IsLocked = false;
 
                     _context.Update(user);
-                    await _context.SaveChangesAsync(userId);
+                    await _context.MySaveChangesAsync(userId);
 
                     return RedirectToAction(nameof(Index));
                 }

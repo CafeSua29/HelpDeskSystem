@@ -85,7 +85,7 @@ namespace HelpDeskSystem.Controllers
             ticketCategory.CreatedById = userId;
 
             _context.Add(ticketCategory);
-            await _context.SaveChangesAsync(userId);
+            await _context.MySaveChangesAsync(userId);
             return RedirectToAction(nameof(Index));
         }
 
@@ -126,7 +126,7 @@ namespace HelpDeskSystem.Controllers
                 ticketCategory.ModifiedById = userId;
 
                 _context.Update(ticketCategory);
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
             }
             catch (DbUpdateConcurrencyException)
             {

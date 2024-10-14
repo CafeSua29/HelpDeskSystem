@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Resolve";
 
-    List<Comment> comments = ViewBag.Comments;
     List<TicketResolution> resolutions = ViewBag.Resolutions;
 }
 
@@ -13,6 +12,29 @@
             <div class="col-sm-12">
                 <h3 class="page-title">Resolve ticket</h3>
             </div>
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check"></i>
+                    @TempData["Message"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-close"></i>
+                    @TempData["Error"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
         </div>
     </div>
     <div class="card">
@@ -50,7 +72,11 @@
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.CreatedBy.Name)</span>
+                                        <span class="info-span">
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.CreatedById">
+                                                @Html.DisplayFor(model => model.CreatedBy.Name)
+                                            </a>
+                                        </span>
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
@@ -58,7 +84,11 @@
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.AssignedTo):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.AssignedTo.Name)</span>
+                                        <span class="info-span">
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.AssignedToId">
+                                                @Html.DisplayFor(model => model.AssignedTo.Name)
+                                            </a>
+                                        </span>
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.AssignedOn):</span>
@@ -78,44 +108,6 @@
                             <div class="col-md-12">
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-12">
-                    <div class="skill-info">
-                        <h4>Comments</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Description
-                                    </th>
-                                    <th>
-                                        Created By
-                                    </th>
-                                    <th>
-                                        Created On
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in comments)
-                                {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Description)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.CreatedBy.Name)
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.CreatedOn)
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
@@ -151,7 +143,9 @@
                                             @Html.DisplayFor(modelItem => item.Status.Description)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@item.CreatedById">
+                                                @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                                            </a>
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.CreatedOn)
@@ -163,11 +157,11 @@
 
                         @if (Model?.Status.Code != "Closed")
                         {
-                            <div>
+                            <div class="row">
                                 <form asp-action="Resolve" asp-route-id="@Model?.Id">
                                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                     <div class="form-group">
-                                        <textarea name="Desc" class="form-control" required></textarea>
+                                        <textarea name="Desc" class="form-control" placeholder="Description" required></textarea>
                                     </div>
                                     <div class="form-group form-floating">
                                         <select class="form-control" name="StatusId" placeholder="" asp-items="ViewBag.StatusId">
@@ -175,10 +169,19 @@
                                         <label class="control-label">Status</label>
                                     </div>
                                     <div class="form-group">
-                                        <input type="submit" value="Change Resolution" class="btn btn-primary" />
-                                        <a asp-controller="Tickets" asp-action="Close" asp-route-id="@Model?.Id" class="btn btn-primary">Close this ticket</a>
+                                        <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
+                                        <input type="submit" value="Change Resolution" class="btn btn-primary float-end" />
                                     </div>
                                 </form>
+                            </div>
+                            <div class="form-group"></div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="float-end"> --- or --- </div>
+                                </div>
+                                <div class="form-group">
+                                    <a asp-controller="Tickets" asp-action="Close" asp-route-id="@Model?.Id" class="btn btn-primary float-end"><i class="fas fa-lock"></i> Close this ticket</a>
+                                </div>
                             </div>
                         }
 
@@ -188,3 +191,16 @@
         </div>
     </div>
 </div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+        });
+    </script>
+}

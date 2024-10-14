@@ -16,29 +16,34 @@ namespace HelpDeskSystem.Models
         [DisplayName("Status")]
         public int StatusId { get; set; }
 
+        [DisplayName("Status")]
         public SystemCodeDetail Status { get; set; }
 
         [DisplayName("Priority")]
         public int PriorityId { get; set; }
 
+        [DisplayName("Priority")]
         public SystemCodeDetail Priority { get; set; }
 
         [DisplayName("Attachment")]
         public string? Attachment { get; set; }
 
-        [DisplayName("Ticket Sub-Category")]
+        [DisplayName("Category")]
         public int SubCategoryId { get; set; }
 
+        [DisplayName("Category")]
         public TicketSubCategory SubCategory { get; set; }
 
         [DisplayName("Assigned To")]
         public string? AssignedToId { get; set; }
 
+        [DisplayName("Assigned To")]
         public AppUser? AssignedTo { get; set; }
 
         [DisplayName("Assigned On")]
         public DateTime? AssignedOn { get; set; }
 
+        [DisplayName("Duration")]
         public int? Duration
         {
             get

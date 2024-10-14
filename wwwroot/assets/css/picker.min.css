@@ -1,0 +1,140 @@
+.picker {
+    width: 100%;
+    height: calc(1.5em + .75rem + 5px);
+    font-size: 1rem;
+    font-weight: 400;
+    color: #495057;
+    background-color: #fff;
+    border: 1px solid #495057;
+    border-radius: .25rem;
+    
+    position: relative;
+    
+    display: inline-block;
+    vertical-align: middle
+}
+
+.picker .pc-element,
+.picker .pc-trigger {
+    width: 100%;
+    height: 100%;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #495057;
+    background-color: #fff;
+    border-radius: .25rem;
+
+    padding: 6px 0 0 8px;
+
+    display: inline-block;
+    position: absolute;
+    z-index: 10;
+    word-wrap: break-word;
+    cursor: default;
+    margin-right: 7px;
+    margin-bottom: 5px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none
+}
+
+.picker .pc-element .pc-close,
+.picker .pc-trigger .pc-close {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    font-size: 16px;
+    cursor: pointer
+}
+
+.picker .pc-element .pc-close:after,
+.picker .pc-trigger .pc-close:after {
+    content: '\2716'
+}
+
+.picker .pc-element:hover,
+.picker .pc-trigger:hover {
+    background-color: #fff;
+    color: #495057
+}
+
+.picker .pc-select {
+    width: 100%;
+    height: 100%;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #495057;
+    background-color: #fff;
+    border-radius: .25rem;
+
+    position: absolute;
+    display: inline-block;
+}
+
+.picker .pc-select .pc-trigger {
+    cursor: pointer;
+    margin-right: 0;
+    width: 100%
+}
+
+.picker .pc-select .pc-list {
+    position: absolute;
+    text-align: left;
+    left: 0;
+    top: calc(100% - 2px);
+    width: 100%;
+    border: 1px solid #495057;
+    z-index: 11;
+    background-color: #fff
+}
+
+.picker .pc-select .pc-list input[type=search] {
+    width: 100%;
+    outline: 0;
+    color: #495057;
+    border: none;
+    position: relative;
+    background-color: #fff;
+    border-bottom: 2px solid #495057;
+
+    padding: 8px;
+}
+
+.picker .pc-select .pc-list ul {
+    margin: 0;
+    padding: 0;
+    max-height: 400px;
+    overflow-y: auto
+}
+
+.picker .pc-select .pc-list li {
+    display: block;
+    list-style: none;
+    cursor: pointer;
+    color: #495057;
+    word-wrap: break-word;
+
+    margin-bottom: 0;
+    padding: 8px;
+}
+
+.picker .pc-select .pc-list li:hover {
+    background-color: #f2f2f2;
+    color: #495057
+}
+
+.picker .pc-select .pc-list li.not-found {
+    font-style: italic;
+    text-align: center;
+    cursor: default
+}
+
+.picker .pc-select .pc-list li .searched {
+    font-weight: 700
+}
+
+.picker .pc-select .pc-trigger {
+    margin-bottom: 5px
+}

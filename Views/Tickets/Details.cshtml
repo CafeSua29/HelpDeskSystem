@@ -13,6 +13,27 @@
             <div class="col-sm-12">
                 <h3 class="page-title">Ticket details</h3>
             </div>
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check"></i>
+                    @TempData["Message"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-close"></i>
+                    @TempData["Error"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
         </div>
     </div>
     <div class="card">
@@ -46,7 +67,11 @@
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.CreatedBy.Name)</span>
+                                        <span class="info-span">
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.CreatedById">
+                                                @Html.DisplayFor(model => model.CreatedBy.Name)
+                                            </a>
+                                        </span>
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
@@ -54,7 +79,11 @@
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.AssignedTo):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.AssignedTo.Name)</span>
+                                        <span class="info-span">
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.AssignedToId">
+                                                @Html.DisplayFor(model => model.AssignedTo.Name)
+                                            </a>
+                                        </span>
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.AssignedOn):</span>
@@ -71,9 +100,9 @@
                                 </ul>
                             </div>
                         </div>
-                        <div>
+                        @* <div>
                             <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a>
-                        </div>
+                        </div> *@
                         <div class="row mt-3">
                             <div class="col-md-12">
 
@@ -108,7 +137,9 @@
                                             @Html.DisplayFor(modelItem => item.Description)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@item.CreatedById">
+                                                @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                                            </a>
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.CreatedOn)
@@ -118,7 +149,7 @@
                             </tbody>
                         </table>
 
-                        @if (Model?.Status.Code != "Closed")
+                        @* @if (Model?.Status.Code != "Closed")
                         {
                             <div>
                                 <form asp-action="AddComment" asp-route-id="@Model?.Id">
@@ -131,7 +162,7 @@
                                     </div>
                                 </form>
                             </div>
-                        }
+                        } *@
                         
                     </div>
                 </div>
@@ -168,7 +199,9 @@
                                             @Html.DisplayFor(modelItem => item.Status.Description)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@item.CreatedById">
+                                                @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                                            </a>
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.CreatedOn)
@@ -178,7 +211,7 @@
                             </tbody>
                         </table>
 
-                        @if (Model?.Status.Code != "Closed")
+                        @* @if (Model?.Status.Code != "Closed")
                         {
                             <div>
                                 <form asp-action="ResolveConfirm" asp-route-id="@Model?.Id">
@@ -197,7 +230,7 @@
                                     </div>
                                 </form>
                             </div>
-                        }
+                        } *@
 
                     </div>
                 </div>
@@ -205,3 +238,16 @@
         </div>
     </div>
 </div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+        });
+    </script>
+}

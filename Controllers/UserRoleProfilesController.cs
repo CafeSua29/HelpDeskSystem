@@ -74,7 +74,7 @@ namespace HelpDeskSystem.Controllers
             userRoleProfile.CreatedById = userId;
 
             _context.Add(userRoleProfile);
-            await _context.SaveChangesAsync(userId);
+            await _context.MySaveChangesAsync(userId);
             return RedirectToAction(nameof(Index));
 
             ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name", userRoleProfile.RoleId);
@@ -120,7 +120,7 @@ namespace HelpDeskSystem.Controllers
                 userRoleProfile.ModifiedById = userId;
 
                 _context.Update(userRoleProfile);
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -232,7 +232,7 @@ namespace HelpDeskSystem.Controllers
                     }
                 }
 
-                await _context.SaveChangesAsync(User.GetUserId());
+                await _context.MySaveChangesAsync(User.GetUserId());
                 TempData["Message"] = "Role rights assigned";
             }
             catch (Exception ex)

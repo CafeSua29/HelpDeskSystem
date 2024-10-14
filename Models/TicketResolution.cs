@@ -7,8 +7,10 @@ namespace HelpDeskSystem.Models
         [DisplayName("No")]
         public int Id { get; set; }
 
+        [DisplayName("Ticket")]
         public int TicketId { get; set; }
 
+        [DisplayName("Ticket")]
         public Ticket Ticket { get; set; }
 
         [DisplayName("Description")]
@@ -17,6 +19,7 @@ namespace HelpDeskSystem.Models
         [DisplayName("Status")]
         public int StatusId { get; set; }
 
+        [DisplayName("Status")]
         public SystemCodeDetail Status { get; set; }
     }
 }

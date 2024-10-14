@@ -5,18 +5,22 @@ namespace HelpDeskSystem.Models
 {
     public class AppUser : IdentityUser
     {
+        [DisplayName("Name")]
         public string Name { get; set; }
 
+        [DisplayName("Date of Birth")]
         public DateOnly DOB { get; set; }
 
+        [DisplayName("Gender")]
         public int GenderId { get; set; }
 
+        [DisplayName("Gender")]
         public SystemCodeDetail Gender { get; set; }
 
-        [DisplayName("System Role")]
+        [DisplayName("Role")]
         public string RoleId { get; set; }
 
-        [DisplayName("System Role")]
+        [DisplayName("Role")]
         public IdentityRole Role { get; set; }
 
         [DisplayName("Locked")]

@@ -41,13 +41,23 @@ namespace HelpDeskSystem.Data
 
         public DbSet<TicketsPriorityView> TicketsPriorityView { get; set; }
 
-        public virtual async Task<int> SaveChangesAsync(string userid = null)
+        public virtual async Task<int> MySaveChangesAsync(string userid = null)
         {
             OnBeforeSaveChanges(userid);
 
             var result = await base.SaveChangesAsync();
 
             return result;
+        }
+
+        public override int SaveChanges()
+        {
+            throw new NotSupportedException("Only asynchronous operations are supported.");
+        }
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            throw new NotSupportedException("Only asynchronous operations are supported.");
         }
 
         private void OnBeforeSaveChanges(string userid)

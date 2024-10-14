@@ -16,6 +16,7 @@ using HelpDeskSystem.Services;
 using ElmahCore;
 using HelpDeskSystem.ClaimsManagement;
 using Microsoft.AspNetCore.Authorization;
+using Elmah.ContentSyndication;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -28,6 +29,8 @@ namespace HelpDeskSystem.Controllers
 
         private readonly IMapper _mapper;
 
+        private DateTime Cd;
+
         public TicketsController(ApplicationDbContext context, IConfiguration configuration, IMapper mapper)
         {
             _context = context;
@@ -35,10 +38,61 @@ namespace HelpDeskSystem.Controllers
             _mapper = mapper;
         }
 
+        private async Task UpdatePriority()
+        {
+            try
+            {
+                var tickets = await _context.Tickets
+                   .Where(t => t.DelTime == null)
+                   .ToListAsync();
+
+                var ss = await _context.SystemSettings
+                    .Where(x => x.Code == "TicketResolutionDays" && x.DelTime == null)
+                    .FirstOrDefaultAsync();
+
+                var duration = ss.Value;
+
+                var lowpriorityid = await _context.SystemCodeDetails
+                    .Include(c => c.SystemCode)
+                    .Where(c => c.SystemCode.Code == "Priority" && c.Code == "Low" && c.DelTime == null)
+                    .FirstOrDefaultAsync();
+
+                var mediumpriorityid = await _context.SystemCodeDetails
+                    .Include(c => c.SystemCode)
+                    .Where(c => c.SystemCode.Code == "Priority" && c.Code == "Medium" && c.DelTime == null)
+                    .FirstOrDefaultAsync();
+
+                var highpriorityid = await _context.SystemCodeDetails
+                    .Include(c => c.SystemCode)
+                    .Where(c => c.SystemCode.Code == "Priority" && c.Code == "High" && c.DelTime == null)
+                    .FirstOrDefaultAsync();
+
+                foreach (var ticket in tickets)
+                {
+                    if (ticket.Duration <= duration)
+                        ticket.PriorityId = lowpriorityid.Id;
+                    else if (ticket.Duration <= duration * 2)
+                        ticket.PriorityId = mediumpriorityid.Id;
+                    else
+                        ticket.PriorityId = highpriorityid.Id;
+                    _context.Update(ticket);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+            }
+        }
+
         [Permission("TICKETS:TICKET COMMENTS")]
         // GET: Tickets
         public async Task<IActionResult> Index(string Title, int StatusId, string CreatedById, string AssignedToId, DateTime CreatedOn)
         {
+            await UpdatePriority();
+
             var allticket = _context.Tickets
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Status)
@@ -49,12 +103,12 @@ namespace HelpDeskSystem.Controllers
                 .OrderByDescending(c => c.CreatedOn)
                 .AsQueryable();
 
-            if(!string.IsNullOrEmpty(Title))
+            if (!string.IsNullOrEmpty(Title))
             {
                 allticket = allticket.Where(x => x.Title.Contains(Title) || x.Description.Contains(Title));
             }
 
-            if(StatusId > 0)
+            if (StatusId > 0)
             {
                 allticket = allticket.Where(x => x.StatusId == StatusId);
             }
@@ -76,11 +130,11 @@ namespace HelpDeskSystem.Controllers
                 allticket = allticket.Where(x => DateOnly.FromDateTime(x.CreatedOn).CompareTo(DateOnly.FromDateTime(CreatedOn)) == 0);
             }
 
-            var tickets = await allticket.ToListAsync();
+            List<Ticket> tickets =  allticket.ToList();
 
             List<TicketVM> ticketVMs = new List<TicketVM>();
 
-            foreach (var ticket in tickets)
+            foreach (Ticket ticket in tickets)
             {
                 TicketVM ticketVM = new TicketVM();
 
@@ -89,7 +143,7 @@ namespace HelpDeskSystem.Controllers
                 ticketVM.Comments = _context.Comments
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
-                .Where(c => c.TicketId == ticket.Id)
+                .Where(c => c.TicketId == ticket.Id && c.DelTime == null)
                 .Count();
 
                 ticketVMs.Add(ticketVM);
@@ -97,11 +151,11 @@ namespace HelpDeskSystem.Controllers
 
             ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
-                .Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
-            ViewData["UsersId"] = new SelectList(_context.Users, "Id", "Name");
+                .Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
+            ViewData["UsersId"] = new SelectList(_context.Users.Where(t => t.DelTime == null), "Id", "Name");
 
             var ss = await _context.SystemSettings
-                .Where(x => x.Code == "TicketResolutionDays")
+                .Where(x => x.Code == "TicketResolutionDays" && x.DelTime == null)
                 .FirstOrDefaultAsync();
 
             ViewBag.Duration = ss.Value;
@@ -123,19 +177,20 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .Include(t => t.AssignedTo)
+                .Where(t => t.DelTime == null)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             ViewBag.Comments = await _context.Comments
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
-                .Where(c => c.TicketId == id)
+                .Where(c => c.TicketId == id && c.DelTime == null)
                 .ToListAsync();
 
             ViewBag.Resolutions = await _context.TicketResolutions
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
                 .Include(c => c.Status)
-                .Where(c => c.TicketId == id)
+                .Where(c => c.TicketId == id && c.DelTime == null)
                 .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
 
@@ -144,7 +199,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus" && x.DelTime == null), "Id", "Description");
 
             return View(ticket);
         }
@@ -152,9 +207,9 @@ namespace HelpDeskSystem.Controllers
         // GET: Tickets/Create
         public IActionResult Create()
         {
-            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
-            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority" && x.DelTime == null), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories.Where(x => x.DelTime == null), "Id", "Name");
             return View();
         }
 
@@ -165,9 +220,9 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Ticket ticket, IFormFile attachment)
         {
-            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
-            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority" && x.DelTime == null), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories.Where(x => x.DelTime == null), "Id", "Name");
 
             try
             {
@@ -183,6 +238,22 @@ namespace HelpDeskSystem.Controllers
                     ticket.Attachment = filename;
                 }
 
+                if (ticket.StatusId == 0 || ticket.PriorityId == 0)
+                {
+                    var pendingstatusid = await _context.SystemCodeDetails
+                        .Include(c => c.SystemCode)
+                        .Where(c => c.SystemCode.Code == "Status" && c.Code == "Pending" && c.DelTime == null)
+                        .FirstOrDefaultAsync();
+
+                    var lowpriorityid = await _context.SystemCodeDetails
+                    .Include(c => c.SystemCode)
+                    .Where(c => c.SystemCode.Code == "Priority" && c.Code == "Low" && c.DelTime == null)
+                    .FirstOrDefaultAsync();
+
+                    ticket.StatusId = pendingstatusid.Id;
+                    ticket.PriorityId = lowpriorityid.Id;
+                }
+
                 var userId = User.GetUserId();
 
                 ticket.CreatedOn = DateTime.Now;
@@ -192,7 +263,7 @@ namespace HelpDeskSystem.Controllers
                 //var ticket = _mapper.Map(vm, new Ticket());
 
                 _context.Add(ticket);
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
 
                 TempData["Message"] = "Ticket Created";
 
@@ -221,9 +292,9 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
-            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority" && x.DelTime == null), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories.Where(x => x.DelTime == null), "Id", "Name");
 
             return View(ticket);
         }
@@ -235,9 +306,9 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Ticket ticket, IFormFile attachment)
         {
-            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority"), "Id", "Description");
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status"), "Id", "Description");
-            ViewData["CategoryId"] = new SelectList(_context.TicketCategories, "Id", "Name");
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority" && x.DelTime == null), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories.Where(x => x.DelTime == null), "Id", "Name");
 
             if (id != ticket.Id)
             {
@@ -258,13 +329,29 @@ namespace HelpDeskSystem.Controllers
                     ticket.Attachment = filename;
                 }
 
+                if (ticket.StatusId == 0 || ticket.PriorityId == 0)
+                {
+                    var pendingstatusid = await _context.SystemCodeDetails
+                        .Include(c => c.SystemCode)
+                        .Where(c => c.SystemCode.Code == "Status" && c.Code == "Pending" && c.DelTime == null)
+                        .FirstOrDefaultAsync();
+
+                    var lowpriorityid = await _context.SystemCodeDetails
+                    .Include(c => c.SystemCode)
+                    .Where(c => c.SystemCode.Code == "Priority" && c.Code == "Low" && c.DelTime == null)
+                    .FirstOrDefaultAsync();
+
+                    ticket.StatusId = pendingstatusid.Id;
+                    ticket.PriorityId = lowpriorityid.Id;
+                }
+
                 var userId = User.GetUserId();
 
                 ticket.ModifiedOn = DateTime.Now;
                 ticket.ModifiedById = userId;
 
                 _context.Update(ticket);
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
 
                 TempData["Message"] = "Ticket Updated";
 
@@ -324,12 +411,27 @@ namespace HelpDeskSystem.Controllers
                 {
                     //_context.Tickets.Remove(ticket);
 
-                    ticket.DelTime = DateTime.Now;
+                    var comments = await _context.Comments.Where(c => c.TicketId == id && c.DelTime == null).ToListAsync();
 
+                    foreach (var comment in comments)
+                    {
+                        comment.DelTime = DateTime.Now;
+                    }
+
+                    var resolutions = await _context.TicketResolutions.Where(c => c.TicketId == id && c.DelTime == null).ToListAsync();
+
+                    foreach (var resolution in resolutions)
+                    {
+                        resolution.DelTime = DateTime.Now;
+
+                    }
+
+                    ticket.DelTime = DateTime.Now;
+                    _context.UpdateRange(comments);
+                    _context.UpdateRange(resolutions);
                     _context.Update(ticket);
                 }
-
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
 
                 TempData["Message"] = "Ticket Deleted";
             }
@@ -364,7 +466,7 @@ namespace HelpDeskSystem.Controllers
                 comment.Description = Desc;
 
                 _context.Add(comment);
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
             }
             catch (Exception ex)
             {
@@ -387,20 +489,14 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .Include(t => t.AssignedTo)
+                .Where(c => c.DelTime == null)
                 .FirstOrDefaultAsync(m => m.Id == id);
-
-            ViewBag.Comments = await _context.Comments
-                .Include(c => c.CreatedBy)
-                .Include(c => c.Ticket)
-                .Where(c => c.TicketId == id)
-                .OrderByDescending(c => c.CreatedOn)
-                .ToListAsync();
 
             ViewBag.Resolutions = await _context.TicketResolutions
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
                 .Include(c => c.Status)
-                .Where(c => c.TicketId == id)
+                .Where(c => c.TicketId == id && c.DelTime == null)
                 .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
 
@@ -409,7 +505,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus" && x.DelTime == null), "Id", "Description");
 
             return View(ticket);
         }
@@ -418,18 +514,26 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Resolve(int id, string Desc, int StatusId)
         {
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus"), "Id", "Description");
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "ResolutionStatus" && x.DelTime == null), "Id", "Description");
+
+            ViewBag.Resolutions = await _context.TicketResolutions
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Include(c => c.Status)
+                .Where(c => c.TicketId == id && c.DelTime == null)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
 
             try
             {
                 var statuscode = await _context.SystemCodeDetails
                 .Include(c => c.SystemCode)
-                .Where(c => c.SystemCode.Code == "ResolutionStatus" && c.Id == StatusId)
+                .Where(c => c.SystemCode.Code == "ResolutionStatus" && c.Id == StatusId && c.DelTime == null)
                 .FirstOrDefaultAsync();
 
                 var statusid = await _context.SystemCodeDetails
                     .Include(c => c.SystemCode)
-                    .Where(c => c.SystemCode.Code == "Status" && c.Code == statuscode.Code)
+                    .Where(c => c.SystemCode.Code == "Status" && c.Code == statuscode.Code && c.DelTime == null)
                     .FirstOrDefaultAsync();
 
                 TicketResolution resolution = new TicketResolution();
@@ -450,7 +554,7 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Update(ticket);
 
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
             }
             catch (Exception ex)
             {
@@ -467,7 +571,7 @@ namespace HelpDeskSystem.Controllers
             {
                 var closedstatusid = await _context.SystemCodeDetails
                 .Include(c => c.SystemCode)
-                .Where(c => c.SystemCode.Code == "Status" && c.Code == "Closed")
+                .Where(c => c.SystemCode.Code == "Status" && c.Code == "Closed" && c.DelTime == null)
                 .FirstOrDefaultAsync();
 
                 TicketResolution resolution = new TicketResolution();
@@ -488,9 +592,11 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Update(ticket);
 
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
 
-                return RedirectToAction("Index");
+                TempData["Message"] = "Ticket Closed";
+
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
@@ -506,9 +612,9 @@ namespace HelpDeskSystem.Controllers
         {
             try
             {
-                var pendingstatusid = await _context.SystemCodeDetails
+                var waitingstatusid = await _context.SystemCodeDetails
                 .Include(c => c.SystemCode)
-                .Where(c => c.SystemCode.Code == "Status" && c.Code == "Pending")
+                .Where(c => c.SystemCode.Code == "Status" && c.Code == "waiting" && c.DelTime == null)
                 .FirstOrDefaultAsync();
 
                 TicketResolution resolution = new TicketResolution();
@@ -520,16 +626,16 @@ namespace HelpDeskSystem.Controllers
                 resolution.Id = 0;
                 resolution.TicketId = id;
                 resolution.Description = "Re-open by owner";
-                resolution.StatusId = pendingstatusid.Id;
+                resolution.StatusId = waitingstatusid.Id;
 
                 _context.Add(resolution);
 
                 var ticket = await _context.Tickets.FindAsync(id);
-                ticket.StatusId = pendingstatusid.Id;
+                ticket.StatusId = waitingstatusid.Id;
 
                 _context.Update(ticket);
 
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
 
                 TempData["Message"] = "Re-opened Ticket";
             }
@@ -555,20 +661,14 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .Include(t => t.AssignedTo)
+                .Where(c => c.DelTime == null)
                 .FirstOrDefaultAsync(m => m.Id == id);
-
-            ViewBag.Comments = await _context.Comments
-                .Include(c => c.CreatedBy)
-                .Include(c => c.Ticket)
-                .Where(c => c.TicketId == id)
-                .OrderByDescending(c => c.CreatedOn)
-                .ToListAsync();
 
             ViewBag.Resolutions = await _context.TicketResolutions
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
                 .Include(c => c.Status)
-                .Where(c => c.TicketId == id)
+                .Where(c => c.TicketId == id && c.DelTime == null)
                 .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
 
@@ -577,7 +677,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            ViewData["UsersId"] = new SelectList(_context.Users, "Id", "Name");
+            ViewData["UsersId"] = new SelectList(_context.Users.Where(c => c.DelTime == null), "Id", "Name");
 
             return View(ticket);
         }
@@ -586,7 +686,15 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Assign(int id, string UserId)
         {
-            ViewData["UsersId"] = new SelectList(_context.Users, "Id", "Name");
+            ViewData["UsersId"] = new SelectList(_context.Users.Where(c => c.DelTime == null), "Id", "Name");
+
+            ViewBag.Resolutions = await _context.TicketResolutions
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Include(c => c.Status)
+                .Where(c => c.TicketId == id && c.DelTime == null)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
 
             try
             {
@@ -598,8 +706,26 @@ namespace HelpDeskSystem.Controllers
 
                 var assignedstatusid = await _context.SystemCodeDetails
                     .Include(c => c.SystemCode)
-                    .Where(c => c.SystemCode.Code == "Status" && c.Code == "Assigned")
+                    .Where(c => c.SystemCode.Code == "Status" && c.Code == "Assigned" && c.DelTime == null)
                     .FirstOrDefaultAsync();
+
+                var ticket = await _context.Tickets.FindAsync(id);
+
+                if (ticket.AssignedToId != null)
+                {
+                    if (ticket.AssignedToId.Equals(UserId))
+                    {
+                        TempData["Error"] = "This ticket is already assign to this user !";
+                        return RedirectToAction("Assign", new { id = id });
+                    }
+                }
+
+                ticket.AssignedToId = UserId;
+                ticket.AssignedTo = user;
+                ticket.AssignedOn = DateTime.Now;
+                ticket.StatusId = assignedstatusid.Id;
+
+                _context.Update(ticket);
 
                 resolution.CreatedOn = DateTime.Now;
                 resolution.CreatedById = userId;
@@ -610,16 +736,9 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Add(resolution);
 
-                var ticket = await _context.Tickets.FindAsync(id);
+                await _context.MySaveChangesAsync(userId);
 
-                ticket.AssignedToId = UserId;
-                ticket.AssignedTo = user;
-                ticket.AssignedOn = DateTime.Now;
-                ticket.StatusId = assignedstatusid.Id;
-
-                _context.Update(ticket);
-
-                await _context.SaveChangesAsync(userId);
+                TempData["Message"] = "Ticket assigned !";
             }
             catch (Exception ex)
             {

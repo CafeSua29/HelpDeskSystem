@@ -70,7 +70,7 @@ namespace HelpDeskSystem.Controllers
             systemSetting.CreatedById = userId;
 
             _context.Add(systemSetting);
-            await _context.SaveChangesAsync(userId);
+            await _context.MySaveChangesAsync(userId);
             return RedirectToAction(nameof(Index));
 
             return View(systemSetting);
@@ -112,7 +112,7 @@ namespace HelpDeskSystem.Controllers
                 systemSetting.ModifiedById = userId;
 
                 _context.Update(systemSetting);
-                await _context.SaveChangesAsync(userId);
+                await _context.MySaveChangesAsync(userId);
             }
             catch (DbUpdateConcurrencyException)
             {
