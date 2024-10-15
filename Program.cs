@@ -109,15 +109,22 @@ builder.Services.AddElmah<XmlFileErrorLog>(options =>
 
 builder.Services.AddQuartz(q =>
 {
-    // Just use the name of your job that you created in the Jobs folder.
-    var jobKey = new JobKey("CleanDbJob");
-    q.AddJob<CleanDbJob>(opts => opts.WithIdentity(jobKey));
+    var CleanDbJob = new JobKey("CleanDbJob");
+    q.AddJob<CleanDbJob>(opts => opts.WithIdentity(CleanDbJob));
 
     q.AddTrigger(opts => opts
-        .ForJob(jobKey)
+        .ForJob(CleanDbJob)
         .WithIdentity("CleanDbJob-trigger")
-        //This Cron interval can be described as "run every minute" (when second is zero)
-        .WithCronSchedule("0 * * ? * *")
+        .WithCronSchedule("0 0 3 L * ?")
+    );
+
+    var UpdateTicketPriorityJob = new JobKey("UpdateTicketPriorityJob");
+    q.AddJob<UpdateTicketPriorityJob>(opts => opts.WithIdentity(UpdateTicketPriorityJob));
+
+    q.AddTrigger(opts => opts
+        .ForJob(UpdateTicketPriorityJob)
+        .WithIdentity("UpdateTicketPriorityJob-trigger")
+        .WithCronSchedule("0 0 0 * * ?")
     );
 });
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

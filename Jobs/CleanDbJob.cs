@@ -290,8 +290,6 @@ namespace HelpDeskSystem.Jobs
                 await CleanUserRoleProfilesTb();
 
                 await CleanUsersTb();
-
-                await Console.Out.WriteLineAsync("Greetings from HelloJob!");
             }
             catch (Exception ex)
             {
