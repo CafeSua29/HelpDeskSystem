@@ -302,13 +302,13 @@
 @section Scripts
 {
     <script>
-        // $(document).ready(function () {
-        //     window.setTimeout(function () {
-        //         $(".alert").fadeTo(500, 0).slideUp(500, function () {
-        //             $(this).remove();
-        //         });
-        //     }, 2000);
-        // });
+        $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+        });
 
         $('#deleteConfirmationModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
