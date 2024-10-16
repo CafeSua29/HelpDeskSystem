@@ -1,4 +1,5 @@
-﻿using HelpDeskSystem.Data;
+﻿using HelpDeskSystem.ClaimsManagement;
+using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using HelpDeskSystem.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
+    [Permission(":ROLES")]
     public class RolesController : Controller
     {
         private readonly UserManager<AppUser> _userManager;

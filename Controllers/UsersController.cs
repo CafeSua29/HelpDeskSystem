@@ -17,6 +17,7 @@ using static System.Net.Mime.MediaTypeNames;
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
+    [Permission(":USERS")]
     public class UsersController : Controller
     {
         private readonly UserManager<AppUser> _userManager;

@@ -50,16 +50,6 @@ namespace HelpDeskSystem.Data
             return result;
         }
 
-        public override int SaveChanges()
-        {
-            throw new NotSupportedException("Only asynchronous operations are supported.");
-        }
-
-        public override int SaveChanges(bool acceptAllChangesOnSuccess)
-        {
-            throw new NotSupportedException("Only asynchronous operations are supported.");
-        }
-
         private void OnBeforeSaveChanges(string userid)
         {
             ChangeTracker.DetectChanges();

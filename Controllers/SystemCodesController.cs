@@ -10,10 +10,12 @@ using HelpDeskSystem.Models;
 using System.Security.Claims;
 using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Authorization;
+using HelpDeskSystem.ClaimsManagement;
 
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
+    [Permission(":SYSTEM")]
     public class SystemCodesController : Controller
     {
         private readonly ApplicationDbContext _context;

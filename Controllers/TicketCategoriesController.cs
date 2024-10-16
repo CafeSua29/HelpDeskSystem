@@ -10,10 +10,12 @@ using HelpDeskSystem.Models;
 using System.Security.Claims;
 using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Authorization;
+using HelpDeskSystem.ClaimsManagement;
 
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
+    [Permission(":TICKETCATEGORIES")]
     public class TicketCategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;

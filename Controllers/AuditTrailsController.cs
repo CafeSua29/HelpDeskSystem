@@ -8,10 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using Microsoft.AspNetCore.Authorization;
+using HelpDeskSystem.ClaimsManagement;
 
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
+    [Permission("SYSTEM:AUDITTRAILS")]
     public class AuditTrailsController : Controller
     {
         private readonly ApplicationDbContext _context;

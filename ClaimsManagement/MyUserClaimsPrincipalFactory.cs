@@ -1,4 +1,5 @@
 ﻿using HelpDeskSystem.Data;
+using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,29 +25,26 @@ namespace HelpDeskSystem.ClaimsManagement
         protected override async Task<ClaimsIdentity> GenerateClaimsAsync(AppUser user)
         {
             var identity = await base.GenerateClaimsAsync(user);
-            var userRoles = await _userManager.GetRolesAsync(user);
 
-            if (userRoles.Any())
+            var userRole = user.RoleId;
+
+            var role = await _context.Roles.SingleOrDefaultAsync(i => i.Id == userRole);
+
+            if (role != null)
             {
-                var userRole = userRoles.First();
-                var role = await _context.Roles.SingleOrDefaultAsync(i => i.Name == userRole);
+                var permissions = await _context.UserRoleProfiles
+                    .Where(p => p.RoleId == role.Id)
+                    .Select(p => $"{p.Task.Parent.Code}:{p.Task.Code}")
+                    .ToListAsync();
 
-                if (role != null)
+                var allUserPermissions = "";
+
+                foreach (var p in permissions)
                 {
-                    var permissions = await _context.UserRoleProfiles
-                        .Where(p => p.RoleId == role.Id)
-                        .Select(p => $"{p.Task.Parent.Code}:{p.Task.Name}")
-                        .ToListAsync();
-
-                    var allUserPermissions = "";
-
-                    foreach (var p in permissions)
-                    {
-                        allUserPermissions += $"|{p?.ToUpper()}";
-                    }
-
-                    identity.AddClaim(new Claim("UserPermission", allUserPermissions));
+                    allUserPermissions += $"{p?.ToUpper()}|";
                 }
+
+                identity.AddClaim(new Claim("UserPermission", allUserPermissions));
             }
 
             return identity;

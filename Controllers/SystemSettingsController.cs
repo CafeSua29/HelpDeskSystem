@@ -11,10 +11,12 @@ using HelpDeskSystem.Data.Migrations;
 using System.Security.Claims;
 using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Authorization;
+using HelpDeskSystem.ClaimsManagement;
 
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
+    [Permission(":SYSTEM")]
     public class SystemSettingsController : Controller
     {
         private readonly ApplicationDbContext _context;

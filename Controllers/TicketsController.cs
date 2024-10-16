@@ -21,7 +21,7 @@ using Elmah.ContentSyndication;
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
-    [Permission("TICKETS:TICKET COMMENTS")]
+    [Permission(":TICKETS")]
     public class TicketsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -38,7 +38,7 @@ namespace HelpDeskSystem.Controllers
             _mapper = mapper;
         }
 
-        [Permission("TICKETS:TICKET COMMENTS")]
+        [Permission(":TICKETS")]
         // GET: Tickets
         public async Task<IActionResult> Index(string Title, int StatusId, string CreatedById, string AssignedToId, DateTime CreatedOn)
         {

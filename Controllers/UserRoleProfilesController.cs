@@ -11,10 +11,12 @@ using System.Security.Claims;
 using HelpDeskSystem.Services;
 using HelpDeskSystem.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using HelpDeskSystem.ClaimsManagement;
 
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
+    [Permission(":ROLES")]
     public class UserRoleProfilesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -211,6 +213,23 @@ namespace HelpDeskSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> UserRights(ProfileVM vm)
         {
+            var allroles = await _context.Roles
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            ViewBag.RoleId = new SelectList(allroles, "Id", "Name", vm.RoleId);
+
+            vm.SystemTasks = await _context.SystemTasks
+                .Include("ChildTasks.ChildTasks.ChildTasks")
+                .OrderBy(x => x.OrderNo)
+                .Where(x => x.Parent == null)
+                .ToListAsync();
+
+            vm.RightsIdAssigned = await _context.UserRoleProfiles
+                .Where(x => x.RoleId == vm.RoleId)
+                .Select(x => x.TaskId)
+                .ToListAsync();
+
             try
             {
                 var allprofile = _context.UserRoleProfiles.Where(x => x.RoleId == vm.RoleId).ToList();
@@ -233,29 +252,11 @@ namespace HelpDeskSystem.Controllers
                 }
 
                 await _context.MySaveChangesAsync(User.GetUserId());
-                TempData["Message"] = "Role rights assigned";
             }
             catch (Exception ex)
             {
                 TempData["Error"] = "Error: " + ex.Message;
             }
-
-            var allroles = await _context.Roles
-                .OrderBy(x => x.Name)
-                .ToListAsync();
-
-            ViewBag.RoleId = new SelectList(allroles, "Id", "Name", vm.RoleId);
-
-            vm.SystemTasks = await _context.SystemTasks
-                .Include("ChildTasks.ChildTasks.ChildTasks")
-                .OrderBy(x => x.OrderNo)
-                .Where(x => x.Parent == null)
-                .ToListAsync();
-
-            vm.RightsIdAssigned = await _context.UserRoleProfiles
-                .Where(x => x.RoleId == vm.RoleId)
-                .Select(x => x.TaskId)
-                .ToListAsync();
 
             return View(vm);
         }

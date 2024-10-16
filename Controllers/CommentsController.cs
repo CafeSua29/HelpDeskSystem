@@ -11,10 +11,12 @@ using System.Security.Claims;
 using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Authorization;
+using HelpDeskSystem.ClaimsManagement;
 
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
+    [Permission(":TICKETS")]
     public class CommentsController : Controller
     {
         private readonly ApplicationDbContext _context;
