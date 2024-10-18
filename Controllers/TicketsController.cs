@@ -351,10 +351,10 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var userId = User.GetUserId();
-
             try
             {
+                var userId = User.GetUserId();
+
                 var ticket = await _context.Tickets.FindAsync(id);
                 if (ticket != null)
                 {

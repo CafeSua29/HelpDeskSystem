@@ -297,6 +297,18 @@ namespace HelpDeskSystem.Data
                 .WithMany()
                 .HasForeignKey(c => c.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AppRole>()
+                .HasOne(c => c.CreatedBy)
+                .WithMany()
+                .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AppRole>()
+                .HasOne(c => c.ModifiedBy)
+                .WithMany()
+                .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

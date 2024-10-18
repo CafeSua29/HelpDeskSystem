@@ -35,6 +35,7 @@ Version      : 1.0
 				$(this).next('ul').slideUp(350);
 			}
 		});
+
 		$('#sidebar-menu ul li.submenu a.active').parents('li:last').children('a:first').addClass('active').trigger('click');
 	}
 	

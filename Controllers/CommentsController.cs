@@ -12,6 +12,9 @@ using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using HelpDeskSystem.ClaimsManagement;
+using ElmahCore;
+using System.Net.Mail;
+using System.Xml.Linq;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -29,7 +32,7 @@ namespace HelpDeskSystem.Controllers
         // GET: Comments
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Comments.Include(c => c.CreatedBy).Include(c => c.Ticket);
+            var applicationDbContext = _context.Comments.Include(c => c.CreatedBy).Include(c => c.Ticket).Where(t => t.DelTime == null);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -41,7 +44,7 @@ namespace HelpDeskSystem.Controllers
             }
 
             var comments = _context.Comments
-                .Where(x => x.TicketId == id)
+                .Where(x => x.TicketId == id && x.DelTime == null)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
                 .OrderByDescending(c => c.CreatedOn)
@@ -90,12 +93,6 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var ticket = _context.Comments.FindAsync(id);
-            if (ticket == null)
-            {
-                return NotFound();
-            }
-
             Comment comment = new Comment();
             comment.TicketId = id;
 
@@ -109,20 +106,26 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Comment comment)
         {
-            var userId = User.GetUserId();
+            try
+            {
+                var userId = User.GetUserId();
 
-            comment.CreatedOn = DateTime.Now;
-            comment.CreatedById = userId;
-            comment.Id = 0;
+                comment.CreatedOn = DateTime.Now;
+                comment.CreatedById = userId;
+                comment.Id = 0;
 
-            _context.Add(comment);
-            await _context.MySaveChangesAsync(userId);
+                _context.Add(comment);
+                await _context.MySaveChangesAsync(userId);
 
-            return RedirectToAction("TicketComments", new { id = comment.TicketId });
+                return RedirectToAction("TicketComments", new { id = comment.TicketId });
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
 
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", comment.CreatedById);
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Title", comment.TicketId);
-            return View(comment);
+                return View(comment);
+            }
         }
 
         // GET: Comments/Edit/5
@@ -138,8 +141,7 @@ namespace HelpDeskSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", comment.CreatedById);
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Title", comment.TicketId);
+
             return View(comment);
         }
 
@@ -164,23 +166,16 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Update(comment);
                 await _context.MySaveChangesAsync(userId);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CommentExists(comment.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
 
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Name", comment.CreatedById);
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Title", comment.TicketId);
-            return View(comment);
+                return RedirectToAction("TicketComments", new { id = comment.TicketId });
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(comment);
+            }
         }
 
         // GET: Comments/Delete/5
@@ -209,13 +204,28 @@ namespace HelpDeskSystem.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var comment = await _context.Comments.FindAsync(id);
-            if (comment != null)
+
+            try
             {
-                _context.Comments.Remove(comment);
+                var userId = User.GetUserId();
+
+                if (comment != null)
+                {
+                    //_context.Comments.Remove(comment);
+
+                    comment.DelTime = DateTime.Now;
+                    _context.Update(comment);
+                }
+
+                await _context.MySaveChangesAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("TicketComments", new { id = comment.TicketId });
         }
 
         private bool CommentExists(int id)
