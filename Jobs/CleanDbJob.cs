@@ -155,6 +155,19 @@ namespace HelpDeskSystem.Jobs
 
                 if (tickets != null)
                 {
+                    foreach (var ticket in tickets)
+                    {
+                        if (!string.IsNullOrEmpty(ticket.Attachment))
+                        {
+                            var filePath = Path.Combine("ClientUpload", ticket.Attachment);
+
+                            if (System.IO.File.Exists(filePath))
+                            {
+                                System.IO.File.Delete(filePath);
+                            }
+                        }
+                    }
+
                     _context.Tickets.RemoveRange(tickets);
                 }
 

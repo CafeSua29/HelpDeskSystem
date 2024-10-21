@@ -49,6 +49,8 @@ namespace HelpDeskSystem.ClaimsManagement
                 identity.AddClaim(new Claim("UserPermission", allUserPermissions));
             }
 
+            identity.AddClaim(new Claim("UserId", user.Id));
+
             return identity;
         }
     }

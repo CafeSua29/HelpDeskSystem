@@ -68,7 +68,11 @@
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.Attachment):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.Attachment)</span>
+                                        <span class="info-span">
+                                            <a asp-action="DownloadAttachment" asp-route-fileName="@Model.Attachment">
+                                                @Html.DisplayFor(model => model.Attachment)
+                                            </a>
+                                        </span>
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
