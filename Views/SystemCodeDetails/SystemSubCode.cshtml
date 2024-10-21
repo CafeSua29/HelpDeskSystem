@@ -1,28 +1,32 @@
-﻿@model HelpDeskSystem.ViewModels.TicketSubCategoriesVM
+﻿@model IEnumerable<HelpDeskSystem.Models.SystemCodeDetail>
 
 @{
-    ViewData["Title"] = "Sub-categories";
+    ViewData["Title"] = "Index";
 
-    int cateid = ViewBag.CateId;
+    int codeid = ViewBag.SystemCodeId;
 }
 
 <h1>Index</h1>
 
-
 <p>
-    <a asp-action="Create" asp-route-id="@cateid">Create New</a>
+    <a asp-controller="SystemCodeDetails" asp-action="Create" asp-route-id="@codeid" class="btn btn-sm bg-success-light mr-2" title="Create">
+        <i class="fas fa-plus"></i>
+    </a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Code)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderNo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SystemCode)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedBy)
@@ -34,17 +38,20 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.TicketSubCategories)
+        @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Category.Name)
-                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Code)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SystemCode.Description)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.CreatedBy.Name)

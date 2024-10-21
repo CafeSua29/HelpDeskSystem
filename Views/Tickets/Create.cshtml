@@ -3,7 +3,9 @@
 @{
     ViewData["Title"] = "Create";
 
-    var admin = false;
+    var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
+
+    var admin = allUserPermissions.Contains(":SYSTEM");
 }
 
 <div class="content container-fluid">

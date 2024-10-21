@@ -11,6 +11,9 @@ using System.Security.Claims;
 using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using HelpDeskSystem.ClaimsManagement;
+using ElmahCore;
+using HelpDeskSystem.Data.Migrations;
+using System.Net.Mail;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -30,6 +33,7 @@ namespace HelpDeskSystem.Controllers
         {
             var systemcodes = await _context.SystemCodes
                 .Include(c => c.CreatedBy)
+                .Where(t => t.DelTime == null)
                 .ToListAsync();
 
             return View(systemcodes);
@@ -43,8 +47,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var systemCode = await _context.SystemCodes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var systemCode = await _context.SystemCodes.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (systemCode == null)
             {
                 return NotFound();
@@ -66,16 +69,27 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SystemCode systemCode)
         {
-            var userId = User.GetUserId();
+            try
+            {
+                var userId = User.GetUserId();
 
-            systemCode.CreatedOn = DateTime.Now;
-            systemCode.CreatedById = userId;
+                systemCode.CreatedOn = DateTime.Now;
+                systemCode.CreatedById = userId;
 
-            _context.Add(systemCode);
-            await _context.MySaveChangesAsync(userId);
-            return RedirectToAction(nameof(Index));
+                _context.Add(systemCode);
+                await _context.MySaveChangesAsync(userId);
 
-            return View(systemCode);
+                TempData["Message"] = "System code Created";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(systemCode);
+            }
         }
 
         // GET: SystemCodes/Edit/5
@@ -86,7 +100,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var systemCode = await _context.SystemCodes.FindAsync(id);
+            var systemCode = await _context.SystemCodes.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (systemCode == null)
             {
                 return NotFound();
@@ -115,21 +129,18 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Update(systemCode);
                 await _context.MySaveChangesAsync(userId);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SystemCodeExists(systemCode.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
 
-            return View(systemCode);
+                TempData["Message"] = "System code Updated";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(systemCode);
+            }
         }
 
         // GET: SystemCodes/Delete/5
@@ -140,8 +151,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var systemCode = await _context.SystemCodes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var systemCode = await _context.SystemCodes.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (systemCode == null)
             {
                 return NotFound();
@@ -155,19 +165,35 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var systemCode = await _context.SystemCodes.FindAsync(id);
-            if (systemCode != null)
+            try
             {
-                _context.SystemCodes.Remove(systemCode);
+                var userId = User.GetUserId();
+
+                var systemCode = await _context.SystemCodes.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+                if (systemCode != null)
+                {
+                    //_context.SystemCodes.Remove(systemCode);
+
+                    systemCode.DelTime = DateTime.Now;
+
+                    _context.Update(systemCode);
+                }
+                await _context.MySaveChangesAsync(userId);
+
+                TempData["Message"] = "System code Deleted";
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool SystemCodeExists(int id)
         {
-            return _context.SystemCodes.Any(e => e.Id == id);
+            return _context.SystemCodes.Any(e => e.Id == id && e.DelTime == null);
         }
     }
 }

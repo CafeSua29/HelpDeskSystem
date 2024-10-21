@@ -12,6 +12,8 @@ using HelpDeskSystem.Services;
 using HelpDeskSystem.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using HelpDeskSystem.ClaimsManagement;
+using ElmahCore;
+using HelpDeskSystem.Data.Migrations;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -29,7 +31,12 @@ namespace HelpDeskSystem.Controllers
         // GET: UserRoleProfiles
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.UserRoleProfiles.Include(u => u.CreatedBy).Include(u => u.ModifiedBy).Include(u => u.Role).Include(u => u.Task);
+            var applicationDbContext = _context.UserRoleProfiles
+                .Include(u => u.CreatedBy)
+                .Include(u => u.ModifiedBy)
+                .Include(u => u.Role)
+                .Include(u => u.Task)
+                .Where(e => e.DelTime == null);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -46,7 +53,8 @@ namespace HelpDeskSystem.Controllers
                 .Include(u => u.ModifiedBy)
                 .Include(u => u.Role)
                 .Include(u => u.Task)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
             if (userRoleProfile == null)
             {
                 return NotFound();
@@ -58,8 +66,8 @@ namespace HelpDeskSystem.Controllers
         // GET: UserRoleProfiles/Create
         public IActionResult Create()
         {
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
-            ViewData["TaskId"] = new SelectList(_context.SystemTasks, "Id", "Name");
+            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
+            ViewData["TaskId"] = new SelectList(_context.SystemTasks.Where(e => e.DelTime == null), "Id", "Name");
             return View();
         }
 
@@ -70,18 +78,30 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserRoleProfile userRoleProfile)
         {
-            var userId = User.GetUserId();
+            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name", userRoleProfile.RoleId);
+            ViewData["TaskId"] = new SelectList(_context.SystemTasks.Where(e => e.DelTime == null), "Id", "Name", userRoleProfile.TaskId);
 
-            userRoleProfile.CreatedOn = DateTime.Now;
-            userRoleProfile.CreatedById = userId;
+            try
+            {
+                var userId = User.GetUserId();
 
-            _context.Add(userRoleProfile);
-            await _context.MySaveChangesAsync(userId);
-            return RedirectToAction(nameof(Index));
+                userRoleProfile.CreatedOn = DateTime.Now;
+                userRoleProfile.CreatedById = userId;
 
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name", userRoleProfile.RoleId);
-            ViewData["TaskId"] = new SelectList(_context.SystemTasks, "Id", "Name", userRoleProfile.TaskId);
-            return View(userRoleProfile);
+                _context.Add(userRoleProfile);
+                await _context.MySaveChangesAsync(userId);
+
+                TempData["Message"] = "Right Created";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(userRoleProfile);
+            }
         }
 
         // GET: UserRoleProfiles/Edit/5
@@ -92,13 +112,15 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var userRoleProfile = await _context.UserRoleProfiles.FindAsync(id);
+            var userRoleProfile = await _context.UserRoleProfiles.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (userRoleProfile == null)
             {
                 return NotFound();
             }
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name", userRoleProfile.RoleId);
-            ViewData["TaskId"] = new SelectList(_context.SystemTasks, "Id", "Name", userRoleProfile.TaskId);
+
+            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name", userRoleProfile.RoleId);
+            ViewData["TaskId"] = new SelectList(_context.SystemTasks.Where(e => e.DelTime == null), "Id", "Name", userRoleProfile.TaskId);
+
             return View(userRoleProfile);
         }
 
@@ -123,23 +145,18 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Update(userRoleProfile);
                 await _context.MySaveChangesAsync(userId);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserRoleProfileExists(userRoleProfile.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
 
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name", userRoleProfile.RoleId);
-            ViewData["TaskId"] = new SelectList(_context.SystemTasks, "Id", "Name", userRoleProfile.TaskId);
-            return View(userRoleProfile);
+                TempData["Message"] = "Right Updated";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(userRoleProfile);
+            }
         }
 
         // GET: UserRoleProfiles/Delete/5
@@ -155,7 +172,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(u => u.ModifiedBy)
                 .Include(u => u.Role)
                 .Include(u => u.Task)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (userRoleProfile == null)
             {
                 return NotFound();
@@ -169,19 +186,36 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var userRoleProfile = await _context.UserRoleProfiles.FindAsync(id);
-            if (userRoleProfile != null)
+            try
             {
-                _context.UserRoleProfiles.Remove(userRoleProfile);
+                var userRoleProfile = await _context.UserRoleProfiles.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
+                var userId = User.GetUserId();
+
+                if (userRoleProfile != null)
+                {
+                    //_context.UserRoleProfiles.Remove(userRoleProfile);
+
+                    userRoleProfile.DelTime = DateTime.Now;
+                    _context.Update(userRoleProfile);
+                }
+
+                await _context.MySaveChangesAsync(userId);
+
+                TempData["Message"] = "Right Deleted";
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UserRoleProfileExists(int id)
         {
-            return _context.UserRoleProfiles.Any(e => e.Id == id);
+            return _context.UserRoleProfiles.Any(e => e.Id == id && e.DelTime == null);
         }
 
         [HttpGet]
@@ -192,6 +226,7 @@ namespace HelpDeskSystem.Controllers
             vm.RoleId = id;
             var allroles = await _context.Roles
                 .OrderBy(x => x.Name)
+                .Where(e => e.DelTime == null)
                 .ToListAsync();
 
             ViewBag.RoleId = new SelectList(allroles, "Id", "Name", id);
@@ -199,11 +234,11 @@ namespace HelpDeskSystem.Controllers
             vm.SystemTasks = await _context.SystemTasks
                 .Include("ChildTasks.ChildTasks.ChildTasks")
                 .OrderBy(x => x.OrderNo)
-                .Where(x => x.Parent == null)
+                .Where(x => x.Parent == null && x.DelTime == null)
                 .ToListAsync();
 
             vm.RightsIdAssigned = await _context.UserRoleProfiles
-                .Where(x => x.RoleId == id)
+                .Where(x => x.RoleId == id && x.DelTime == null)
                 .Select(x => x.TaskId)
                 .ToListAsync();
 
@@ -215,6 +250,7 @@ namespace HelpDeskSystem.Controllers
         {
             var allroles = await _context.Roles
                 .OrderBy(x => x.Name)
+                .Where(e => e.DelTime == null)
                 .ToListAsync();
 
             ViewBag.RoleId = new SelectList(allroles, "Id", "Name", vm.RoleId);
@@ -222,17 +258,17 @@ namespace HelpDeskSystem.Controllers
             vm.SystemTasks = await _context.SystemTasks
                 .Include("ChildTasks.ChildTasks.ChildTasks")
                 .OrderBy(x => x.OrderNo)
-                .Where(x => x.Parent == null)
+                .Where(x => x.Parent == null && x.DelTime == null)
                 .ToListAsync();
 
             vm.RightsIdAssigned = await _context.UserRoleProfiles
-                .Where(x => x.RoleId == vm.RoleId)
+                .Where(x => x.RoleId == vm.RoleId && x.DelTime == null)
                 .Select(x => x.TaskId)
                 .ToListAsync();
 
             try
             {
-                var allprofile = _context.UserRoleProfiles.Where(x => x.RoleId == vm.RoleId).ToList();
+                var allprofile = _context.UserRoleProfiles.Where(x => x.RoleId == vm.RoleId && x.DelTime == null).ToList();
                 _context.UserRoleProfiles.RemoveRange(allprofile);
 
                 if (vm.Ids != null)
@@ -252,9 +288,12 @@ namespace HelpDeskSystem.Controllers
                 }
 
                 await _context.MySaveChangesAsync(User.GetUserId());
+
+                TempData["Message"] = "Right Assigned";
             }
             catch (Exception ex)
             {
+                ElmahExtensions.RaiseError(ex);
                 TempData["Error"] = "Error: " + ex.Message;
             }
 

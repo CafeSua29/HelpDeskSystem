@@ -8,17 +8,19 @@ using System.Security.Claims;
 
 namespace HelpDeskSystem.ClaimsManagement
 {
-    public class MyUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<AppUser, IdentityRole>
+    public class MyUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<AppUser, AppRole>
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<AppRole> _roleManager;
         private readonly ApplicationDbContext _context;
 
         public MyUserClaimsPrincipalFactory(UserManager<AppUser> userManager, 
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<AppRole> roleManager,
             ApplicationDbContext context,
             IOptions<IdentityOptions> options) : base(userManager, roleManager, options)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _context = context;
         }
 

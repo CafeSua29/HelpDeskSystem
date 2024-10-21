@@ -1,12 +1,13 @@
 ﻿using HelpDeskSystem.AuditsManager;
 using HelpDeskSystem.Models;
 using Humanizer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HelpDeskSystem.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser>
+    public class ApplicationDbContext : IdentityDbContext<AppUser, AppRole, string>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -56,9 +57,9 @@ namespace HelpDeskSystem.Data
 
             var auditEntries = new List<AuditEntry>();
 
-            foreach(var entry in ChangeTracker.Entries())
+            foreach (var entry in ChangeTracker.Entries())
             {
-                if(entry.Entity is AuditTrail || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                if (entry.Entity is AuditTrail || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
                     continue;
 
                 var auditEntry = new AuditEntry(entry);
@@ -68,18 +69,18 @@ namespace HelpDeskSystem.Data
                 //auditEntry.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
                 auditEntries.Add(auditEntry);
 
-                foreach(var property in entry.Properties)
+                foreach (var property in entry.Properties)
                 {
                     string name = property.Metadata.Name;
 
-                    if(property.Metadata.IsPrimaryKey())
+                    if (property.Metadata.IsPrimaryKey())
                     {
                         auditEntry.KeyValues[name] = property.CurrentValue;
 
                         continue;
                     }
 
-                    switch(entry.State)
+                    switch (entry.State)
                     {
                         case EntityState.Added:
                             auditEntry.AuditType = AuditType.Create;
@@ -88,7 +89,7 @@ namespace HelpDeskSystem.Data
                             break;
 
                         case EntityState.Modified:
-                            if(property.IsModified)
+                            if (property.IsModified)
                             {
                                 auditEntry.AffectedColumns.Add(name);
                                 auditEntry.AuditType = AuditType.Update;
@@ -107,7 +108,7 @@ namespace HelpDeskSystem.Data
                 }
             }
 
-            foreach(var auditEntry in auditEntries)
+            foreach (var auditEntry in auditEntries)
             {
                 AuditTrails.Add(auditEntry.ToAudit());
             }
@@ -121,6 +122,10 @@ namespace HelpDeskSystem.Data
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            builder.Entity<AppRole>()
+                .HasDiscriminator<string>("Discriminator")
+                .HasValue<AppRole>("AppRole");
 
             builder.Entity<TicketsSummaryView>()
                 .HasNoKey()

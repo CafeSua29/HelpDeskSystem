@@ -18,6 +18,6 @@ namespace HelpDeskSystem.Models
         public string RoleId { get; set; }
 
         [DisplayName("System Role")]
-        public IdentityRole Role { get; set; }
+        public AppRole Role { get; set; }
     }
 }

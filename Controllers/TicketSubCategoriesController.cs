@@ -13,6 +13,7 @@ using HelpDeskSystem.ViewModels;
 using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using HelpDeskSystem.ClaimsManagement;
+using ElmahCore;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -34,7 +35,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.CreatedBy)
                 .Include(c => c.ModifiedBy)
                 .Include(c => c.Category)
-                .Where(x => x.CategoryId == id)
+                .Where(x => x.CategoryId == id && x.DelTime == null)
                 .ToListAsync();
 
             vm.CategoryId = id;
@@ -42,15 +43,23 @@ namespace HelpDeskSystem.Controllers
             return View(vm);
         }
 
-        public async Task<IActionResult> SubCategories(TicketSubCategoriesVM vm)
+        public async Task<IActionResult> SubCategories(int? id)
         {
-            vm.TicketSubCategories = await _context.TicketSubCategories
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var subCate = await _context.TicketSubCategories
                 .Include(c => c.CreatedBy)
                 .Include(c => c.ModifiedBy)
                 .Include(c => c.Category)
+                .Where(x => x.CategoryId == id && x.DelTime == null)
                 .ToListAsync();
 
-            return View(vm);
+            ViewBag.CateId = id;
+
+            return View(subCate);
         }
 
         // GET: TicketSubCategories/Details/5
@@ -65,7 +74,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(t => t.Category)
                 .Include(t => t.CreatedBy)
                 .Include(t => t.ModifiedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (ticketSubCategory == null)
             {
                 return NotFound();
@@ -77,6 +86,11 @@ namespace HelpDeskSystem.Controllers
         // GET: TicketSubCategories/Create
         public IActionResult Create(int id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             TicketSubCategory ticketSubCategory = new TicketSubCategory();
             ticketSubCategory.CategoryId = id;
 
@@ -90,17 +104,28 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TicketSubCategory ticketSubCategory)
         {
-            var userId = User.GetUserId();
+            try
+            {
+                var userId = User.GetUserId();
 
-            ticketSubCategory.CreatedOn = DateTime.Now;
-            ticketSubCategory.CreatedById = userId;
-            ticketSubCategory.Id = 0;
+                ticketSubCategory.CreatedOn = DateTime.Now;
+                ticketSubCategory.CreatedById = userId;
+                ticketSubCategory.Id = 0;
 
-            _context.Add(ticketSubCategory);
-            await _context.MySaveChangesAsync(userId);
-            return RedirectToAction("Index", new { id = ticketSubCategory.CategoryId });
+                _context.Add(ticketSubCategory);
+                await _context.MySaveChangesAsync(userId);
 
-            return View(ticketSubCategory);
+                TempData["Message"] = "Sub-category Created";
+
+                return RedirectToAction("SubCategories", new { id = ticketSubCategory.CategoryId });
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(ticketSubCategory);
+            }
         }
 
         // GET: TicketSubCategories/Edit/5
@@ -111,7 +136,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var ticketSubCategory = await _context.TicketSubCategories.FindAsync(id);
+            var ticketSubCategory = await _context.TicketSubCategories.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (ticketSubCategory == null)
             {
                 return NotFound();
@@ -141,19 +166,18 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Update(ticketSubCategory);
                 await _context.MySaveChangesAsync(userId);
+
+                TempData["Message"] = "Sub-category Updated";
+
+                return RedirectToAction("SubCategories", new { id = ticketSubCategory.CategoryId });
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!TicketSubCategoryExists(ticketSubCategory.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(ticketSubCategory);
             }
-            return RedirectToAction(nameof(Index));
         }
 
         // GET: TicketSubCategories/Delete/5
@@ -168,7 +192,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(t => t.Category)
                 .Include(t => t.CreatedBy)
                 .Include(t => t.ModifiedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (ticketSubCategory == null)
             {
                 return NotFound();
@@ -182,19 +206,34 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var ticketSubCategory = await _context.TicketSubCategories.FindAsync(id);
-            if (ticketSubCategory != null)
+            var ticketSubCategory = await _context.TicketSubCategories.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
+            try
             {
-                _context.TicketSubCategories.Remove(ticketSubCategory);
+                var userId = User.GetUserId();
+
+                if (ticketSubCategory != null)
+                {
+                    //_context.TicketSubCategories.Remove(ticketSubCategory);
+
+                    ticketSubCategory.DelTime = DateTime.Now;
+                    _context.Update(ticketSubCategory);
+                }
+
+                await _context.MySaveChangesAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("SubCategories", new { id = ticketSubCategory.CategoryId });
         }
 
         private bool TicketSubCategoryExists(int id)
         {
-            return _context.TicketSubCategories.Any(e => e.Id == id);
+            return _context.TicketSubCategories.Any(e => e.Id == id && e.DelTime == null);
         }
     }
 }

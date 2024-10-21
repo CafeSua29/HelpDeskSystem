@@ -12,6 +12,7 @@ using System.Security.Claims;
 using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using HelpDeskSystem.ClaimsManagement;
+using ElmahCore;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -29,7 +30,7 @@ namespace HelpDeskSystem.Controllers
         // GET: SystemTasks
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.SystemTasks.Include(s => s.CreatedBy).Include(s => s.ModifiedBy).Include(s => s.Parent);
+            var applicationDbContext = _context.SystemTasks.Include(s => s.CreatedBy).Include(s => s.ModifiedBy).Include(s => s.Parent).Where(e => e.DelTime == null);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -45,7 +46,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(s => s.CreatedBy)
                 .Include(s => s.ModifiedBy)
                 .Include(s => s.Parent)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (systemTask == null)
             {
                 return NotFound();
@@ -57,7 +58,7 @@ namespace HelpDeskSystem.Controllers
         // GET: SystemTasks/Create
         public IActionResult Create()
         {
-            ViewData["ParentId"] = new SelectList(_context.SystemTasks, "Id", "Name");
+            ViewData["ParentId"] = new SelectList(_context.SystemTasks.Where(e => e.DelTime == null), "Id", "Name");
             return View();
         }
 
@@ -68,17 +69,29 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SystemTask systemTask)
         {
-            var userId = User.GetUserId();
+            ViewData["ParentId"] = new SelectList(_context.SystemTasks.Where(e => e.DelTime == null), "Id", "Name", systemTask.ParentId);
 
-            systemTask.CreatedOn = DateTime.Now;
-            systemTask.CreatedById = userId;
+            try
+            {
+                var userId = User.GetUserId();
 
-            _context.Add(systemTask);
-            await _context.MySaveChangesAsync(userId);
-            return RedirectToAction(nameof(Index));
+                systemTask.CreatedOn = DateTime.Now;
+                systemTask.CreatedById = userId;
 
-            ViewData["ParentId"] = new SelectList(_context.SystemTasks, "Id", "Name", systemTask.ParentId);
-            return View(systemTask);
+                _context.Add(systemTask);
+                await _context.MySaveChangesAsync(userId);
+
+                TempData["Message"] = "System task Created";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(systemTask);
+            }
         }
 
         // GET: SystemTasks/Edit/5
@@ -89,12 +102,12 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var systemTask = await _context.SystemTasks.FindAsync(id);
+            var systemTask = await _context.SystemTasks.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (systemTask == null)
             {
                 return NotFound();
             }
-            ViewData["ParentId"] = new SelectList(_context.SystemTasks, "Id", "Name", systemTask.ParentId);
+            ViewData["ParentId"] = new SelectList(_context.SystemTasks.Where(e => e.DelTime == null), "Id", "Name", systemTask.ParentId);
             return View(systemTask);
         }
 
@@ -105,6 +118,8 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, SystemTask systemTask)
         {
+            ViewData["ParentId"] = new SelectList(_context.SystemTasks.Where(e => e.DelTime == null), "Id", "Name", systemTask.ParentId);
+
             if (id != systemTask.Id)
             {
                 return NotFound();
@@ -119,22 +134,18 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Update(systemTask);
                 await _context.MySaveChangesAsync(userId);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SystemTaskExists(systemTask.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
 
-            ViewData["ParentId"] = new SelectList(_context.SystemTasks, "Id", "Name", systemTask.ParentId);
-            return View(systemTask);
+                TempData["Message"] = "System task Updated";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(systemTask);
+            }
         }
 
         // GET: SystemTasks/Delete/5
@@ -149,7 +160,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(s => s.CreatedBy)
                 .Include(s => s.ModifiedBy)
                 .Include(s => s.Parent)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (systemTask == null)
             {
                 return NotFound();
@@ -163,19 +174,37 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var systemTask = await _context.SystemTasks.FindAsync(id);
-            if (systemTask != null)
+            try
             {
-                _context.SystemTasks.Remove(systemTask);
+                var userId = User.GetUserId();
+
+                var systemTask = await _context.SystemTasks.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
+                if (systemTask != null)
+                {
+                    //_context.SystemTasks.Remove(systemTask);
+
+                    systemTask.DelTime = DateTime.Now;
+
+                    _context.Update(systemTask);
+                }
+
+                await _context.MySaveChangesAsync(userId);
+
+                TempData["Message"] = "System task Deleted";
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool SystemTaskExists(int id)
         {
-            return _context.SystemTasks.Any(e => e.Id == id);
+            return _context.SystemTasks.Any(e => e.Id == id && e.DelTime == null);
         }
     }
 }

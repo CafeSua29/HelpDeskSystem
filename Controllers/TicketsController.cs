@@ -29,8 +29,6 @@ namespace HelpDeskSystem.Controllers
 
         private readonly IMapper _mapper;
 
-        private DateTime Cd;
-
         public TicketsController(ApplicationDbContext context, IConfiguration configuration, IMapper mapper)
         {
             _context = context;
@@ -126,8 +124,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .Include(t => t.AssignedTo)
-                .Where(t => t.DelTime == null)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
 
             ViewBag.Comments = await _context.Comments
                 .Include(c => c.CreatedBy)
@@ -191,13 +188,11 @@ namespace HelpDeskSystem.Controllers
                 {
                     var pendingstatusid = await _context.SystemCodeDetails
                         .Include(c => c.SystemCode)
-                        .Where(c => c.SystemCode.Code == "Status" && c.Code == "Pending" && c.DelTime == null)
-                        .FirstOrDefaultAsync();
+                        .FirstOrDefaultAsync(c => c.SystemCode.Code == "Status" && c.Code == "Pending" && c.DelTime == null);
 
                     var lowpriorityid = await _context.SystemCodeDetails
                     .Include(c => c.SystemCode)
-                    .Where(c => c.SystemCode.Code == "Priority" && c.Code == "Low" && c.DelTime == null)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(c => c.SystemCode.Code == "Priority" && c.Code == "Low" && c.DelTime == null);
 
                     ticket.StatusId = pendingstatusid.Id;
                     ticket.PriorityId = lowpriorityid.Id;
@@ -235,7 +230,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets.FindAsync(id);
+            var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
             if (ticket == null)
             {
                 return NotFound();
@@ -282,13 +277,11 @@ namespace HelpDeskSystem.Controllers
                 {
                     var pendingstatusid = await _context.SystemCodeDetails
                         .Include(c => c.SystemCode)
-                        .Where(c => c.SystemCode.Code == "Status" && c.Code == "Pending" && c.DelTime == null)
-                        .FirstOrDefaultAsync();
+                        .FirstOrDefaultAsync(c => c.SystemCode.Code == "Status" && c.Code == "Pending" && c.DelTime == null);
 
                     var lowpriorityid = await _context.SystemCodeDetails
                     .Include(c => c.SystemCode)
-                    .Where(c => c.SystemCode.Code == "Priority" && c.Code == "Low" && c.DelTime == null)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(c => c.SystemCode.Code == "Priority" && c.Code == "Low" && c.DelTime == null);
 
                     ticket.StatusId = pendingstatusid.Id;
                     ticket.PriorityId = lowpriorityid.Id;
@@ -325,7 +318,7 @@ namespace HelpDeskSystem.Controllers
 
             var ticket = await _context.Tickets
                 .Include(t => t.CreatedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
             if (ticket == null)
             {
                 return NotFound();
@@ -355,7 +348,7 @@ namespace HelpDeskSystem.Controllers
             {
                 var userId = User.GetUserId();
 
-                var ticket = await _context.Tickets.FindAsync(id);
+                var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
                 if (ticket != null)
                 {
                     //_context.Tickets.Remove(ticket);
@@ -395,7 +388,7 @@ namespace HelpDeskSystem.Controllers
 
         private bool TicketExists(int id)
         {
-            return _context.Tickets.Any(e => e.Id == id);
+            return _context.Tickets.Any(e => e.Id == id && e.DelTime == null);
         }
 
         [HttpPost]
@@ -438,8 +431,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .Include(t => t.AssignedTo)
-                .Where(c => c.DelTime == null)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
 
             ViewBag.Resolutions = await _context.TicketResolutions
                 .Include(c => c.CreatedBy)
@@ -476,14 +468,12 @@ namespace HelpDeskSystem.Controllers
             try
             {
                 var statuscode = await _context.SystemCodeDetails
-                .Include(c => c.SystemCode)
-                .Where(c => c.SystemCode.Code == "ResolutionStatus" && c.Id == StatusId && c.DelTime == null)
-                .FirstOrDefaultAsync();
+                    .Include(c => c.SystemCode)
+                    .FirstOrDefaultAsync(c => c.SystemCode.Code == "ResolutionStatus" && c.Id == StatusId && c.DelTime == null);
 
                 var statusid = await _context.SystemCodeDetails
                     .Include(c => c.SystemCode)
-                    .Where(c => c.SystemCode.Code == "Status" && c.Code == statuscode.Code && c.DelTime == null)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(c => c.SystemCode.Code == "Status" && c.Code == statuscode.Code && c.DelTime == null);
 
                 TicketResolution resolution = new TicketResolution();
 
@@ -498,7 +488,7 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Add(resolution);
 
-                var ticket = await _context.Tickets.FindAsync(id);
+                var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
                 ticket.StatusId = statusid.Id;
 
                 _context.Update(ticket);
@@ -520,8 +510,7 @@ namespace HelpDeskSystem.Controllers
             {
                 var closedstatusid = await _context.SystemCodeDetails
                 .Include(c => c.SystemCode)
-                .Where(c => c.SystemCode.Code == "Status" && c.Code == "Closed" && c.DelTime == null)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(c => c.SystemCode.Code == "Status" && c.Code == "Closed" && c.DelTime == null);
 
                 TicketResolution resolution = new TicketResolution();
 
@@ -536,7 +525,7 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Add(resolution);
 
-                var ticket = await _context.Tickets.FindAsync(id);
+                var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
                 ticket.StatusId = closedstatusid.Id;
 
                 _context.Update(ticket);
@@ -552,8 +541,7 @@ namespace HelpDeskSystem.Controllers
                 ElmahExtensions.RaiseError(ex);
                 TempData["Error"] = "Error: " + ex.Message;
 
-                var ticket = await _context.Tickets.FindAsync(id);
-                return View(ticket);
+                return RedirectToAction("Resolve", new { id = id });
             }
         }
 
@@ -563,8 +551,7 @@ namespace HelpDeskSystem.Controllers
             {
                 var waitingstatusid = await _context.SystemCodeDetails
                 .Include(c => c.SystemCode)
-                .Where(c => c.SystemCode.Code == "Status" && c.Code == "waiting" && c.DelTime == null)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(c => c.SystemCode.Code == "Status" && c.Code == "Pending" && c.DelTime == null);
 
                 TicketResolution resolution = new TicketResolution();
 
@@ -579,7 +566,7 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Add(resolution);
 
-                var ticket = await _context.Tickets.FindAsync(id);
+                var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
                 ticket.StatusId = waitingstatusid.Id;
 
                 _context.Update(ticket);
@@ -610,8 +597,7 @@ namespace HelpDeskSystem.Controllers
                 .Include(c => c.Priority)
                 .Include(t => t.SubCategory)
                 .Include(t => t.AssignedTo)
-                .Where(c => c.DelTime == null)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
 
             ViewBag.Resolutions = await _context.TicketResolutions
                 .Include(c => c.CreatedBy)
@@ -655,10 +641,9 @@ namespace HelpDeskSystem.Controllers
 
                 var assignedstatusid = await _context.SystemCodeDetails
                     .Include(c => c.SystemCode)
-                    .Where(c => c.SystemCode.Code == "Status" && c.Code == "Assigned" && c.DelTime == null)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(c => c.SystemCode.Code == "Status" && c.Code == "Assigned" && c.DelTime == null);
 
-                var ticket = await _context.Tickets.FindAsync(id);
+                var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
 
                 if (ticket.AssignedToId != null)
                 {

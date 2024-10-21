@@ -12,6 +12,7 @@ using System.Security.Claims;
 using HelpDeskSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using HelpDeskSystem.ClaimsManagement;
+using ElmahCore;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -29,7 +30,7 @@ namespace HelpDeskSystem.Controllers
         // GET: SystemSettings
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.SystemSettings.Include(s => s.CreatedBy).Include(s => s.ModifiedBy);
+            var applicationDbContext = _context.SystemSettings.Include(s => s.CreatedBy).Include(s => s.ModifiedBy).Where(e => e.DelTime == null);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -44,7 +45,7 @@ namespace HelpDeskSystem.Controllers
             var systemSetting = await _context.SystemSettings
                 .Include(s => s.CreatedBy)
                 .Include(s => s.ModifiedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (systemSetting == null)
             {
                 return NotFound();
@@ -66,16 +67,27 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SystemSetting systemSetting)
         {
-            var userId = User.GetUserId();
+            try
+            {
+                var userId = User.GetUserId();
 
-            systemSetting.CreatedOn = DateTime.Now;
-            systemSetting.CreatedById = userId;
+                systemSetting.CreatedOn = DateTime.Now;
+                systemSetting.CreatedById = userId;
 
-            _context.Add(systemSetting);
-            await _context.MySaveChangesAsync(userId);
-            return RedirectToAction(nameof(Index));
+                _context.Add(systemSetting);
+                await _context.MySaveChangesAsync(userId);
 
-            return View(systemSetting);
+                TempData["Message"] = "System setting Created";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(systemSetting);
+            }
         }
 
         // GET: SystemSettings/Edit/5
@@ -86,7 +98,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var systemSetting = await _context.SystemSettings.FindAsync(id);
+            var systemSetting = await _context.SystemSettings.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (systemSetting == null)
             {
                 return NotFound();
@@ -115,21 +127,18 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Update(systemSetting);
                 await _context.MySaveChangesAsync(userId);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SystemSettingExists(systemSetting.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
 
-            return View(systemSetting);
+                TempData["Message"] = "System setting Updated";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(systemSetting);
+            }
         }
 
         // GET: SystemSettings/Delete/5
@@ -143,7 +152,7 @@ namespace HelpDeskSystem.Controllers
             var systemSetting = await _context.SystemSettings
                 .Include(s => s.CreatedBy)
                 .Include(s => s.ModifiedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (systemSetting == null)
             {
                 return NotFound();
@@ -157,19 +166,36 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var systemSetting = await _context.SystemSettings.FindAsync(id);
-            if (systemSetting != null)
+            try
             {
-                _context.SystemSettings.Remove(systemSetting);
+                var userId = User.GetUserId();
+
+                var systemSetting = await _context.SystemSettings.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
+                if (systemSetting != null)
+                {
+                    //_context.SystemSettings.Remove(systemSetting);
+
+                    systemSetting.DelTime = DateTime.Now;
+
+                    _context.Update(systemSetting);
+                }
+                await _context.MySaveChangesAsync(userId);
+
+                TempData["Message"] = "System setting Deleted";
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool SystemSettingExists(int id)
         {
-            return _context.SystemSettings.Any(e => e.Id == id);
+            return _context.SystemSettings.Any(e => e.Id == id && e.DelTime == null);
         }
     }
 }

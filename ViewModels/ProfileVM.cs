@@ -8,7 +8,7 @@ namespace HelpDeskSystem.ViewModels
     {
         public ICollection<SystemTask> SystemTasks { get; set; }
 
-        public ICollection<IdentityRole> SystemRoles { get; set; }
+        public ICollection<AppRole> SystemRoles { get; set; }
 
         public ICollection<int> RightsIdAssigned { get; set; }
 

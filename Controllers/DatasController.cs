@@ -24,7 +24,7 @@ namespace HelpDeskSystem.Controllers
             {
                 var subCategories = _context
                     .TicketSubCategories
-                    .Where(x => x.CategoryId == categoryId)
+                    .Where(x => x.CategoryId == categoryId && x.DelTime == null)
                     .OrderBy(c => c.Name)
                     .Select(i => new { Id = i.Id, Name = i.Name })
                     .ToList();

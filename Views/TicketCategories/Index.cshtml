@@ -61,7 +61,7 @@
                 @Html.DisplayFor(modelItem => item.CreatedOn)
             </td>
             <td>
-                <a asp-action="Index" asp-controller="TicketSubCategories" asp-route-id="@item.Id">TicketSubCategory</a> |
+                <a asp-action="SubCategories" asp-controller="TicketSubCategories" asp-route-id="@item.Id">TicketSubCategory</a> |
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>

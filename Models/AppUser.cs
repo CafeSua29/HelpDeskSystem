@@ -21,7 +21,7 @@ namespace HelpDeskSystem.Models
         public string RoleId { get; set; }
 
         [DisplayName("Role")]
-        public IdentityRole Role { get; set; }
+        public AppRole Role { get; set; }
 
         [DisplayName("Locked")]
         public bool? IsLocked { get; set; }

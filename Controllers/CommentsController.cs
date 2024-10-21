@@ -32,7 +32,10 @@ namespace HelpDeskSystem.Controllers
         // GET: Comments
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Comments.Include(c => c.CreatedBy).Include(c => c.Ticket).Where(t => t.DelTime == null);
+            var applicationDbContext = _context.Comments
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Where(t => t.DelTime == null);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -76,7 +79,7 @@ namespace HelpDeskSystem.Controllers
             var comment = await _context.Comments
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (comment == null)
             {
                 return NotFound();
@@ -136,7 +139,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await _context.Comments.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (comment == null)
             {
                 return NotFound();
@@ -189,7 +192,7 @@ namespace HelpDeskSystem.Controllers
             var comment = await _context.Comments
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
             if (comment == null)
             {
                 return NotFound();
@@ -203,7 +206,7 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await _context.Comments.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
 
             try
             {
@@ -230,7 +233,7 @@ namespace HelpDeskSystem.Controllers
 
         private bool CommentExists(int id)
         {
-            return _context.Comments.Any(e => e.Id == id);
+            return _context.Comments.Any(e => e.Id == id && e.DelTime == null);
         }
     }
 }
