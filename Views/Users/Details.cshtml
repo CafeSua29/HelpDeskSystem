@@ -1,5 +1,98 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model HelpDeskSystem.Models.AppUser
+
 @{
+    ViewData["Title"] = "Details";
+}
+
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 class="page-title">User details</h3>
+            </div>
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check"></i>
+                    @TempData["Message"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-close"></i>
+                    @TempData["Error"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="about-info">
+                        <h4>User information</h4>
+                        <div class="media mt-3">
+                            <div class="media-body">
+                                <ul>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Name):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Name)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.DOB):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.DOB)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Gender):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Gender.Description)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Role):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Role.Name)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Email):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Email)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.PhoneNumber):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.PhoneNumber)</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
+                            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary float-end">Edit</a>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+        });
+    </script>
 }

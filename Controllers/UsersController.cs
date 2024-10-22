@@ -70,14 +70,14 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: UsersController/Details/5
-        public ActionResult Details(string? id)
+        public async Task<IActionResult> Details(string? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var user = _context.Users
+            var user = await _context.Users
                 .Include(x => x.Role)
                 .Include(x => x.Gender)
                 .FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
@@ -337,7 +337,7 @@ namespace HelpDeskSystem.Controllers
 
         public async Task<ActionResult> Activate(string id)
         {
-            var user = await _context.Users.Where(x => x.Id == id).FirstOrDefaultAsync();
+            var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
 
             if (user == null)
             {
@@ -346,9 +346,9 @@ namespace HelpDeskSystem.Controllers
 
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
-                .Where(x => x.SystemCode.Code == "Gender"), "Id", "Description");
+                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
 
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
+            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
 
             return View(user);
         }
@@ -359,9 +359,9 @@ namespace HelpDeskSystem.Controllers
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
-                .Where(x => x.SystemCode.Code == "Gender"), "Id", "Description");
+                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
 
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
+            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
 
             if (id != user1.Id)
             {
@@ -372,7 +372,7 @@ namespace HelpDeskSystem.Controllers
             {
                 var userId = User.GetUserId();
 
-                var user = await _context.Users.Where(x => x.Id == id).FirstOrDefaultAsync();
+                var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
 
                 if (user != null) 
                 {
@@ -384,25 +384,17 @@ namespace HelpDeskSystem.Controllers
                     _context.Update(user);
                     await _context.MySaveChangesAsync(userId);
 
-                    return RedirectToAction(nameof(Index));
+                    TempData["Message"] = "User Activated";
                 }
                 else
                 {
                     return NotFound();
                 }
             }
-            catch (DbUpdateConcurrencyException ex)
+            catch (Exception ex)
             {
                 ElmahExtensions.RaiseError(ex);
-
-                if (!UserExists(user1.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                TempData["Error"] = "Error: " + ex.Message;
             }
 
             return RedirectToAction(nameof(Index));

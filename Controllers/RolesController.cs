@@ -33,7 +33,7 @@ namespace HelpDeskSystem.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var roles = await _context.Roles.Where(t => t.DelTime == null).ToListAsync();
+            var roles = await _context.Roles.Include(t => t.CreatedBy).Where(t => t.DelTime == null).ToListAsync();
 
             return View(roles);
         }

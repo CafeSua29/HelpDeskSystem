@@ -54,8 +54,8 @@
                     </div>
                 </form>
             </div>
-            <div class="col-auto text-right float-right ml-auto">
-                <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i></a>
+            <div class="col-auto text-right float-right ml-auto p-2">
+                <a asp-action="Create" class="btn btn-primary" title="Create"><i class="fas fa-plus"></i></a>
             </div>
         </div>
     </div>
@@ -85,9 +85,9 @@
                                     <th>
                                         @Html.DisplayNameFor(model => model.PhoneNumber)
                                     </th>
-                                    <th>
+                                    @* <th>
                                         @Html.DisplayNameFor(model => model.IsLocked)
-                                    </th>
+                                    </th> *@
                                     <th class="text-right">Action</th>
                                 </tr>
                             </thead>
@@ -115,18 +115,26 @@
                                         <td>
                                             @Html.DisplayFor(modelItem => item.PhoneNumber)
                                         </td>
-                                        <td>
+                                        @* <td>
                                             @Html.DisplayFor(modelItem => item.IsLocked)
-                                        </td>
+                                        </td> *@
                                         <td class="text-right">
                                             <div class="actions">
-                                                <a asp-action="Activate" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2">
+                                                @* <a asp-action="Activate" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2" title="Active">
+                                                    <i class="fas fa-pen"></i>
+                                                </a> *@
+                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2" title="Edit">
                                                     <i class="fas fa-pen"></i>
                                                 </a>
-                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm bg-danger" onclick="return confirm('Are you sure you want to delete this user ?')">
+                                                <a href="#" class="btn btn-sm bg-danger" data-toggle="modal" title="Delete"
+                                                   data-target="#deleteConfirmationModal"
+                                                   data-id="@item.Id"
+                                                   data-name="@item.Name"
+                                                   data-dob="@item.DOB"
+                                                   data-gender="@item.Gender.Description"
+                                                   data-role="@item.Role.Name"
+                                                   data-email="@item.Email"
+                                                   data-phone="@item.PhoneNumber">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -137,6 +145,69 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3 class="modal-title" id="deleteModalLabel">Are you sure you want to delete this user ?</h3>
+                    </div>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="about-info">
+                            <h4>User information</h4>
+                            <div class="media mt-3">
+                                <div class="media-body">
+                                    <ul>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Name):</span>
+                                            <span class="info-span" id="itemName"></span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.DOB):</span>
+                                            <span class="info-span" id="itemDOB"></span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Gender):</span>
+                                            <span class="info-span" id="itemGender"></span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Role):</span>
+                                            <span class="info-span" id="itemRole"></span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Email):</span>
+                                            <span class="info-span" id="itemEmail"></span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.PhoneNumber):</span>
+                                            <span class="info-span" id="itemPhone"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" action="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
             </div>
         </div>
     </div>
@@ -156,24 +227,22 @@
         $('#deleteConfirmationModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
             var id = button.data('id');
-            var title = button.data('title');
-            var description = button.data('description');
-            var status = button.data('status');
-            var priority = button.data('priority');
-            var sub = button.data('sub');
-            var by = button.data('by');
-            var on = button.data('on');
-            var action = '/Tickets/Delete/' + id;
+            var name = button.data('name');
+            var dob = button.data('dob');
+            var gender = button.data('gender');
+            var role = button.data('role');
+            var email = button.data('email');
+            var phone = button.data('phone');
+            var action = '/Users/Delete/' + id;
 
             var modal = $(this);
             modal.find('#deleteForm').attr('action', action);
-            modal.find('#itemTitle').text(title);
-            modal.find('#itemDesc').text(description);
-            modal.find('#itemStatus').text(status);
-            modal.find('#itemPriority').text(priority);
-            modal.find('#itemSub').text(sub);
-            modal.find('#itemBy').text(by);
-            modal.find('#itemOn').text(on);
+            modal.find('#itemName').text(name);
+            modal.find('#itemDOB').text(dob);
+            modal.find('#itemGender').text(gender);
+            modal.find('#itemRole').text(role);
+            modal.find('#itemEmail').text(email);
+            modal.find('#itemPhone').text(phone);
         });
     </script>
 }
