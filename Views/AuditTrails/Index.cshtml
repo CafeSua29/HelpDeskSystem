@@ -4,104 +4,142 @@
     ViewData["Title"] = "Index";
 }
 
-<div class="col-md-12">
-    <form asp-action="Index" method="post">
-        <div class="row">
-            <div class="col-md-2 top-nav-search">
-                <select name="ActionCode" class="form-control" asp-items="ViewBag.ActionCode">
-                    <option value="">Action</option>
-                </select>
-            </div>
-            <div class="col-md-2 top-nav-search">
-                <input name="Module" class="form-control" placeholder="Module" />
-            </div>
-            <div class="col-md-2 top-nav-search">
-                <input name="AffectedTable" class="form-control" placeholder="Affected Table" />
-            </div>
-            <div class="col-md-2 top-nav-search">
-                <select name="ByUserId" class="form-control" asp-items="ViewBag.UsersId">
-                    <option value="">By User</option>
-                </select>
-            </div>
-            <div class="col-md-1 text-right float-right ml-auto top-nav-search">
-                <button class="btn"><i class="fas fa-search"> Search</i></button>
+<div class="content container-fluid">
+    <div class="page-header">
+        <h1>Audit Trails</h1>
+        <div class="row align-items-center">
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check"></i>
+                    @TempData["Message"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-close"></i>
+                    @TempData["Error"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            <div class="col-md-12">
+                <form asp-action="Index" method="post">
+                    <div class="row">
+                        <div class="col-md-2 top-nav-search">
+                            <select name="ActionCode" class="form-control" asp-items="ViewBag.ActionCode">
+                                <option value="">Action</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 top-nav-search">
+                            <input name="Module" class="form-control" placeholder="Module" />
+                        </div>
+                        <div class="col-md-2 top-nav-search">
+                            <input name="AffectedTable" class="form-control" placeholder="Affected Table" />
+                        </div>
+                        <div class="col-md-2 top-nav-search">
+                            <select name="ByUserId" class="form-control" asp-items="ViewBag.UsersId">
+                                <option value="">By User</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 text-right float-right ml-auto top-nav-search">
+                            <button class="btn"><i class="fas fa-search"> Search</i></button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </form>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card card-table">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-center mb-0 datatable">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Action)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Module)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.AffectedTable)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.TimeStamp)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.User)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.OldValues)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.NewValues)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.AffectedColumns)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Action)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Module)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AffectedTable)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TimeStamp)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.User.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.OldValues)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.NewValues)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AffectedColumns)
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Action)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Module)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AffectedTable)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TimeStamp)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OldValues)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NewValues)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AffectedColumns)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PrimaryKey)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Action)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Module)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AffectedTable)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TimeStamp)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OldValues)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NewValues)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AffectedColumns)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PrimaryKey)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> 
-            </td>
-        </tr>
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+        });
+    </script>
 }
-    </tbody>
-</table>
