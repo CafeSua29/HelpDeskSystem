@@ -59,17 +59,17 @@
                     @if (canViewSystem)
                     {
                         @* <li>
-                            <a class="" asp-area="" asp-controller="SystemSettings" asp-action="Index"><i class="fas fa-user"></i> <span>System Settings</span></a>
-                        </li>
-                        <li>
-                            <a class="" asp-area="" asp-controller="SystemTasks" asp-action="Index"><i class="fas fa-user"></i> <span>System Tasks</span></a>
-                        </li>
-                        <li>
-                            <a class="" asp-area="" asp-controller="SystemCodes" asp-action="Index"><i class="fas fa-history"></i> <span>System Codes</span></a>
-                        </li>
-                        <li>
-                            <a class="" asp-area="" asp-controller="SystemCodeDetails" asp-action="Index"><i class="fas fa-history"></i> <span>System Code Details</span></a>
-                        </li> *@
+                <a class="" asp-area="" asp-controller="SystemSettings" asp-action="Index"><i class="fas fa-user"></i> <span>System Settings</span></a>
+                </li>
+                <li>
+                <a class="" asp-area="" asp-controller="SystemTasks" asp-action="Index"><i class="fas fa-user"></i> <span>System Tasks</span></a>
+                </li>
+                <li>
+                <a class="" asp-area="" asp-controller="SystemCodes" asp-action="Index"><i class="fas fa-history"></i> <span>System Codes</span></a>
+                </li>
+                <li>
+                <a class="" asp-area="" asp-controller="SystemCodeDetails" asp-action="Index"><i class="fas fa-history"></i> <span>System Code Details</span></a>
+                </li> *@
 
                         <li class="submenu">
                             <a href="#"><i class="fas fa-wrench"></i> <span>System</span> <span class="menu-arrow"></span></a>
@@ -77,7 +77,7 @@
                                 <li><a class="" asp-area="" asp-controller="SystemSettings" asp-action="Index">System Settings</a></li>
                                 <li><a class="" asp-area="" asp-controller="SystemTasks" asp-action="Index">System Tasks</a></li>
                                 <li><a class="" asp-area="" asp-controller="SystemCodes" asp-action="Index">System Codes</a></li>
-                                <li><a class="" asp-area="" asp-controller="SystemCodeDetails" asp-action="Index">System Code Details</a></li>
+                                @* <li><a class="" asp-area="" asp-controller="SystemCodeDetails" asp-action="Index">System Code Details</a></li> *@
                             </ul>
                         </li>
                     }
@@ -85,11 +85,11 @@
                     @if (canViewLogs)
                     {
                         @* <li>
-                            <a class="" asp-area="" asp-controller="AuditTrails" asp-action="Index"><i class="fas fa-history"></i> <span>Audit Trails</span></a>
-                        </li>
-                        <li>
-                            <a class="" asp-controller="ErrorLogs" asp-action="Index"><i class="fas fa-history"></i> <span>Error Logs</span></a>
-                        </li> *@
+                <a class="" asp-area="" asp-controller="AuditTrails" asp-action="Index"><i class="fas fa-history"></i> <span>Audit Trails</span></a>
+                </li>
+                <li>
+                <a class="" asp-controller="ErrorLogs" asp-action="Index"><i class="fas fa-history"></i> <span>Error Logs</span></a>
+                </li> *@
 
                         <li class="submenu">
                             <a href="#"><i class="fas fa-history"></i> <span>Logs</span> <span class="menu-arrow"></span></a>
@@ -103,18 +103,18 @@
                     @if (canViewRole)
                     {
                         @* <li>
-                            <a class="" asp-area="" asp-controller="Roles" asp-action="Index"><i class="fas fa-user"></i> <span>Roles</span></a>
-                        </li>
+                <a class="" asp-area="" asp-controller="Roles" asp-action="Index"><i class="fas fa-user"></i> <span>Roles</span></a>
+                </li>
 
-                        <li>
-                            <a class="" asp-area="" asp-controller="UserRoleProfiles" asp-action="Index"><i class="fas fa-user"></i> <span>Rights</span></a>
-                        </li> *@
+                <li>
+                <a class="" asp-area="" asp-controller="UserRoleProfiles" asp-action="Index"><i class="fas fa-user"></i> <span>Rights</span></a>
+                </li> *@
 
                         <li class="submenu">
                             <a href="#"><i class="fas fa-user"></i> <span>Roles</span> <span class="menu-arrow"></span></a>
                             <ul>
                                 <li><a class="" asp-area="" asp-controller="Roles" asp-action="Index">Roles</a></li>
-                                <li><a class="" asp-area="" asp-controller="UserRoleProfiles" asp-action="Index">Rights</a></li>
+                                @* <li><a class="" asp-area="" asp-controller="UserRoleProfiles" asp-action="Index">Rights</a></li> *@
                             </ul>
                         </li>
                     }
@@ -138,33 +138,33 @@
                         <li>
                             <a class="" asp-area="" asp-controller="TicketCategories" asp-action="Index"><i class="fas fa-history"></i> <span>Ticket Categories</span></a>
                         </li>
-                        <li>
-                            <a class="" asp-area="" asp-controller="TicketSubCategories" asp-action="SubCategories"><i class="fas fa-history"></i> <span>Ticket Sub-Categories</span></a>
-                        </li>
+                        @* <li>
+                <a class="" asp-area="" asp-controller="TicketSubCategories" asp-action="SubCategories"><i class="fas fa-history"></i> <span>Ticket Sub-Categories</span></a>
+                </li> *@
                     }
 
                     @if (canViewTicket)
                     {
                         @* <li>
-                            <a class="" asp-area="" asp-controller="Tickets" asp-action="Index"><i class="fas fa-ticket"></i> <span>Tickets</span></a>
-                        </li>
-                        <li>
-                            <a class="" asp-area="" asp-controller="Comments" asp-action="Index"><i class="fas fa-comment"></i> <span>Comments</span></a>
-                        </li> *@
+                <a class="" asp-area="" asp-controller="Tickets" asp-action="Index"><i class="fas fa-ticket"></i> <span>Tickets</span></a>
+                </li>
+                <li>
+                <a class="" asp-area="" asp-controller="Comments" asp-action="Index"><i class="fas fa-comment"></i> <span>Comments</span></a>
+                </li> *@
 
                         <li class="submenu">
                             <a href="#"><i class="fas fa-ticket"></i> <span>Tickets</span> <span class="menu-arrow"></span></a>
                             <ul>
                                 <li><a class="" asp-area="" asp-controller="Tickets" asp-action="Index">Tickets</a></li>
-                                <li><a class="" asp-area="" asp-controller="Comments" asp-action="Index">Comments</a></li>
+                                @* <li><a class="" asp-area="" asp-controller="Comments" asp-action="Index">Comments</a></li> *@
                             </ul>
                         </li>
                     }
 
                     <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                    <li>
-                        <a href="#" onclick="this.closest('form').submit();return false;"><i class="fas fa-sign-out"></i> <span>Logout</span></a>
-                    </li>
+                        <li>
+                            <a href="#" onclick="this.closest('form').submit();return false;"><i class="fas fa-sign-out"></i> <span>Logout</span></a>
+                        </li>
                     </form>
                 </ul>
             </div>

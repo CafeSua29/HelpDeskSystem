@@ -290,14 +290,16 @@ namespace HelpDeskSystem.Controllers
                 await _context.MySaveChangesAsync(User.GetUserId());
 
                 TempData["Message"] = "Right Assigned";
+
+                return RedirectToAction("Index", "Roles");
             }
             catch (Exception ex)
             {
                 ElmahExtensions.RaiseError(ex);
                 TempData["Error"] = "Error: " + ex.Message;
-            }
 
-            return View(vm);
+                return View(vm);
+            }
         }
     }
 }

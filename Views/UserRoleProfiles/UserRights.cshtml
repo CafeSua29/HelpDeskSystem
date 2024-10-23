@@ -6,81 +6,134 @@
     var id = ViewContext.RouteData.Values["id"];
 }
 
-<h1>Create</h1>
-
-<h4>UserRoleProfile</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="UserRights">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="RoleId" class="control-label"></label>
-                <select asp-for="RoleId" class="form-control onchange" asp-items="ViewBag.RoleId"></select>
-                <a class="CurrentRootUrl" href="~/UserRoleProfiles/UserRights/"></a>
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Assign right</h3>
             </div>
 
-            <div id="treeview_container" class="hummingbird-treeview">
-                <ul id="treeview" class="hummingbird-base">
-                    <li data-id="0">
-                        <i class="fa fa-plus"></i>
-                        <label>
-                            <input class="grandparent" id="xnode-0" data-id="custom-0" rel="0" value="0" name="AllRights[]" type="checkbox" /> All Modules
-                        </label>
-                        <ul>
-                            @foreach (var item in Model.SystemTasks)
-                            {
-                                <li data-id="1" id="li_@item.Id">
-                                    <i class="fa fa-plus"></i>
-                                    <label>
-                                        @if (Model.RightsIdAssigned.Contains(item.Id))
-                                        {
-                                            <input class="parent" type="checkbox" rel="@item.Id" value="@item.Id" name="Ids[]" checked="checked" /> <span>@item.Name</span>
-                                        }
-                                        else
-                                        {
-                                            <input class="parent" type="checkbox" rel="@item.Id" value="@item.Id" name="Ids[]" /> <span>@item.Name</span>
-                                        }
-                                    </label>
-                                    <ul>
-                                        @foreach (var child in item.ChildTasks.OrderBy(c => c.OrderNo))
-                                        {
-                                            <li data-id="2" id="li_@child.Id">
-                                                <label>
-                                                    @if (Model.RightsIdAssigned.Contains(child.Id))
-                                                    {
-                                                        <input class="child" type="checkbox" value="@child.Id" name="Ids[]" checked="checked" /> <span>@child.Name</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <input class="child" type="checkbox" value="@child.Id" name="Ids[]" /> <span>@child.Name</span>
-                                                    }
-                                                </label>
-                                            </li>
-                                        }
-                                    </ul>
-                                </li>
-                            }
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check"></i>
+                    @TempData["Message"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
 
-            <div class="form-group">
-                <button type="submit" class="btn btn-success pull-right">Save</button>
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-close"></i>
+                    @TempData["Error"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-horizontal">
+                        <div class="col-12">
+                            <h5 class="form-title"><span>Rights</span></h5>
+                        </div>
+                        <form asp-action="UserRights">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-floating mb-6">
+                                        <select asp-for="RoleId" class="form-control onchange" asp-items="ViewBag.RoleId"></select>
+                                        <label asp-for="RoleId" class="control-label"></label>
+                                        <a class="CurrentRootUrl" href="~/UserRoleProfiles/UserRights/"></a>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-floating mb-6">
+                                        <div id="treeview_container" class="hummingbird-treeview">
+                                            <ul id="treeview" class="hummingbird-base">
+                                                <li data-id="0">
+                                                    <i class="fa fa-plus"></i>
+                                                    <label>
+                                                        <input class="grandparent" id="xnode-0" data-id="custom-0" rel="0" value="0" name="AllRights[]" type="checkbox" /> All Modules
+                                                    </label>
+                                                    <ul>
+                                                        @foreach (var item in Model.SystemTasks)
+                                                        {
+                                                            <li data-id="1" id="li_@item.Id">
+                                                                <i class="fa fa-plus"></i>
+                                                                <label>
+                                                                    @if (Model.RightsIdAssigned.Contains(item.Id))
+                                                                    {
+                                                                        <input class="parent" type="checkbox" rel="@item.Id" value="@item.Id" name="Ids[]" checked="checked" /> <span>@item.Name</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input class="parent" type="checkbox" rel="@item.Id" value="@item.Id" name="Ids[]" /> <span>@item.Name</span>
+                                                                    }
+                                                                </label>
+                                                                <ul>
+                                                                    @foreach (var child in item.ChildTasks.OrderBy(c => c.OrderNo))
+                                                                    {
+                                                                        <li data-id="2" id="li_@child.Id">
+                                                                            <label>
+                                                                                @if (Model.RightsIdAssigned.Contains(child.Id))
+                                                                                {
+                                                                                    <input class="child" type="checkbox" value="@child.Id" name="Ids[]" checked="checked" /> <span>@child.Name</span>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input class="child" type="checkbox" value="@child.Id" name="Ids[]" /> <span>@child.Name</span>
+                                                                                }
+                                                                            </label>
+                                                                        </li>
+                                                                    }
+                                                                </ul>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <a asp-controller="Roles" asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
+                                <button type="submit" class="btn btn-primary float-end">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
-@section Scripts
-{
     <script>
         $(document).ready(function () {
-
             $("#treeview").hummingbird();
-        })
+
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+        });
 
         $.fn.hummingbird.defaults.SymbolPrefix = "fas";
         $.fn.hummingbird.defaults.collapsedSymbol = "fa-angle-right";
