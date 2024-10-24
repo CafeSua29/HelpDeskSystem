@@ -50,6 +50,18 @@
                                         <span class="title-span">@Html.DisplayNameFor(model => model.Name):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.Name)</span>
                                     </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
+                                        <span class="info-span">
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.CreatedById">
+                                                @Html.DisplayFor(model => model.CreatedBy.Name)
+                                            </a>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.CreatedOn)</span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
