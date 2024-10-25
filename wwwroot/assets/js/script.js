@@ -28,11 +28,18 @@ Version      : 1.0
 			if(!$(this).hasClass('subdrop')) {
 				$('ul', $(this).parents('ul:first')).slideUp(350);
 				$('a', $(this).parents('ul:first')).removeClass('subdrop');
+
+				$('li', $(this).parents('ul:first')).removeClass('active');
+
 				$(this).next('ul').slideDown(350);
 				$(this).addClass('subdrop');
+
+				$(this).parent().addClass('active');
 			} else if($(this).hasClass('subdrop')) {
 				$(this).removeClass('subdrop');
 				$(this).next('ul').slideUp(350);
+
+				$(this).parent().removeClass('active');
 			}
 		});
 
