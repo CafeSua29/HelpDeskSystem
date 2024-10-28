@@ -17,6 +17,9 @@ using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
 using XmlFileErrorLog = ElmahCore.XmlFileErrorLog;
+using HelpDeskSystem.Interfaces;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +39,12 @@ builder.Services.AddIdentity<AppUser, AppRole>()
     .AddDefaultUI();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddTransient<IPdfService, PdfService>();
+builder.Services.AddTransient<IExportService, ExportService>();
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 

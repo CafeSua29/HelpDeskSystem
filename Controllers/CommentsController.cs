@@ -235,5 +235,10 @@ namespace HelpDeskSystem.Controllers
         {
             return _context.Comments.Any(e => e.Id == id && e.DelTime == null);
         }
+
+        public int CountComment(int id)
+        {
+            return _context.Comments.Where(x => x.TicketId == id && x.DelTime == null).Count();
+        }
     }
 }

@@ -81,7 +81,10 @@
                                             @Html.DisplayFor(modelItem => item.OrderNo)
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Parent.Name)
+                                            @if (item.Parent != null)
+                                            {
+                                                @Html.DisplayFor(modelItem => item.Parent.Name)
+                                            }
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.CreatedBy.Name)
