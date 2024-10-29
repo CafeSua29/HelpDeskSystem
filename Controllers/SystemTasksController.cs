@@ -30,8 +30,23 @@ namespace HelpDeskSystem.Controllers
         // GET: SystemTasks
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.SystemTasks.Include(s => s.CreatedBy).Include(s => s.ModifiedBy).Include(s => s.Parent).Where(e => e.DelTime == null);
-            return View(await applicationDbContext.ToListAsync());
+            var applicationDbContext = await _context.SystemTasks
+                .Include(s => s.CreatedBy)
+                .Include(s => s.ModifiedBy)
+                .Include(s => s.Parent)
+                .Where(e => e.DelTime == null)
+                .ToListAsync();
+
+            var suptask = new SystemTask();
+            suptask.Name = "";
+
+            foreach (var task in applicationDbContext)
+            {
+                if (task.Parent == null)
+                    task.Parent = suptask;
+            }
+
+            return View(applicationDbContext);
         }
 
         // GET: SystemTasks/Details/5
