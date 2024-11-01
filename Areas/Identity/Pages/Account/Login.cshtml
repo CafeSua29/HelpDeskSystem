@@ -5,7 +5,7 @@
     ViewData["Title"] = "Log in";
 }
 
-<div class="main-wrapper login-body">
+<div class="login-body big-margin-top">
     <div class="login-wrapper">
         <div class="container">
             <div class="loginbox">
@@ -28,7 +28,7 @@
                                 <span asp-validation-for="Input.Password" class="text-danger"></span>
                             </div>
                             <div class="form-group checkbox">
-                                <label asp-for="Input.RememberMe" class="form-label">
+                                <label asp-for="Input.RememberMe" class="form-label" id="remember-me-label">
                                     <input class="form-check-input" asp-for="Input.RememberMe" />
                                     @Html.DisplayNameFor(m => m.Input.RememberMe)
                                 </label>

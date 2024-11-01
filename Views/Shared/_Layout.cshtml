@@ -40,7 +40,7 @@
     <link href="https://cdn.jsdelivr.net/gh/hummingbird-dev/hummingbird-treeview@v3.0.5/hummingbird-treeview.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/assets/css/style.css">
 </head>
-<body>
+<body class="mini-sidebar">
     <div class="main-wrapper">
         <partial name="_LoginPartial" />
 
@@ -48,15 +48,15 @@
         {
             <div class="page-wrapper">
                 @RenderBody()
-                <footer>
-                    <p>Copyright © 2024 HUCE.</p>
-                </footer>
             </div>
+            <footer>
+                <p>Copyright © 2024 HUCE.</p>
+            </footer>
         }
         else
         {
             @RenderBody()
-            <footer>
+            <footer id="register-footer">
                 <p>Copyright © 2024 HUCE.</p>
             </footer>
         }
