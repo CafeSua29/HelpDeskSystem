@@ -150,7 +150,13 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 .Where(c => c.Name == "Normal User")
                 .FirstOrDefaultAsync();
 
+                var notsetgenderid = await _context.SystemCodeDetails
+                .Where(c => c.Code == "NotSet")
+                .FirstOrDefaultAsync();
+
                 user.RoleId = normaluserid.Id;
+                user.GenderId = notsetgenderid.Id;
+                user.Gender = notsetgenderid;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

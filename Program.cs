@@ -20,6 +20,8 @@ using XmlFileErrorLog = ElmahCore.XmlFileErrorLog;
 using HelpDeskSystem.Interfaces;
 using DinkToPdf.Contracts;
 using DinkToPdf;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,17 @@ builder.Services.AddIdentity<AppUser, AppRole>()
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+builder.Services.AddHttpLogging(options =>
+{
+    options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders;
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddTransient<IPdfService, PdfService>();
@@ -56,20 +69,24 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.AddScoped<IUserClaimsPrincipalFactory<AppUser>, MyUserClaimsPrincipalFactory>().AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
-})
-    .AddCookie(options =>
+builder.Services
+    .AddScoped<IUserClaimsPrincipalFactory<AppUser>, MyUserClaimsPrincipalFactory>()
+    .AddAuthentication(options =>
     {
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-        options.SlidingExpiration = true;
-        options.Cookie.Name = ".HelpDesk.Session";
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-    });
+        options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+    })
+    .AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        googleOptions.CallbackPath = builder.Configuration["Authentication:Google:CallBackUrl"];
+        googleOptions.ClaimActions.MapJsonKey("urn:google:profile", "link");
+        googleOptions.ClaimActions.MapJsonKey("urn:google:image", "picture");
+    })
+    .AddCookie();
+
 
 var config = new MapperConfiguration(
     cfg =>
@@ -137,8 +154,29 @@ builder.Services.AddQuartz(q =>
     );
 });
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-
 var app = builder.Build();
+
+if (!app.Environment.IsProduction())
+{
+    app.Use((context, next) =>
+    {
+        context.Request.Scheme = "https";
+        return next(context);
+    });
+}
+
+app.UseForwardedHeaders();
+
+app.UseHttpLogging();
+
+app.Use(async (context, next) =>
+{
+    // Connection: RemoteIp
+    app.Logger.LogInformation("Request RemoteIp: {RemoteIpAddress}",
+        context.Connection.RemoteIpAddress);
+
+    await next(context);
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

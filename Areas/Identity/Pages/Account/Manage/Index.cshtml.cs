@@ -6,10 +6,15 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Spreadsheet;
+using ElmahCore;
+using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
 {
@@ -17,13 +22,16 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
         public IndexModel(
             UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager)
+            SignInManager<AppUser> signInManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         /// <summary>
@@ -59,6 +67,9 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            [Display(Name = "Gender")]
+            public int GenderId { get; set; }
         }
 
         private async Task LoadAsync(AppUser user)
@@ -66,16 +77,24 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
+            var tempUser = await _context.Users.FirstOrDefaultAsync(e => e.Id == user.Id && e.DelTime == null);
+            var genderid = tempUser.GenderId;
+
             Username = userName;
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                GenderId = genderid
             };
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
+            ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
+
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
@@ -108,6 +127,24 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
                 {
                     StatusMessage = "Unexpected error when trying to set phone number.";
                     return RedirectToPage();
+                }
+            }
+
+            if (Input.GenderId != user.GenderId)
+            {
+                try
+                {
+                    user.GenderId = Input.GenderId;
+
+                    _context.Update(user);
+                    await _context.MySaveChangesAsync(user.Id);
+                }
+                catch (Exception ex)
+                {
+                    ElmahExtensions.RaiseError(ex);
+                    StatusMessage = "Unexpected error when trying to set gender.";
+
+                    return Page();
                 }
             }
 

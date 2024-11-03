@@ -18,6 +18,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication;
+using HelpDeskSystem.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HelpDeskSystem.Areas.Identity.Pages.Account
 {
@@ -30,13 +33,16 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<AppUser> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly ApplicationDbContext _context;
 
         public ExternalLoginModel(
             SignInManager<AppUser> signInManager,
             UserManager<AppUser> userManager,
             IUserStore<AppUser> userStore,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ApplicationDbContext context
+            )
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -44,6 +50,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         /// <summary>
@@ -100,44 +107,101 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
+
             if (remoteError != null)
             {
                 ErrorMessage = $"Error from external provider: {remoteError}";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
-            var info = await _signInManager.GetExternalLoginInfoAsync();
-            if (info == null)
+
+            var result = await HttpContext.AuthenticateAsync("Google");
+
+            if (!result.Succeeded)
             {
-                ErrorMessage = "Error loading external login information.";
+                ErrorMessage = "External authentication failed.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
-            if (result.Succeeded)
+            var claims = result.Principal.Claims.ToList();
+
+            var emailClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+            var nameClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+
+            if (emailClaim == null)
             {
-                _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+                ErrorMessage = "Email claim not found.";
+                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            }
+
+            var email = emailClaim.Value;
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                // If the user exists, sign them in
+                await _signInManager.SignInAsync(user, isPersistent: false);
                 return LocalRedirect(returnUrl);
             }
-            if (result.IsLockedOut)
+
+            var normaluserid = await _context.Roles
+                .Where(c => c.Name == "Normal User")
+                .FirstOrDefaultAsync();
+
+            var notsetgenderid = await _context.SystemCodeDetails
+                .Where(c => c.Code == "NotSet")
+                .FirstOrDefaultAsync();
+
+            var newUser = Activator.CreateInstance<AppUser>();
+            newUser.UserName = email;
+            newUser.Email = email;
+            newUser.Name = email;
+            newUser.CreatedOn = DateTime.Now;
+            newUser.RoleId = normaluserid.Id;
+            newUser.GenderId = notsetgenderid.Id;
+            newUser.Gender = notsetgenderid;
+
+            await _userStore.SetUserNameAsync(newUser, email, CancellationToken.None);
+            await _emailStore.SetEmailAsync(newUser, email, CancellationToken.None);
+
+            var role = await _context.Roles.Where(x => x.Name == "Normal User").FirstOrDefaultAsync();
+            var rolesdetails = await _context.Roles.Where(x => x.Id == role.Id).FirstOrDefaultAsync();
+
+            var createUserResult = await _userManager.CreateAsync(newUser);
+
+            if (createUserResult.Succeeded)
             {
-                return RedirectToPage("./Lockout");
+                await _userManager.AddToRoleAsync(newUser, rolesdetails.Name);
+
+            }
+
+            if (createUserResult.Succeeded)
+            {
+                var addLoginResult = await _userManager.AddLoginAsync(newUser, new UserLoginInfo("Google", email, "Google"));
+                if (addLoginResult.Succeeded)
+                {
+                    await _signInManager.SignInAsync(newUser, isPersistent: false);
+                    return LocalRedirect(returnUrl);
+                }
+
+
+                // Handle errors while adding login
+                foreach (var error in addLoginResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
             else
             {
-                // If the user does not have an account, then ask the user to create an account.
-                ReturnUrl = returnUrl;
-                ProviderDisplayName = info.ProviderDisplayName;
-                if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
+                // Handle errors while creating user
+                foreach (var error in createUserResult.Errors)
                 {
-                    Input = new InputModel
-                    {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
-                    };
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
-                return Page();
             }
+
+            return Page();
         }
+
 
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
         {

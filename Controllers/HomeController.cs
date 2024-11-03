@@ -12,7 +12,6 @@ using System.Diagnostics;
 
 namespace HelpDeskSystem.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -25,6 +24,7 @@ namespace HelpDeskSystem.Controllers
             _context = context;
         }
 
+        [Authorize]
         public async Task<IActionResult> Index(TicketDashboardVM vm)
         {
             if(!User.Identity.IsAuthenticated)
@@ -50,6 +50,11 @@ namespace HelpDeskSystem.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult Home()
+        {
+            return View();
         }
     }
 }
