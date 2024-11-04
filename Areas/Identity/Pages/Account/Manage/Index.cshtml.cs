@@ -197,13 +197,16 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
 
                     var filePath = Path.Combine(path, filename);
 
-                    if (System.IO.File.Exists(filePath))
+                    if (System.IO.File.Exists(filename))
                     {
-                        System.IO.File.Delete(filePath);
+                        System.IO.File.Delete(filename);
                     }
 
-                    var stream = new FileStream(filePath, FileMode.Create);
-                    await Input.Avatar.CopyToAsync(stream);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await Input.Avatar.CopyToAsync(stream);
+                    }
+
                     user.Avatar = filename;
 
                     _context.Update(user);

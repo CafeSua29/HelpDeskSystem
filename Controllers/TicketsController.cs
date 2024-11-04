@@ -280,8 +280,11 @@ namespace HelpDeskSystem.Controllers
                     
                     var filepath = Path.Combine(path, filename);
 
-                    var stream = new FileStream(filepath, FileMode.Create);
-                    await NewAttachment.CopyToAsync(stream);
+                    using (var stream = new FileStream(filepath, FileMode.Create))
+                    {
+                        await NewAttachment.CopyToAsync(stream);
+                    }
+
                     ticket.Attachment = filename;
                 }
 
