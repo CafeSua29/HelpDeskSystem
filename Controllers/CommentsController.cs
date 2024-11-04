@@ -47,7 +47,7 @@ namespace HelpDeskSystem.Controllers
             }
 
             var comments = _context.Comments
-                .Where(x => x.TicketId == id && x.DelTime == null)
+                .Where(x => x.TicketId == id && x.ReplyId == null && x.DelTime == null)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
                 .OrderByDescending(c => c.CreatedOn)
@@ -240,5 +240,71 @@ namespace HelpDeskSystem.Controllers
         {
             return _context.Comments.Where(x => x.TicketId == id && x.DelTime == null).Count();
         }
+
+        public async Task<IActionResult> ReplyComments(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var comments = await _context.Comments
+                .Where(e => e.ReplyId == id && e.DelTime == null)
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
+
+            ViewBag.ReplyId = id;
+
+            return View(comments);
+        }
+
+        public async Task<IActionResult> Reply(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var comment = await _context.Comments.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+            if (comment == null)
+            {
+                return NotFound();
+            }
+
+            Comment replyComment = new Comment();
+            replyComment.TicketId = comment.TicketId;
+            replyComment.ReplyId = comment.Id;
+
+            return View(replyComment);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reply(Comment comment)
+        {
+            try
+            {
+                var userId = User.GetUserId();
+
+                comment.CreatedOn = DateTime.Now;
+                comment.CreatedById = userId;
+                comment.Id = 0;
+
+                _context.Add(comment);
+                await _context.MySaveChangesAsync(userId);
+
+                return RedirectToAction("ReplyComments", new { id = comment.ReplyId });
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(comment);
+            }
+        }
+
     }
 }

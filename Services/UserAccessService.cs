@@ -63,5 +63,20 @@ namespace HelpDeskSystem.Services
                     return null;
             }
         }
+
+        public static string GetUserAvatar(this ClaimsPrincipal user)
+        {
+            if (!user.Identity.IsAuthenticated)
+                return null;
+            else
+            {
+                ClaimsPrincipal curr = user;
+
+                if (curr != null)
+                    return curr.FindFirst("Avatar").Value;
+                else
+                    return null;
+            }
+        }
     }
 }

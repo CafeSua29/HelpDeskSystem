@@ -51,6 +51,8 @@ namespace HelpDeskSystem.ClaimsManagement
 
             identity.AddClaim(new Claim("UserId", user.Id));
 
+            identity.AddClaim(new Claim("UserAvatar", user.Avatar));
+
             return identity;
         }
     }

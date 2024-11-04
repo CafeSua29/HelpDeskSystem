@@ -3,12 +3,14 @@
 #nullable disable
 
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ElmahCore;
 using HelpDeskSystem.Data;
+using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -23,15 +25,18 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
         public IndexModel(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -70,22 +75,34 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
 
             [Display(Name = "Gender")]
             public int GenderId { get; set; }
+
+            [Display(Name = "Date of Birth")]
+            public DateOnly DOB { get; set; }
+
+            [Display(Name = "Avatar")]
+            public IFormFile? Avatar { get; set; }
         }
 
         private async Task LoadAsync(AppUser user)
         {
+            ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
+
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
             var tempUser = await _context.Users.FirstOrDefaultAsync(e => e.Id == user.Id && e.DelTime == null);
             var genderid = tempUser.GenderId;
+            var dob = tempUser.DOB;
 
             Username = userName;
 
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber,
-                GenderId = genderid
+                GenderId = genderid,
+                DOB = dob
             };
         }
 
@@ -107,6 +124,10 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnPostAsync()
         {
+            ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
+
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
@@ -143,6 +164,55 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
                 {
                     ElmahExtensions.RaiseError(ex);
                     StatusMessage = "Unexpected error when trying to set gender.";
+
+                    return Page();
+                }
+            }
+
+            if (Input.DOB != user.DOB)
+            {
+                try
+                {
+                    user.DOB = Input.DOB;
+
+                    _context.Update(user);
+                    await _context.MySaveChangesAsync(user.Id);
+                }
+                catch (Exception ex)
+                {
+                    ElmahExtensions.RaiseError(ex);
+                    StatusMessage = "Unexpected error when trying to set date of birth.";
+
+                    return Page();
+                }
+            }
+
+            if (Input.Avatar != null && Input.Avatar.Length > 0)
+            {
+                try
+                {
+                    var path = _configuration["FileSettings:AvatarsFolder"];
+
+                    var filename = user.Email + ".jpg";
+
+                    var filePath = Path.Combine(path, filename);
+
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+
+                    var stream = new FileStream(filePath, FileMode.Create);
+                    await Input.Avatar.CopyToAsync(stream);
+                    user.Avatar = filename;
+
+                    _context.Update(user);
+                    await _context.MySaveChangesAsync(user.Id);
+                }
+                catch (Exception ex)
+                {
+                    ElmahExtensions.RaiseError(ex);
+                    StatusMessage = "Unexpected error when trying to set avatar.";
 
                     return Page();
                 }

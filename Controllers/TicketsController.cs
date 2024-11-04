@@ -165,7 +165,7 @@ namespace HelpDeskSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Ticket ticket, IFormFile attachment)
+        public async Task<IActionResult> Create(Ticket ticket, IFormFile Attachment)
         {
             ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority" && x.DelTime == null), "Id", "Description");
             ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
@@ -173,15 +173,15 @@ namespace HelpDeskSystem.Controllers
 
             try
             {
-                if (attachment != null && attachment.Length > 0)
+                if (Attachment != null && Attachment.Length > 0)
                 {
-                    var filename = ticket.Title + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + attachment.FileName;
+                    var filename = ticket.Title + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + Attachment.FileName;
 
                     var path = _configuration["FileSettings:UploadsFolder"];
                     var filepath = Path.Combine(path, filename);
 
                     var stream = new FileStream(filepath, FileMode.Create);
-                    await attachment.CopyToAsync(stream);
+                    await Attachment.CopyToAsync(stream);
                     ticket.Attachment = filename;
                 }
 
@@ -264,9 +264,11 @@ namespace HelpDeskSystem.Controllers
             {
                 if (NewAttachment != null)
                 {
+                    var path = _configuration["FileSettings:UploadsFolder"];
+
                     if (!string.IsNullOrEmpty(Attachment))
                     {
-                        var filePath = Path.Combine("ClientUpload", Attachment);
+                        var filePath = Path.Combine(path, Attachment);
 
                         if (System.IO.File.Exists(filePath))
                         {
@@ -275,8 +277,7 @@ namespace HelpDeskSystem.Controllers
                     }
 
                     var filename = ticket.Title + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + NewAttachment.FileName;
-
-                    var path = _configuration["FileSettings:UploadsFolder"];
+                    
                     var filepath = Path.Combine(path, filename);
 
                     var stream = new FileStream(filepath, FileMode.Create);

@@ -7,6 +7,8 @@
 {
     var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
 
+    var userAvatar = User.FindFirst("UserAvatar")?.Value ?? "default-avatar.jpg";
+
     var canViewDashboard = allUserPermissions.Contains(":DASHBOARD");
 
     var canViewTicket = allUserPermissions.Contains(":TICKETS");
@@ -42,7 +44,7 @@
             <li class="nav-item user-logo">
                 <span class="avatar avatar-sm justify-content-center">
                     <a asp-area="Identity" asp-page="/Account/Manage/Index">
-                        <img class="avatar-img rounded-circle" src="~/assets/img/profiles/avatar-01.jpg" width="41" alt="">
+                        <img class="avatar-img rounded-circle" src="~/assets/img/profiles/@userAvatar" width="41" alt="">
                     </a>
                 </span>
             </li>

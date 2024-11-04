@@ -25,13 +25,15 @@ namespace HelpDeskSystem.Controllers
         private readonly RoleManager<AppRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, ApplicationDbContext context)
+        public UsersController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, ApplicationDbContext context, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _context = context;
+            _configuration = configuration;
         }
 
         // GET: UsersController
@@ -105,7 +107,7 @@ namespace HelpDeskSystem.Controllers
         // POST: UsersController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(AppUser user)
+        public async Task<ActionResult> Create(AppUser user, IFormFile Avatar)
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
@@ -118,6 +120,22 @@ namespace HelpDeskSystem.Controllers
                 var userId = User.GetUserId();
 
                 AppUser user1 = new();
+
+                if (Avatar != null && Avatar.Length > 0)
+                {
+                    var filename = user.Email + ".jpg";
+
+                    var path = _configuration["FileSettings:AvatarsFolder"];
+                    var filepath = Path.Combine(path, filename);
+
+                    var stream = new FileStream(filepath, FileMode.Create);
+                    await Avatar.CopyToAsync(stream);
+                    user1.Avatar = filename;
+                }
+                else
+                {
+                    user1.Avatar = "default-avatar.jpg";
+                }
 
                 user1.UserName = user.Email;
                 user1.Email = user.Email;
@@ -187,7 +205,7 @@ namespace HelpDeskSystem.Controllers
         // POST: UsersController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(string id, AppUser user1)
+        public async Task<ActionResult> Edit(string id, AppUser user1, string? Avatar, IFormFile? NewAvatar)
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
@@ -208,6 +226,29 @@ namespace HelpDeskSystem.Controllers
 
                 if (user != null)
                 {
+                    if (NewAvatar != null)
+                    {
+                        var path = _configuration["FileSettings:AvatarsFolder"];
+
+                        if (!string.IsNullOrEmpty(Avatar))
+                        {
+                            var filePath = Path.Combine(path, Avatar);
+
+                            if (System.IO.File.Exists(filePath))
+                            {
+                                System.IO.File.Delete(filePath);
+                            }
+                        }
+
+                        var filename = user.Email + ".jpg";
+
+                        var filepath = Path.Combine(path, filename);
+
+                        var stream = new FileStream(filepath, FileMode.Create);
+                        await NewAvatar.CopyToAsync(stream);
+                        user.Avatar = filename;
+                    }
+
                     user.UserName = user1.Email;
                     user.Email = user1.Email;
                     user.EmailConfirmed = true;

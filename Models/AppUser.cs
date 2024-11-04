@@ -23,6 +23,9 @@ namespace HelpDeskSystem.Models
         [DisplayName("Role")]
         public AppRole Role { get; set; }
 
+        [DisplayName("Avatar")]
+        public string? Avatar { get; set; }
+
         [DisplayName("Locked")]
         public bool? IsLocked { get; set; }
 

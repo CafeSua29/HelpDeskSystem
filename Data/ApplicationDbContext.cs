@@ -165,6 +165,12 @@ namespace HelpDeskSystem.Data
                 .HasForeignKey(c => c.TicketId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<Comment>()
+                .HasOne(c => c.ReplyComment)
+                .WithMany()
+                .HasForeignKey(c => c.ReplyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Entity<TicketCategory>()
                 .HasOne(c => c.CreatedBy)
                 .WithMany()

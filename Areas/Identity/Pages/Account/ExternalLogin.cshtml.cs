@@ -21,6 +21,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication;
 using HelpDeskSystem.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace HelpDeskSystem.Areas.Identity.Pages.Account
 {
@@ -133,7 +134,14 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
+            if (nameClaim == null)
+            {
+                ErrorMessage = "Name claim not found.";
+                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            }
+
             var email = emailClaim.Value;
+            var name = nameClaim.Value;
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
@@ -154,11 +162,12 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
             var newUser = Activator.CreateInstance<AppUser>();
             newUser.UserName = email;
             newUser.Email = email;
-            newUser.Name = email;
+            newUser.Name = name;
             newUser.CreatedOn = DateTime.Now;
             newUser.RoleId = normaluserid.Id;
             newUser.GenderId = notsetgenderid.Id;
             newUser.Gender = notsetgenderid;
+            newUser.Avatar = "~/assets/img/profiles/default-avatar.jpg";
 
             await _userStore.SetUserNameAsync(newUser, email, CancellationToken.None);
             await _emailStore.SetEmailAsync(newUser, email, CancellationToken.None);
@@ -171,7 +180,6 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
             if (createUserResult.Succeeded)
             {
                 await _userManager.AddToRoleAsync(newUser, rolesdetails.Name);
-
             }
 
             if (createUserResult.Succeeded)

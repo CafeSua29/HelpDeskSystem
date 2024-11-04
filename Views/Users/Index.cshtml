@@ -96,6 +96,9 @@
                                 {
                                     <tr>
                                         <td>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="avatar avatar-sm mr-2">
+                                                <img class="avatar-img rounded-circle" src="~/assets/img/profiles/@item.Avatar" alt="User Image">
+                                            </a>
                                             <a asp-action="Details" asp-route-id="@item.Id">
                                                 @Html.DisplayFor(modelItem => item.Name)
                                             </a>

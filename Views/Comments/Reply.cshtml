@@ -1,0 +1,75 @@
+﻿@model HelpDeskSystem.Models.Comment
+
+@{
+    ViewData["Title"] = "Reply";
+}
+
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Reply comment</h3>
+            </div>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-close"></i>
+                    @TempData["Error"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-horizontal">
+                        <div class="col-12">
+                            <h5 class="form-title"><span>Reply details</span></h5>
+                        </div>
+                        <form asp-action="Reply">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-floating mb-3">
+                                        <textarea asp-for="Description" class="form-control" placeholder="" rows="10"></textarea>
+                                        <label asp-for="Description" class="control-label"></label>
+                                        <span asp-validation-for="Description" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <input type="hidden" asp-for="TicketId" />
+                                <input type="hidden" asp-for="ReplyId" />
+                            </div>
+                            <div class="form-group">
+                                <a asp-action="ReplyComments" asp-route-id="@Model?.ReplyId" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
+                                <input type="submit" value="Reply" class="btn btn-primary float-end" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+        });
+    </script>
+}

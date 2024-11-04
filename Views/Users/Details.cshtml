@@ -40,6 +40,7 @@
                     <div class="about-info">
                         <h4>User information</h4>
                         <div class="media mt-3">
+                            <img src="~/assets/img/profiles/@Model.Avatar" class="mr-3" alt="Avatar">
                             <div class="media-body">
                                 <ul>
                                     <li>
@@ -69,7 +70,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div>
+                        <div class="margin-top">
                             <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
                             <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary float-end">Edit</a>
                         </div>

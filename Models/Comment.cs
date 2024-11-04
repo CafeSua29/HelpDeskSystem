@@ -14,5 +14,11 @@ namespace HelpDeskSystem.Models
 
         [DisplayName("Ticket")]
         public Ticket Ticket { get; set; }
+
+        [DisplayName("Reply to")]
+        public int? ReplyId { get; set; }
+
+        [DisplayName("Reply to")]
+        public Comment? ReplyComment { get; set; }
     }
 }

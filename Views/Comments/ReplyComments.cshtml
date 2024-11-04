@@ -1,9 +1,9 @@
 ﻿@model IEnumerable<HelpDeskSystem.Models.Comment>
 
 @{
-    ViewData["Title"] = "Recent Comments";
+    ViewData["Title"] = "Recent Replies";
 
-    int ticketid = ViewBag.TicketId;
+    int replyid = ViewBag.ReplyId;
 
     var user = User.FindFirst("UserId")?.Value ?? "";
 
@@ -14,7 +14,7 @@
 
 <div class="content container-fluid">
     <div class="page-header">
-        <h1>Recent Comments</h1>
+        <h1>Recent Replies</h1>
         <div class="row align-items-center margin-top">
 
             @if (TempData["Message"] != null)
@@ -39,26 +39,8 @@
                 </div>
             }
 
-            <div class="col-md-12">
-                <form asp-action="TicketComments" method="post">
-                    <a asp-controller="ExcelExports" asp-action="ExportComments" asp-route-id="@ticketid" class="btn btn-primary float-end"><i class="fas fa-download"></i> Download Excel</a>
-                    <div class="row">
-                        <div class="col-md-2 top-nav-search">
-                            <input name="Desc" class="form-control" placeholder="Search Comment" />
-                        </div>
-                        <div class="col-md-2 top-nav-search">
-                            <select name="CreatedById" class="form-control" asp-items="ViewBag.UsersId">
-                                <option value="">Created By</option>
-                            </select>
-                        </div>
-                        <div class="col-md-1 text-right float-right ml-auto top-nav-search">
-                            <button class="btn"><i class="fas fa-search"> Search</i></button>
-                        </div>
-                    </div>
-                </form>
-            </div>
             <div class="col-auto text-right float-right ml-auto p-2">
-                <a asp-action="Create" asp-route-id="@ticketid" class="btn btn-primary" title="Create"><i class="fas fa-plus"></i></a>
+                <a asp-action="Reply" asp-route-id="@replyid" class="btn btn-primary" title="Comment"><i class="fas fa-plus"></i></a>
             </div>
         </div>
     </div>
