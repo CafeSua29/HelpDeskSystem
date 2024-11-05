@@ -83,6 +83,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             public IFormFile? Avatar { get; set; }
         }
 
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         private async Task LoadAsync(AppUser user)
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
@@ -106,6 +107,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             };
         }
 
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> OnGetAsync()
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
@@ -122,6 +124,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             return Page();
         }
 
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> OnPostAsync()
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
@@ -193,21 +196,26 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
                 {
                     var path = _configuration["FileSettings:AvatarsFolder"];
 
-                    var filename = user.Email + ".jpg";
+                    var oldFileName = user.Email + "_" + user.AvatarCount + ".jpg";
 
-                    var filePath = Path.Combine(path, filename);
+                    var filePath = Path.Combine(path, oldFileName);
 
-                    if (System.IO.File.Exists(filename))
+                    if (System.IO.File.Exists(filePath))
                     {
-                        System.IO.File.Delete(filename);
+                        System.IO.File.Delete(filePath);
                     }
+
+                    user.AvatarCount += 1;
+
+                    var newFileName = user.Email + "_" + user.AvatarCount + ".jpg";
+                    filePath = Path.Combine(path, newFileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await Input.Avatar.CopyToAsync(stream);
                     }
 
-                    user.Avatar = filename;
+                    user.Avatar = newFileName;
 
                     _context.Update(user);
                     await _context.MySaveChangesAsync(user.Id);

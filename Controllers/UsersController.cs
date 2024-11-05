@@ -38,6 +38,7 @@ namespace HelpDeskSystem.Controllers
 
         // GET: UsersController
         //[Permission("DASHBOARD:VIEW")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<ActionResult> Index(string Name, string Email, string Phone, string RoleId)
         {
             ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
@@ -72,6 +73,7 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: UsersController/Details/5
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Details(string? id)
         {
             if (id == null)
@@ -93,6 +95,7 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: UsersController/Create
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public ActionResult Create()
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
@@ -107,6 +110,7 @@ namespace HelpDeskSystem.Controllers
         // POST: UsersController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<ActionResult> Create(AppUser user, IFormFile Avatar)
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
@@ -121,16 +125,19 @@ namespace HelpDeskSystem.Controllers
 
                 AppUser user1 = new();
 
+                user1.AvatarCount = 0;
+
                 if (Avatar != null && Avatar.Length > 0)
                 {
-                    var filename = user.Email + ".jpg";
+                    var fileName = user.Email + "_1.jpg";
 
                     var path = _configuration["FileSettings:AvatarsFolder"];
-                    var filepath = Path.Combine(path, filename);
+                    var filePath = Path.Combine(path, fileName);
 
-                    var stream = new FileStream(filepath, FileMode.Create);
+                    var stream = new FileStream(filePath, FileMode.Create);
                     await Avatar.CopyToAsync(stream);
-                    user1.Avatar = filename;
+                    user1.Avatar = fileName;
+                    user1.AvatarCount += 1;
                 }
                 else
                 {
@@ -179,6 +186,7 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: UsersController/Edit/5
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<ActionResult> Edit(string? id)
         {
             if (id == null)
@@ -205,6 +213,7 @@ namespace HelpDeskSystem.Controllers
         // POST: UsersController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<ActionResult> Edit(string id, AppUser user1, string? Avatar, IFormFile? NewAvatar)
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
@@ -240,12 +249,17 @@ namespace HelpDeskSystem.Controllers
                             }
                         }
 
-                        var filename = user.Email + ".jpg";
+                        user.AvatarCount += 1;
+
+                        var filename = user.Email + "_" + user.AvatarCount + ".jpg";
 
                         var filepath = Path.Combine(path, filename);
 
-                        var stream = new FileStream(filepath, FileMode.Create);
-                        await NewAvatar.CopyToAsync(stream);
+                        using (var stream = new FileStream(filepath, FileMode.Create))
+                        {
+                            await NewAvatar.CopyToAsync(stream);
+                        }
+
                         user.Avatar = filename;
                     }
 

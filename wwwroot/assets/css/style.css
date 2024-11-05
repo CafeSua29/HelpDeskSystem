@@ -3959,7 +3959,7 @@ table.table-inbox tbody tr.checked {
 
     .header-left .logo.logo-small {
         display: inline-block;
-        left: 50%;
+        left: 3%;
         position: relative;
         transform: translateX(-50%);
         -webkit-transform: translateX(-50%);
@@ -4254,7 +4254,6 @@ table.table-inbox tbody tr.checked {
 }
 
 #register-footer {
-    bottom: 0;
     left: 0 !important;
 }
 
