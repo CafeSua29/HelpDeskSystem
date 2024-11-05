@@ -40,17 +40,13 @@
                                 <a asp-area="Identity" asp-page="/Account/Register">Don't have an account ? Register now !</a>
                             </div>
                         </form>
-
-                        <div class="">
-                            -- or -- 
-                        </div>
-
+                        <hr id="login-hr" />
                         <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
                             <div>
                                 <p>
                                     @foreach (var provider in Model.ExternalLogins!)
                                     {
-                                        <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                        <button type="submit" class="btn btn-primary w-100" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">Log in using your @provider.DisplayName account</button>
                                     }
                                 </p>
                             </div>

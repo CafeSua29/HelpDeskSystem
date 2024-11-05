@@ -4041,7 +4041,7 @@ table.table-inbox tbody tr.checked {
     }
 
     .user-menu {
-        padding-right: 0px;
+        padding-right: 15px;
     }
 
     .page-title {
@@ -4259,4 +4259,8 @@ table.table-inbox tbody tr.checked {
 
 #padding-content {
     padding: 20px;
+}
+
+#login-hr {
+    height: 5px;
 }
