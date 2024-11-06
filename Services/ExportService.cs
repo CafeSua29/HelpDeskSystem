@@ -62,7 +62,31 @@ namespace HelpDeskSystem.Services
             }
         }
 
-        public FileStreamResult ExportToExcel(IEnumerable<object> data, string filename)
+        //public FileStreamResult ExportToExcel(List<string> header, IEnumerable<object> data, string filename)
+        //{
+        //    var wb = new XLWorkbook();
+        //    var worksheetName = filename;
+
+        //    if (worksheetName.Length > 23)
+        //    {
+        //        worksheetName = worksheetName.Substring(0, 25) + "...";
+        //    }
+
+        //    var ws = wb.Worksheets.Add(worksheetName);
+        //    filename += ".xlsx";
+        //    ws.Cell(1, 1).InsertData(data);
+        //    ws.Columns().AdjustToContents();
+        //    var xltable = ws.Tables.FirstOrDefault();
+
+        //    if (xltable != null)
+        //    {
+        //        xltable.ShowAutoFilter = true;
+        //    }
+
+        //    return wb.Deliver(filename);
+        //}
+
+        public FileStreamResult ExportToExcel<T>(List<string> header, List<T> data, string filename)
         {
             var wb = new XLWorkbook();
             var worksheetName = filename;
@@ -74,31 +98,15 @@ namespace HelpDeskSystem.Services
 
             var ws = wb.Worksheets.Add(worksheetName);
             filename += ".xlsx";
-            ws.Cell(1, 1).InsertData(data);
-            ws.Columns().AdjustToContents();
-            var xltable = ws.Tables.FirstOrDefault();
 
-            if (xltable != null)
+            var i = 1;
+            foreach (var item in header)
             {
-                xltable.ShowAutoFilter = true;
+                ws.Cell(1, i).Value = item;
+                i++;
             }
 
-            return wb.Deliver(filename);
-        }
-
-        public FileStreamResult ExportToExcel<T>(List<T> data, string filename)
-        {
-            var wb = new XLWorkbook();
-            var worksheetName = filename;
-
-            if (worksheetName.Length > 23)
-            {
-                worksheetName = worksheetName.Substring(0, 25) + "...";
-            }
-
-            var ws = wb.Worksheets.Add(worksheetName);
-            filename += ".xlsx";
-            ws.Cell(1, 1).InsertData(data);
+            ws.Cell(2, 1).InsertData(data);
             ws.Columns().AdjustToContents();
             var xltable = ws.Tables.FirstOrDefault();
 

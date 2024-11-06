@@ -239,7 +239,7 @@ namespace HelpDeskSystem.Controllers
                     {
                         var path = _configuration["FileSettings:AvatarsFolder"];
 
-                        if (!string.IsNullOrEmpty(Avatar))
+                        if (!string.IsNullOrEmpty(Avatar) && Avatar != "default-avatar.jpg")
                         {
                             var filePath = Path.Combine(path, Avatar);
 

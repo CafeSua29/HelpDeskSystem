@@ -10,8 +10,8 @@ namespace HelpDeskSystem.Interfaces
 
         Task<byte[]> ExportPageToPdf<T>(ReportGenerationVM<T> model);
 
-        FileStreamResult ExportToExcel(IEnumerable<object> data, string filename);
+        //FileStreamResult ExportToExcel(List<string> header, IEnumerable<object> data, string filename);
 
-        FileStreamResult ExportToExcel<T>(List<T> data, string filename);
+        FileStreamResult ExportToExcel<T>(List<string> header, List<T> data, string filename);
     }
 }

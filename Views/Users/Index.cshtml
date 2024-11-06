@@ -33,6 +33,7 @@
 
             <div class="col-md-12">
                 <form asp-action="Index" method="post">
+                    <a asp-controller="ExcelExports" asp-action="ExportUsers" class="btn btn-primary float-end"><i class="fas fa-download"></i> Download Excel</a>
                     <div class="row">
                         <div class="col-md-2 top-nav-search">
                             <input name="Name" class="form-control" placeholder="Name" />

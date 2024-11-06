@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Wordprocessing;
 using HelpDeskSystem.Data;
 using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.Interfaces;
@@ -7,6 +8,7 @@ using HelpDeskSystem.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -80,7 +82,19 @@ namespace HelpDeskSystem.Controllers
                 Comments = cc.CountComment(x.Id)
             }).ToListAsync();
 
-            return _exportService.ExportToExcel(data, "Ticket List");
+            List<string> header = new List<string>();
+            header.Add("Id");
+            header.Add("Title");
+            header.Add("Description");
+            header.Add("Created On");
+            header.Add("Created By");
+            header.Add("Status");
+            header.Add("Priority");
+            header.Add("Category");
+            header.Add("Sub-Category");
+            header.Add("Comments");
+
+            return _exportService.ExportToExcel(header, data, "Ticket List");
         }
 
         public async Task<IActionResult> ExportComments(int id, string Desc, string CreatedById)
@@ -111,7 +125,69 @@ namespace HelpDeskSystem.Controllers
                 CreatedBy = x.CreatedBy.Name
             }).ToListAsync();
 
-            return _exportService.ExportToExcel(data, "Comment List");
+            List<string> header = new List<string>();
+            header.Add("Id");
+            header.Add("Title");
+            header.Add("Comment");
+            header.Add("Created On");
+            header.Add("Created By");
+
+            return _exportService.ExportToExcel(header, data, "Comment List");
+        }
+
+        public async Task<IActionResult> ExportUsers(string Name, string Email, string Phone, string RoleId)
+        {
+            var users = _context.Users
+                .Include(x => x.Role)
+                .Include(x => x.Gender)
+                .Where(e => e.DelTime == null)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(Name))
+            {
+                users = users.Where(x => x.Name.Contains(Name));
+            }
+
+            if (!string.IsNullOrEmpty(Email))
+            {
+                users = users.Where(x => x.Email.Contains(Email));
+            }
+
+            if (!string.IsNullOrEmpty(Phone))
+            {
+                users = users.Where(x => x.PhoneNumber.Contains(Phone));
+            }
+
+            if (!string.IsNullOrEmpty(RoleId))
+            {
+                users = users.Where(x => x.RoleId.Contains(RoleId));
+            }
+
+            var data = await users.Select(x => new
+            {
+                Id = x.Id,
+                UserName = x.Name,
+                DoB = x.DOB,
+                Gender = x.Gender.Description,
+                Email = x.Email,
+                PhoneNumber = x.PhoneNumber,
+                Role = x.Role.Name,
+                CreatedOn = x.CreatedOn,
+                CreatedBy = x.CreatedBy.Name
+            }).ToListAsync();
+
+            List<string> header = new List<string>();
+            header.Add("Id");
+            header.Add("Name");
+            header.Add("Date of Birth");
+            header.Add("Gender");
+            header.Add("Email");
+            header.Add("Phone Number");
+            header.Add("Role");
+            header.Add("Created On");
+            header.Add("Created By");
+
+            return _exportService.ExportToExcel(header, data, "User List");
         }
     }
 }
