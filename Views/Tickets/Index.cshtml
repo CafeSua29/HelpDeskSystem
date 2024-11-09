@@ -175,7 +175,7 @@
 
                                             @if (item.Ticket.Status.Code != "Closed")
                                             {
-                                                <a asp-controller="Comments" asp-action="TicketComments" asp-route-id="@item.Ticket.Id">
+                                                <a asp-action="Comment" asp-route-id="@item.Ticket.Id">
                                                     @Html.DisplayFor(modelItem => item.Comments)
                                                 </a>
                                             }
