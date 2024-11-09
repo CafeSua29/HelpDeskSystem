@@ -137,6 +137,7 @@
                                                 <th>
                                                     Created On
                                                 </th>
+                                                <th class="text-right">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -153,6 +154,27 @@
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.CreatedOn)
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <div class="actions">
+                                                            @* <a asp-action="Reply" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2" title="Reply">
+                                                                <i class="fas fa-reply"></i>
+                                                            </a> *@
+                                                            @if (item.CreatedById.Equals(user) || admin)
+                                                            {
+                                                                <a asp-controller="Comments" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2" title="Edit">
+                                                                    <i class="fas fa-pen"></i>
+                                                                </a>
+                                                                <a href="#" class="btn btn-sm bg-danger" data-toggle="modal" title="Delete"
+                                                                   data-target="#deleteConfirmationModal"
+                                                                   data-id="@item.Id"
+                                                                   data-desc="@item.Description"
+                                                                   data-by="@item.CreatedBy.Name"
+                                                                   data-on="@item.CreatedOn">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+                                                            }
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             }
@@ -182,6 +204,57 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3 class="modal-title" id="deleteModalLabel">Are you sure you want to delete this comment ?</h3>
+                    </div>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="about-info">
+                            <h4>Comment information</h4>
+                            <div class="media mt-3">
+                                <div class="media-body">
+                                    <ul>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Description):</span>
+                                            <span class="info-span" id="itemDesc"></span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
+                                            <span class="info-span" id="itemBy"></span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
+                                            <span class="info-span" id="itemOn"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" action="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts
 {
     <script>
@@ -191,6 +264,21 @@
                     $(this).remove();
                 });
             }, 2000);
+        });
+
+        $('#deleteConfirmationModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var desc = button.data('desc');
+            var by = button.data('by');
+            var on = button.data('on');
+            var action = '/Comments/Delete/' + id;
+
+            var modal = $(this);
+            modal.find('#deleteForm').attr('action', action);
+            modal.find('#itemDesc').text(desc);
+            modal.find('#itemBy').text(by);
+            modal.find('#itemOn').text(on);
         });
     </script>
 }
