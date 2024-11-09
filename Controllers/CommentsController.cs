@@ -120,7 +120,7 @@ namespace HelpDeskSystem.Controllers
                 _context.Add(comment);
                 await _context.MySaveChangesAsync(userId);
 
-                return RedirectToAction("TicketComments", new { id = comment.TicketId });
+                return RedirectToAction("Comment", "Tickets", new { id = comment.TicketId });
             }
             catch (Exception ex)
             {
@@ -170,7 +170,7 @@ namespace HelpDeskSystem.Controllers
                 _context.Update(comment);
                 await _context.MySaveChangesAsync(userId);
 
-                return RedirectToAction("TicketComments", new { id = comment.TicketId });
+                return RedirectToAction("Comment", "Tickets", new { id = comment.TicketId });
             }
             catch (Exception ex)
             {
@@ -228,7 +228,7 @@ namespace HelpDeskSystem.Controllers
                 TempData["Error"] = "Error: " + ex.Message;
             }
 
-            return RedirectToAction("TicketComments", new { id = comment.TicketId });
+            return RedirectToAction("Comment", "Tickets", new { id = comment.TicketId });
         }
 
         private bool CommentExists(int id)
