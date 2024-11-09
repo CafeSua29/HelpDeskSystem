@@ -1,16 +1,22 @@
 ﻿@model HelpDeskSystem.Models.Ticket
 
 @{
-    ViewData["Title"] = "Assign";
+    ViewData["Title"] = "Comment";
 
-    List<TicketResolution> resolutions = ViewBag.Resolutions;
+    List<Comment> comments = ViewBag.Comments;
+
+    var user = User.FindFirst("UserId")?.Value ?? "";
+
+    var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
+
+    var admin = allUserPermissions.Contains(":SYSTEM");
 }
 
 <div class="content container-fluid">
     <div class="page-header">
         <div class="row">
             <div class="col-sm-12">
-                <h3 class="page-title">Assign ticket</h3>
+                <h3 class="page-title">Comment</h3>
             </div>
 
             @if (TempData["Message"] != null)
@@ -72,7 +78,6 @@
                                     </li>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
-
                                         <span class="info-span">
                                             <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.CreatedById">
                                                 @Html.DisplayFor(model => model.CreatedBy.Name)
@@ -92,16 +97,20 @@
                                         </span>
                                     </li>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.AssignedOn):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.AssignedOn)</span>
-                                    </li>
-                                    <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.Status):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.Status.Description)</span>
                                     </li>
                                 </ul>
                             </div>
                         </div>
+
+                        @if (Model.CreatedById.Equals(user) || Model.AssignedToId.Equals(user) || admin)
+                        {
+                            <div>
+                                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a>
+                            </div>
+                        }
+
                         <div class="row mt-3">
                             <div class="col-md-12">
                             </div>
@@ -112,7 +121,7 @@
             <div class="row mt-2">
                 <div class="col-md-12">
                     <div class="skill-info">
-                        <h4>Resolution History</h4>
+                        <h4>Comment</h4>
                         <div class="card card-table">
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -123,9 +132,6 @@
                                                     Description
                                                 </th>
                                                 <th>
-                                                    Status
-                                                </th>
-                                                <th>
                                                     Created By
                                                 </th>
                                                 <th>
@@ -134,14 +140,11 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var item in resolutions)
+                                            @foreach (var item in comments)
                                             {
                                                 <tr>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.Description)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Status.Description)
                                                     </td>
                                                     <td>
                                                         <a asp-controller="Users" asp-action="Details" asp-route-id="@item.CreatedById">
@@ -159,23 +162,18 @@
                             </div>
                         </div>
 
-                        @if (Model?.Status.Code != "Closed")
-                        {
-                            <div class="form-group"></div>
-                            <div>
-                                <form asp-action="Assign" asp-route-id="@Model?.Id">
-                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                                    <div class="form-group">
-                                        <select class="form-control" id="mypicker" name="UserId" data-live-search="true" placeholder="" asp-items="ViewBag.UsersId">
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
-                                        <input type="submit" value="Assign" class="btn btn-primary float-end" />
-                                    </div>
-                                </form>
-                            </div>
-                        }
+                        <div class="row">
+                            <form asp-action="Comment" asp-route-id="@Model?.Id">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="form-group">
+                                    <textarea name="Desc" class="form-control" placeholder="Description" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
+                                    <input type="submit" value="Comment" class="btn btn-primary float-end" />
+                                </div>
+                            </form>
+                        </div>
 
                     </div>
                 </div>
@@ -193,8 +191,6 @@
                     $(this).remove();
                 });
             }, 2000);
-
-            $('#mypicker').picker({ search: true });
         });
     </script>
 }

@@ -720,5 +720,66 @@ namespace HelpDeskSystem.Controllers
 
             return File(memory, "application/octet-stream", fileName);
         }
+
+        public async Task<IActionResult> Comment(int id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var ticket = await _context.Tickets
+                .Include(t => t.CreatedBy)
+                .Include(c => c.Status)
+                .Include(c => c.Priority)
+                .Include(t => t.SubCategory)
+                .Include(t => t.AssignedTo)
+                .FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
+
+            ViewBag.Comments = await _context.Comments
+                .Where(x => x.TicketId == id && x.DelTime == null)
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
+
+            return View(ticket);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Comment(int id, string Desc)
+        {
+            ViewBag.Comments = await _context.Comments
+                .Where(x => x.TicketId == id && x.DelTime == null)
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .OrderByDescending(c => c.CreatedOn)
+                .ToListAsync();
+
+            try
+            {
+                Comment comment = new Comment();
+
+                var userId = User.GetUserId();
+
+                comment.CreatedOn = DateTime.Now;
+                comment.CreatedById = userId;
+                comment.Id = 0;
+                comment.TicketId = id;
+                comment.Description = Desc;
+
+                _context.Add(comment);
+
+                await _context.MySaveChangesAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+            }
+
+            return RedirectToAction("Comment", new { id = id });
+        }
     }
 }
