@@ -167,6 +167,8 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
             newUser.RoleId = normaluserid.Id;
             newUser.GenderId = notsetgenderid.Id;
             newUser.Gender = notsetgenderid;
+            newUser.AvatarCount = 0;
+            newUser.Notification = 0;
             newUser.Avatar = "~/assets/img/profiles/default-avatar.jpg";
 
             await _userStore.SetUserNameAsync(newUser, email, CancellationToken.None);

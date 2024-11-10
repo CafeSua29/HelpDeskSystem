@@ -5,6 +5,8 @@
 
 @{
     ViewData["Title"] = "Home Page";
+
+    var userName = User.FindFirst("UserName")?.Value ?? "";
 }
 
 @if (SignInManager.IsSignedIn(User))
@@ -13,7 +15,7 @@
         <div class="page-header">
             <div class="row">
                 <div class="col-sm-12">
-                    <h3 class="page-title">Welcome @User.Identity?.Name!</h3>
+                    <h3 class="page-title">Welcome @userName!</h3>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item active">Dashboard</li>
                     </ul>

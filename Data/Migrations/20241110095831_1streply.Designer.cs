@@ -4,6 +4,7 @@ using HelpDeskSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HelpDeskSystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241110095831_1streply")]
+    partial class _1streply
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,7 +152,7 @@ namespace HelpDeskSystem.Data.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Notification")
+                    b.Property<int?>("Notification")
                         .HasColumnType("int");
 
                     b.Property<string>("PasswordHash")
@@ -381,7 +384,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("UserIdReply");
 
-                    b.ToTable("Replies");
+                    b.ToTable("Reply");
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.SystemCode", b =>

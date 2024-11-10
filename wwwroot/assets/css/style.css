@@ -4255,6 +4255,7 @@ table.table-inbox tbody tr.checked {
 
 #register-footer {
     left: 0 !important;
+    bottom: 0;
 }
 
 #padding-content {

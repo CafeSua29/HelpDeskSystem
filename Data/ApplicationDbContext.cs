@@ -42,6 +42,8 @@ namespace HelpDeskSystem.Data
 
         public DbSet<TicketsPriorityView> TicketsPriorityView { get; set; }
 
+        public DbSet<Reply> Replies { get; set; }
+
         public virtual async Task<int> MySaveChangesAsync(string userid = null)
         {
             OnBeforeSaveChanges(userid);
@@ -319,6 +321,30 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.ModifiedBy)
                 .WithMany()
                 .HasForeignKey(c => c.ModifiedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Reply>()
+                .HasOne(c => c.UserReply)
+                .WithMany()
+                .HasForeignKey(c => c.UserIdReply)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Reply>()
+                .HasOne(c => c.ReplyToUser)
+                .WithMany()
+                .HasForeignKey(c => c.ReplyToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Reply>()
+                .HasOne(c => c.Ticket)
+                .WithMany()
+                .HasForeignKey(c => c.TicketId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Reply>()
+                .HasOne(c => c.Comment)
+                .WithMany()
+                .HasForeignKey(c => c.CommentId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

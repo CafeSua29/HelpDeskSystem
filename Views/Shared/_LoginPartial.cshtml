@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using HelpDeskSystem.Controllers
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
 
@@ -8,6 +9,12 @@
     var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
 
     var userAvatar = User.FindFirst("UserAvatar")?.Value ?? "default-avatar.jpg";
+
+    var userRole = User.FindFirst("UserRole")?.Value ?? "";
+
+    var userName = User.FindFirst("UserName")?.Value ?? "";
+
+    var userNotification = int.Parse(User.FindFirst("UserNotification")?.Value ?? "0");
 
     var canViewDashboard = allUserPermissions.Contains(":DASHBOARD");
 
@@ -40,15 +47,100 @@
         <a class="mobile_btn" id="mobile_btn">
             <i class="fas fa-bars"></i>
         </a>
+
+        @* <ul class="nav user-menu">
+    <li class="nav-item user-logo">
+    <span class="avatar avatar-sm justify-content-center">
+    <a asp-area="Identity" asp-page="/Account/Manage/Index">
+    <img class="avatar-img rounded-circle" src="~/assets/img/profiles/@userAvatar" width="41" alt="">
+    </a>
+    </span>
+    </li>
+    </ul> *@
+
         <ul class="nav user-menu">
-            <li class="nav-item user-logo">
-                <span class="avatar avatar-sm justify-content-center">
-                    <a asp-area="Identity" asp-page="/Account/Manage/Index">
-                        <img class="avatar-img rounded-circle" src="~/assets/img/profiles/@userAvatar" width="41" alt="">
-                    </a>
-                </span>
+            <li class="nav-item dropdown noti-dropdown">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                    <i class="far fa-bell"></i>
+
+                    @if (userNotification > 0)
+                    {
+                        <span class="badge badge-pill">@userNotification</span>
+                    }
+                </a>
+                <div class="dropdown-menu notifications">
+                    <div class="topnav-dropdown-header">
+                        <span class="notification-title">Notifications</span>
+                        <a href="javascript:void(0)" class="clear-noti"> Clear All </a>
+                    </div>
+                    <div class="noti-content">
+                        <ul class="notification-list">
+                            <li class="notification-message">
+                                <a href="#">
+                                    <div class="media">
+                                        <span class="avatar avatar-sm">
+                                            <img class="avatar-img rounded-circle" alt="User Image"
+                                                 src="~/assets/img/profiles/@userAvatar">
+                                        </span>
+                                        <div class="media-body">
+                                            <p class="noti-details">
+                                                <span class="noti-title">Carlson Tech</span> has approved
+                                                <span class="noti-title">your estimate</span>
+                                            </p>
+                                            <p class="noti-time"><span class="notification-time">4 mins ago</span></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="notification-message">
+                                <a href="#">
+                                    <div class="media">
+                                        <span class="avatar avatar-sm">
+                                            <img class="avatar-img rounded-circle" alt="User Image"
+                                                 src="~/assets/img/profiles/@userAvatar">
+                                        </span>
+                                        <div class="media-body">
+                                            <p class="noti-details">
+                                                <span class="noti-title">International Software Inc</span>
+                                                has sent you a invoice in the amount of <span class="noti-title">$218</span>
+                                            </p>
+                                            <p class="noti-time"><span class="notification-time">6 mins ago</span></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="topnav-dropdown-footer">
+                        <a href="#">View all Notifications</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item dropdown has-arrow">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                    <span class="user-img">
+                        <img class="avatar-img rounded-circle" src="~/assets/img/profiles/@userAvatar" width="31" alt="">
+                    </span>
+                </a>
+                <div class="dropdown-menu">
+                    <div class="user-header">
+                        <div class="avatar avatar-sm">
+                            <img src="~/assets/img/profiles/@userAvatar" alt="User Image" class="avatar-img rounded-circle">
+                        </div>
+                        <div class="user-text">
+                            <h6>@userName</h6>
+                            <p class="text-muted mb-0">@userRole</p>
+                        </div>
+                    </div>
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="dropdown-item">My Profile</a>
+                    <a class="dropdown-item" href="inbox.html">Inbox</a>
+                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <a class="dropdown-item" href="#" onclick="this.closest('form').submit();return false;">Logout</a>
+                    </form>
+                </div>
             </li>
         </ul>
+
     </div>
     <div class="sidebar" id="sidebar">
         <div class="sidebar-inner slimscroll">
@@ -129,11 +221,11 @@
                     }
 
                     @* @if (canViewDepartment)
-                    {
-                        <li>
-                            <a class="" asp-area="" asp-controller="Departments" asp-action="Index"><i class="fas fa-user"></i> <span>Departments</span></a>
-                        </li>
-                    } *@
+                {
+                <li>
+                <a class="" asp-area="" asp-controller="Departments" asp-action="Index"><i class="fas fa-user"></i> <span>Departments</span></a>
+                </li>
+                } *@
 
                     @if (canViewTicketCate)
                     {
@@ -164,9 +256,9 @@
                     }
 
                     <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                        <li>
-                            <a href="#" onclick="this.closest('form').submit();return false;"><i class="fas fa-sign-out"></i> <span>Logout</span></a>
-                        </li>
+                    <li>
+                        <a href="#" onclick="this.closest('form').submit();return false;"><i class="fas fa-sign-out"></i> <span>Logout</span></a>
+                    </li>
                     </form>
                 </ul>
             </div>

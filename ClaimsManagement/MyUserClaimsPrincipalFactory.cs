@@ -47,11 +47,15 @@ namespace HelpDeskSystem.ClaimsManagement
                 }
 
                 identity.AddClaim(new Claim("UserPermission", allUserPermissions));
+
+                identity.AddClaim(new Claim("UserRoleId", user.RoleId));
+                identity.AddClaim(new Claim("UserRole", role.Name));
             }
 
             identity.AddClaim(new Claim("UserId", user.Id));
-
+            identity.AddClaim(new Claim("UserName", user.Name));
             identity.AddClaim(new Claim("UserAvatar", user.Avatar));
+            identity.AddClaim(new Claim("UserNotification", user.Notification.ToString()));
 
             return identity;
         }

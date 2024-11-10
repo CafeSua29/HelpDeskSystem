@@ -28,6 +28,8 @@ namespace HelpDeskSystem.Models
 
         public int AvatarCount { get; set; }
 
+        public int Notification { get; set; }
+
         [DisplayName("Locked")]
         public bool? IsLocked { get; set; }
 

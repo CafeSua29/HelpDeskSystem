@@ -154,6 +154,7 @@ namespace HelpDeskSystem.Controllers
                 user1.RoleId = user.RoleId;
                 user1.PhoneNumber = user.PhoneNumber;
                 user1.PhoneNumberConfirmed = true;
+                user1.Notification = 0;
 
                 user1.CreatedOn = DateTime.Now;
                 user1.CreatedById = userId;
