@@ -78,7 +78,7 @@ namespace HelpDeskSystem.Controllers
                 allticket = allticket.Where(x => DateOnly.FromDateTime(x.CreatedOn).CompareTo(DateOnly.FromDateTime(CreatedOn)) == 0);
             }
 
-            List<Ticket> tickets =  allticket.ToList();
+            List<Ticket> tickets = allticket.ToList();
 
             List<TicketVM> ticketVMs = new List<TicketVM>();
 
@@ -277,7 +277,7 @@ namespace HelpDeskSystem.Controllers
                     }
 
                     var filename = ticket.Title + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + NewAttachment.FileName;
-                    
+
                     var filepath = Path.Combine(path, filename);
 
                     using (var stream = new FileStream(filepath, FileMode.Create))
@@ -748,7 +748,7 @@ namespace HelpDeskSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Comment(int id, string Desc)
+        public async Task<IActionResult> Comment(int id, string Desc, int? parentId, string? ownerId)
         {
             ViewBag.Comments = await _context.Comments
                 .Where(x => x.TicketId == id && x.DelTime == null)
@@ -770,6 +770,31 @@ namespace HelpDeskSystem.Controllers
                 comment.Description = Desc;
 
                 _context.Add(comment);
+
+                if (parentId != null)
+                {
+                    comment.ReplyId = parentId;
+
+                    Reply reply = new Reply();
+                    reply.Message = Desc;
+                    reply.UserIdReply = userId;
+                    reply.ReplyToUserId = ownerId;
+                    reply.TicketId = id;
+                    reply.CommentId = (int)parentId;
+                    reply.ReplyOn = DateTime.Now;
+                    reply.Id = 0;
+
+                    _context.Add(reply);
+
+                    var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == ownerId && e.DelTime == null);
+
+                    if (user != null)
+                    {
+                        user.Notification += 1;
+
+                        _context.Update(user);
+                    }
+                }
 
                 await _context.MySaveChangesAsync(userId);
             }

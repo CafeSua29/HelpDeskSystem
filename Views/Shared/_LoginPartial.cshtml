@@ -14,6 +14,8 @@
 
     var userName = User.FindFirst("UserName")?.Value ?? "";
 
+    var userId = User.FindFirst("UserId")?.Value ?? "";
+
     var userNotification = int.Parse(User.FindFirst("UserNotification")?.Value ?? "0");
 
     var canViewDashboard = allUserPermissions.Contains(":DASHBOARD");
@@ -31,6 +33,8 @@
     var canViewDepartment = allUserPermissions.Contains(":DEPARTMENTS");
 
     var canViewLogs = allUserPermissions.Contains("SYSTEM:AUDITTRAILS");
+
+    var replies = RepliesController.GetRepliesbyUserId(userId);
 
     <div class="header">
         <div class="header-left">
@@ -75,40 +79,31 @@
                     </div>
                     <div class="noti-content">
                         <ul class="notification-list">
-                            <li class="notification-message">
-                                <a href="#">
-                                    <div class="media">
-                                        <span class="avatar avatar-sm">
-                                            <img class="avatar-img rounded-circle" alt="User Image"
-                                                 src="~/assets/img/profiles/@userAvatar">
-                                        </span>
-                                        <div class="media-body">
-                                            <p class="noti-details">
-                                                <span class="noti-title">Carlson Tech</span> has approved
-                                                <span class="noti-title">your estimate</span>
-                                            </p>
-                                            <p class="noti-time"><span class="notification-time">4 mins ago</span></p>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="notification-message">
-                                <a href="#">
-                                    <div class="media">
-                                        <span class="avatar avatar-sm">
-                                            <img class="avatar-img rounded-circle" alt="User Image"
-                                                 src="~/assets/img/profiles/@userAvatar">
-                                        </span>
-                                        <div class="media-body">
-                                            <p class="noti-details">
-                                                <span class="noti-title">International Software Inc</span>
-                                                has sent you a invoice in the amount of <span class="noti-title">$218</span>
-                                            </p>
-                                            <p class="noti-time"><span class="notification-time">6 mins ago</span></p>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
+
+                            @if (replies != null && replies.Count > 0)
+                            {
+                                foreach (var reply in replies)
+                                {
+                                    <li class="notification-message">
+                                        <a href="~/Tickets/Comment?id=?@reply.TicketId">
+                                            <div class="media">
+                                                <span class="avatar avatar-sm">
+                                                    <img class="avatar-img rounded-circle" alt="User Image"
+                                                         src="~/assets/img/profiles/@reply.UserReply.Avatar">
+                                                </span>
+                                                <div class="media-body">
+                                                    <p class="noti-details">
+                                                        <span class="noti-title">@reply.UserReply.Name</span>
+                                                        has reply your comment: <span class="noti-title">@reply.Message</span>
+                                                    </p>
+                                                    <p class="noti-time"><span class="notification-time">@reply.ReplyOn</span></p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                }
+                            }
+
                         </ul>
                     </div>
                     <div class="topnav-dropdown-footer">

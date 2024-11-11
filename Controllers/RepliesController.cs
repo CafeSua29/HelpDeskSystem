@@ -9,14 +9,9 @@ namespace HelpDeskSystem.Controllers
 {
     public class RepliesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private static readonly ApplicationDbContext _context;
 
-        public RepliesController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        public List<Reply> GetRepliesbyUserId(string userid)
+        public static List<Reply> GetRepliesbyUserId(string userid)
         {
             var replies = _context.Replies
                 .Where(x => x.ReplyToUserId == userid)
@@ -27,7 +22,12 @@ namespace HelpDeskSystem.Controllers
                 .OrderByDescending(c => c.ReplyOn)
                 .ToList();
 
-            return replies; 
+            if (replies == null || replies.Count == 0)
+            {
+                replies = new List<Reply>();
+            }
+
+            return replies;
         }
 
         public void DeleteRepliesbyUserId(string userid)
