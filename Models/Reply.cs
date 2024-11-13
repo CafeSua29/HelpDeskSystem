@@ -18,9 +18,9 @@
 
         public Ticket Ticket { get; set; }
 
-        public int CommentId { get; set; }
+        public int? CommentId { get; set; }
 
-        public Comment Comment { get; set; }
+        public Comment? Comment { get; set; }
 
         public DateTime ReplyOn { get; set; }
     }

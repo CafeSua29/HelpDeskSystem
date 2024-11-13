@@ -736,6 +736,18 @@ namespace HelpDeskSystem.Controllers
                 .Include(t => t.AssignedTo)
                 .FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
 
+            //AppUser user = new AppUser();
+            //user.Id = "";
+            //user.Name = "";
+
+            //if (ticket.AssignedToId == null)
+            //{
+            //    ticket.AssignedToId = "";
+            //    ticket.AssignedTo = user;
+            //}
+
+            //ViewBag.Ticket = ticket;
+
             ViewBag.Comments = await _context.Comments
                 .Where(x => x.TicketId == id && x.DelTime == null)
                 .Include(c => c.CreatedBy)
@@ -771,21 +783,8 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Add(comment);
 
-                if (parentId != null)
+                if (parentId != null && ownerId != null)
                 {
-                    comment.ReplyId = parentId;
-
-                    Reply reply = new Reply();
-                    reply.Message = Desc;
-                    reply.UserIdReply = userId;
-                    reply.ReplyToUserId = ownerId;
-                    reply.TicketId = id;
-                    reply.CommentId = (int)parentId;
-                    reply.ReplyOn = DateTime.Now;
-                    reply.Id = 0;
-
-                    _context.Add(reply);
-
                     var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == ownerId && e.DelTime == null);
 
                     if (user != null)
@@ -793,6 +792,45 @@ namespace HelpDeskSystem.Controllers
                         user.Notification += 1;
 
                         _context.Update(user);
+
+                        comment.ReplyId = parentId;
+
+                        Reply reply = new Reply();
+                        reply.Message = Desc;
+                        reply.UserIdReply = userId;
+                        reply.ReplyToUserId = ownerId;
+                        reply.TicketId = id;
+                        reply.CommentId = (int)parentId;
+                        reply.ReplyOn = DateTime.Now;
+                        reply.Id = 0;
+
+                        _context.Add(reply);
+                    }
+                }
+                else
+                {
+                    var ticket = await _context.Tickets.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
+                    if (ticket != null)
+                    {
+                        var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == ticket.CreatedById && e.DelTime == null);
+
+                        if (user != null)
+                        {
+                            user.Notification += 1;
+
+                            _context.Update(user);
+
+                            Reply reply = new Reply();
+                            reply.Message = Desc;
+                            reply.UserIdReply = userId;
+                            reply.ReplyToUserId = user.Id;
+                            reply.TicketId = id;
+                            reply.ReplyOn = DateTime.Now;
+                            reply.Id = 0;
+
+                            _context.Add(reply);
+                        }
                     }
                 }
 

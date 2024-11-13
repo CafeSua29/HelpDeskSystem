@@ -1,7 +1,9 @@
 ﻿@using HelpDeskSystem.Controllers
+@using HelpDeskSystem.Interfaces
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
+@inject IListService ReplyService
 
 @* @if (SignInManager.IsSignedIn(User)) *@
 @if (User.Identity.IsAuthenticated)
@@ -15,8 +17,6 @@
     var userName = User.FindFirst("UserName")?.Value ?? "";
 
     var userId = User.FindFirst("UserId")?.Value ?? "";
-
-    var userNotification = int.Parse(User.FindFirst("UserNotification")?.Value ?? "0");
 
     var canViewDashboard = allUserPermissions.Contains(":DASHBOARD");
 
@@ -34,7 +34,9 @@
 
     var canViewLogs = allUserPermissions.Contains("SYSTEM:AUDITTRAILS");
 
-    var replies = RepliesController.GetRepliesbyUserId(userId);
+    var replies = await ReplyService.GetRepliesAsync(userId);
+
+    var userNotification = replies.Count;
 
     <div class="header">
         <div class="header-left">
@@ -64,28 +66,29 @@
 
         <ul class="nav user-menu">
             <li class="nav-item dropdown noti-dropdown">
-                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown" id="noti-dropdown">
                     <i class="far fa-bell"></i>
 
                     @if (userNotification > 0)
                     {
                         <span class="badge badge-pill">@userNotification</span>
                     }
+
                 </a>
                 <div class="dropdown-menu notifications">
                     <div class="topnav-dropdown-header">
                         <span class="notification-title">Notifications</span>
-                        <a href="javascript:void(0)" class="clear-noti"> Clear All </a>
+                        <a href="#" class="clear-noti" id="clear-noti-btn"> Clear All </a>
                     </div>
                     <div class="noti-content">
-                        <ul class="notification-list">
+                        <ul class="notification-list" id="noti-list">
 
                             @if (replies != null && replies.Count > 0)
                             {
                                 foreach (var reply in replies)
                                 {
                                     <li class="notification-message">
-                                        <a href="~/Tickets/Comment?id=?@reply.TicketId">
+                                        <a href="~/Tickets/Comment?id=@reply.TicketId">
                                             <div class="media">
                                                 <span class="avatar avatar-sm">
                                                     <img class="avatar-img rounded-circle" alt="User Image"
@@ -94,7 +97,7 @@
                                                 <div class="media-body">
                                                     <p class="noti-details">
                                                         <span class="noti-title">@reply.UserReply.Name</span>
-                                                        has reply your comment: <span class="noti-title">@reply.Message</span>
+                                                        has mentioned you: <span class="noti-title">@reply.Message</span>
                                                     </p>
                                                     <p class="noti-time"><span class="notification-time">@reply.ReplyOn</span></p>
                                                 </div>
@@ -259,6 +262,8 @@
             </div>
         </div>
     </div>
+
+    <input type="hidden" id="useridinput" value="@userId"/>
 }
 else
 {

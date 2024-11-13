@@ -61,6 +61,8 @@ builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new 
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
+builder.Services.AddScoped<IListService, ReplyService>();
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Permission", policyBuilder =>
@@ -86,7 +88,6 @@ builder.Services
         googleOptions.ClaimActions.MapJsonKey("urn:google:image", "picture");
     })
     .AddCookie();
-
 
 var config = new MapperConfiguration(
     cfg =>

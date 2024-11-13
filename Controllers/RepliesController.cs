@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Office2010.Excel;
 using ElmahCore;
 using HelpDeskSystem.Data;
+using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,43 +10,39 @@ namespace HelpDeskSystem.Controllers
 {
     public class RepliesController : Controller
     {
-        private static readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public static List<Reply> GetRepliesbyUserId(string userid)
+        public RepliesController(ApplicationDbContext context)
         {
-            var replies = _context.Replies
-                .Where(x => x.ReplyToUserId == userid)
-                .Include(c => c.UserReply)
-                .Include(c => c.ReplyToUser)
-                .Include(c => c.Ticket)
-                .Include(c => c.Comment)
-                .OrderByDescending(c => c.ReplyOn)
-                .ToList();
-
-            if (replies == null || replies.Count == 0)
-            {
-                replies = new List<Reply>();
-            }
-
-            return replies;
+            _context = context;
         }
 
-        public void DeleteRepliesbyUserId(string userid)
+        [HttpPost]
+        [Route("Replies/ClearRepliesAsync")]
+        public async Task<IActionResult> ClearRepliesAsync(string userid)
         {
-            var replies = _context.Replies.Where(x => x.ReplyToUserId == userid).ToList();
+            var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == userid && e.DelTime == null);
+            var replies = await _context.Replies.Where(x => x.ReplyToUserId == userid).ToListAsync();
 
             try
             {
                 foreach (var reply in replies)
                 {
-
+                    _context.Replies.Remove(reply);
                 }
+
+                user.Notification = 0;
+
+                _context.Users.Update(user);
+
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
                 ElmahExtensions.RaiseError(ex);
-                TempData["Error"] = "Error: " + ex.Message;
             }
+
+            return Ok();
         }
     }
 }

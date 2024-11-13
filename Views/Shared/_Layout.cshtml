@@ -123,6 +123,33 @@
                     $(this).remove();
                 });
             }, 2000);
+
+            $('#clear-noti-btn').click(function (e) {
+                e.preventDefault();
+
+                var userid = $('#useridinput').val();
+
+                $.ajax({
+                    url: "/Replies/ClearRepliesAsync",
+                    type: 'POST',
+                    data: { userid: userid },
+                    contentType: 'application/x-www-form-urlencoded',
+                    success: function (response) {
+                        let display = '';
+
+                        $('#noti-list').empty();
+
+                        display += '<i class="far fa-bell"></i>';
+
+                        $('#noti-dropdown').html(display);
+
+                        console.log("Replies cleared successfully");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
         });
     </script>
 

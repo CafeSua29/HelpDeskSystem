@@ -5,6 +5,8 @@
 
     List<Comment> comments = ViewBag.Comments;
 
+    // Ticket ticket = ViewBag.Ticket;
+
     var user = User.FindFirst("UserId")?.Value ?? "";
 
     var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
@@ -50,6 +52,66 @@
                     <div class="about-info">
                         <h4>Ticket information</h4>
                         <div class="media mt-3">
+                            @* <div class="media-body">
+                                <ul>
+                                    <li>
+                                        <span class="title-span">Title:</span>
+                                        <span class="info-span">@ticket.Title</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Description:</span>
+                                        <span class="info-span">@ticket.Description</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Priority:</span>
+                                        <span class="info-span">@ticket.Priority.Description</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Sub-Category:</span>
+                                        <span class="info-span">@ticket.SubCategory.Name</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Attachment:</span>
+                                        <span class="info-span">
+                                            <a asp-action="DownloadAttachment" asp-route-fileName="@ticket.Attachment">
+                                                @ticket.Attachment
+                                            </a>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Created By:</span>
+                                        <span class="info-span">
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@ticket.CreatedById">
+                                                @ticket.CreatedBy.Name
+                                            </a>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Created On:</span>
+                                        <span class="info-span">@ticket.CreatedOn</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Assigned To:</span>
+                                        <span class="info-span">
+                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@ticket.AssignedToId">
+                                                @ticket.AssignedTo.Name
+                                            </a>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">Status:</span>
+                                        <span class="info-span">@ticket.Status.Description</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            @if (ticket.CreatedById.Equals(user) || user.Equals(ticket.AssignedToId) || admin)
+                            {
+                                <div>
+                                    <a asp-action="Edit" asp-route-id="@ticket?.Id" class="btn btn-primary">Edit</a>
+                                </div>
+                            } *@
+
                             <div class="media-body">
                                 <ul>
                                     <li>
@@ -129,13 +191,13 @@
                                         <thead>
                                             <tr>
                                                 <th>
+                                                    Created On
+                                                </th>
+                                                <th>
                                                     Description
                                                 </th>
                                                 <th>
                                                     Created By
-                                                </th>
-                                                <th>
-                                                    Created On
                                                 </th>
                                                 <th class="text-right">Action</th>
                                             </tr>
@@ -145,15 +207,15 @@
                                             {
                                                 <tr>
                                                     <td>
+                                                        @Html.DisplayFor(modelItem => item.CreatedOn)
+                                                    </td>
+                                                    <td>
                                                         @Html.DisplayFor(modelItem => item.Description)
                                                     </td>
                                                     <td>
                                                         <a asp-controller="Users" asp-action="Details" asp-route-id="@item.CreatedById">
                                                             @Html.DisplayFor(modelItem => item.CreatedBy.Name)
                                                         </a>
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.CreatedOn)
                                                     </td>
                                                     <td class="text-right">
                                                         <div class="actions">
@@ -232,15 +294,15 @@
                                 <div class="media-body">
                                     <ul>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Description):</span>
+                                            <span class="title-span">Description:</span>
                                             <span class="info-span" id="itemDesc"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
+                                            <span class="title-span">Created By:</span>
                                             <span class="info-span" id="itemBy"></span>
                                         </li>
                                         <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
+                                            <span class="title-span">Created On:</span>
                                             <span class="info-span" id="itemOn"></span>
                                         </li>
                                     </ul>
