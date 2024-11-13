@@ -4253,15 +4253,98 @@ table.table-inbox tbody tr.checked {
     margin-left: 5%;
 }
 
-#register-footer {
-    left: 0 !important;
-    bottom: 0;
-}
-
 #padding-content {
     padding: 20px;
 }
 
 #login-hr {
     height: 5px;
+}
+
+.account-modif {
+    padding: 2% 3%;
+}
+
+    .account-modif h1, h2 {
+        margin: 1% 0 5px 0;
+        justify-content: space-around;
+        display: flex;
+    }
+
+.display-modif {
+    justify-content: space-around;
+    display: flex;
+}
+
+.profile-ctn-modif {
+    margin-top: 3%;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: nowrap;
+    max-width: 80%;
+}
+
+.account-setting-ctn-modif {
+    display: flex;
+    justify-content: space-around;
+}
+
+.margin-right {
+    margin-right: 4%;
+}
+
+.log-ctn {
+    display: flex;
+}
+
+.log-btn {
+    width: 150px;
+    height: 50px;
+    margin: 0 1%;
+}
+
+.email-ctn {
+    width: 200%;
+}
+
+.log-btn--facebook {
+    background-color: #0e58e9;
+}
+
+.log-btn--twitter {
+    background-color: #0f0f0f;
+    color: #f1f1f1;
+}
+
+.log-btn--google {
+    background-color: #e14848;
+}
+
+.login-icon {
+    padding-right: 5%;
+}
+
+.btn-authen {
+    margin: 1% 1% 2% 0;
+    height: 45px;
+    line-height: 34px;
+}
+
+.w-30 {
+    width: 30% !important;
+}
+
+.fa-sub {
+    text-align: center;
+}
+
+.register-footer {
+    left: 0 !important;
+    bottom: 0;
+}
+
+@media (max-width: 130000px) {
+    .register-footer {
+        left: 0 !important;
+    }
 }

@@ -46,8 +46,10 @@
                                 <p>
                                     @foreach (var provider in Model.ExternalLogins!)
                                     {
-                                        <button type="submit" class="btn btn-primary w-100" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">Log in using your @provider.DisplayName account</button>
+                                        <button type="submit" class="btn btn-primary log-btn log-btn--google w-30" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account"><i class="fa-brands fa-google login-icon"></i> @provider.DisplayName</button>
                                     }
+                                    <button class="fb-log btn btn-primary log-btn log-btn--facebook w-30"><i class="fa-brands fa-facebook-f login-icon"></i> Facebook</button>
+                                    <button class="x-log btn btn-primary log-btn log-btn--twitter w-30"><i class="fa-brands fa-x-twitter login-icon"></i> Twitter</button>
                                 </p>
                             </div>
                         </form>
@@ -55,36 +57,36 @@
                 </div>
             </div>
             @* <div class="col-md-6 col-md-offset-2">
-                <section>
-                    <h3>Use another service to register.</h3>
-                    <hr />
-                    @{
-                        if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                        {
-                            <div>
-                                <p>
-                                    There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
-                                        article
-                                        about setting up this ASP.NET application to support logging in via external services
-                                    </a>.
-                                </p>
-                            </div>
-                        }
-                        else
-                        {
-                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                                <div>
-                                    <p>
-                                        @foreach (var provider in Model.ExternalLogins!)
-                                        {
-                                            <button type="submit" class="g-signin2" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                        }
-                                    </p>
-                                </div>
-                            </form>
-                        }
-                    }
-                </section>
+            <section>
+            <h3>Use another service to register.</h3>
+            <hr />
+            @{
+            if ((Model.ExternalLogins?.Count ?? 0) == 0)
+            {
+            <div>
+            <p>
+            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+            article
+            about setting up this ASP.NET application to support logging in via external services
+            </a>.
+            </p>
+            </div>
+            }
+            else
+            {
+            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+            <div>
+            <p>
+            @foreach (var provider in Model.ExternalLogins!)
+            {
+            <button type="submit" class="g-signin2" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+            }
+            </p>
+            </div>
+            </form>
+            }
+            }
+            </section>
             </div> *@
         </div>
     </div>
