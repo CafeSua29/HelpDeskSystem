@@ -8,7 +8,7 @@
 <div class="login-body big-margin-top">
     <div class="login-wrapper">
         <div class="container">
-            <div class="loginbox">
+            <div class="loginbox login-box-modif">
                 <div class="login-left">
                 </div>
                 <div class="login-right">
@@ -27,6 +27,11 @@
                                 <label asp-for="Input.Password" class="form-label">Password</label>
                                 <span asp-validation-for="Input.Password" class="text-danger"></span>
                             </div>
+
+                            <div class="form-group form-floating">
+                                <a id="forgot-password" class="forgot" asp-page="./ForgotPassword">Forgot your password?</a>
+                            </div>
+
                             <div class="form-group checkbox">
                                 <label asp-for="Input.RememberMe" class="form-label" id="remember-me-label">
                                     <input class="form-check-input" asp-for="Input.RememberMe" />
@@ -39,20 +44,23 @@
                             <div class="form-group form-floating">
                                 <a asp-area="Identity" asp-page="/Account/Register">Don't have an account ? Register now !</a>
                             </div>
-                        </form>
-                        <hr id="login-hr" />
-                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                            <div>
-                                <p>
+                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                                <div class="log-ctn">
+
                                     @foreach (var provider in Model.ExternalLogins!)
                                     {
-                                        <button type="submit" class="btn btn-primary log-btn log-btn--google w-30" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account"><i class="fa-brands fa-google login-icon"></i> @provider.DisplayName</button>
+                                        <div class="login-button-ctn"><button type="submit" class="btn btn-primary log-btn log-btn--google" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account"><i class="fa-brands fa-google login-icon"></i> <i class="text-login__modif"> @provider.DisplayName</i></button></div>
+
                                     }
-                                    <button class="fb-log btn btn-primary log-btn log-btn--facebook w-30"><i class="fa-brands fa-facebook-f login-icon"></i> Facebook</button>
-                                    <button class="x-log btn btn-primary log-btn log-btn--twitter w-30"><i class="fa-brands fa-x-twitter login-icon"></i> Twitter</button>
-                                </p>
-                            </div>
+                                    <div class="login-button-ctn"><button class="fb-log btn btn-primary log-btn log-btn--facebook "><i class="fa-brands fa-facebook-f login-icon"></i> <i class="text-login"> Facebook</i></button></div>
+                                    <div class="login-button-ctn"> <button class="x-log btn btn-primary log-btn log-btn--twitter "><i class="fa-brands fa-x-twitter login-icon"></i> <i class="text-login__modif">Twitter</i></button></div>
+
+
+                                </div>
+                            </form>
                         </form>
+                        <hr id="login-hr" />
+                       
                     </div>
                 </div>
             </div>

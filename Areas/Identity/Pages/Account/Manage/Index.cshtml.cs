@@ -73,6 +73,9 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
 
+            [Display(Name = "Name")]
+            public string Name { get; set; }
+
             [Display(Name = "Gender")]
             public int GenderId { get; set; }
 
@@ -94,6 +97,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
             var tempUser = await _context.Users.FirstOrDefaultAsync(e => e.Id == user.Id && e.DelTime == null);
+            var name = tempUser.Name;
             var genderid = tempUser.GenderId;
             var dob = tempUser.DOB;
 
@@ -102,6 +106,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber,
+                Name = name,
                 GenderId = genderid,
                 DOB = dob
             };
@@ -154,6 +159,24 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
                 }
             }
 
+            if (Input.Name != user.Name)
+            {
+                try
+                {
+                    user.Name = Input.Name;
+
+                    _context.Update(user);
+                    await _context.MySaveChangesAsync(user.Id);
+                }
+                catch (Exception ex)
+                {
+                    ElmahExtensions.RaiseError(ex);
+                    StatusMessage = "Unexpected error when trying to change your name.";
+
+                    return Page();
+                }
+            }
+
             if (Input.GenderId != user.GenderId)
             {
                 try
@@ -166,7 +189,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
                 catch (Exception ex)
                 {
                     ElmahExtensions.RaiseError(ex);
-                    StatusMessage = "Unexpected error when trying to set gender.";
+                    StatusMessage = "Unexpected error when trying to change your gender.";
 
                     return Page();
                 }
@@ -184,7 +207,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
                 catch (Exception ex)
                 {
                     ElmahExtensions.RaiseError(ex);
-                    StatusMessage = "Unexpected error when trying to set date of birth.";
+                    StatusMessage = "Unexpected error when trying to change your date of birth.";
 
                     return Page();
                 }
@@ -223,7 +246,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
                 catch (Exception ex)
                 {
                     ElmahExtensions.RaiseError(ex);
-                    StatusMessage = "Unexpected error when trying to set avatar.";
+                    StatusMessage = "Unexpected error when trying to change your avatar.";
 
                     return Page();
                 }

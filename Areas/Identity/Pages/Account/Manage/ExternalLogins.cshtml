@@ -41,18 +41,21 @@
     <h4>Add another service to log in.</h4>
     <hr />
 
-    <div class="log-ctn">
+    <div>
         <form id="link-login-form" asp-page-handler="LinkLogin" method="post" class="form-horizontal log-btn">
             <div id="socialLoginList">
-                <p>
+                <p class="log-ctn ">
                     @foreach (var provider in Model.OtherLogins)
                     {
-                        <button id="@($"link-login-button-{provider.Name}")" type="submit" class="btn btn-primary log-btn log-btn--google" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account"><i class="fa-brands fa-google login-icon"></i>@provider.DisplayName</button>
+                        <button id="@($"link-login-button-{provider.Name}")" type="submit" class="btn btn-primary log-btn-profile log-btn--google" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account"><i class="fa-brands fa-google login-icon"></i>@provider.DisplayName</button>
                     }
+                    <button class="fb-log btn btn-primary log-btn-profile log-btn--facebook"> <i class="fa-brands fa-facebook-f login-icon"></i> Facebook</button>
+
+                    <button class="x-log btn btn-primary log-btn-profile log-btn--twitter"><i class="fa-brands fa-x-twitter login-icon"></i> Twitter</button>
                 </p>
             </div>
         </form>
-        <button class="fb-log btn btn-primary log-btn log-btn--facebook"> <i class="fa-brands fa-facebook-f login-icon"></i> Facebook</button>
-        <button class="x-log btn btn-primary log-btn log-btn--twitter"><i class="fa-brands fa-x-twitter login-icon"></i> Twitter</button>
+       
+            
     </div>
 }

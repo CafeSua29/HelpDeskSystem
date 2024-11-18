@@ -2237,15 +2237,15 @@ footer {
 -----------------------*/
 
 .login-body {
-/*    display: table;*/
-/*    height: 100vh;*/
-/*    min-height: 100vh;*/
+    /*    display: table;*/
+    /*    height: 100vh;*/
+    /*    min-height: 100vh;*/
 }
 
 .login-wrapper {
     width: 100%;
     height: 100%;
-/*    display: table-cell;*/
+    /*    display: table-cell;*/
     vertical-align: middle;
 }
 
@@ -4343,8 +4343,90 @@ table.table-inbox tbody tr.checked {
     bottom: 0;
 }
 
-@media (max-width: 130000px) {
-    .register-footer {
-        left: 0 !important;
-    }
+.twofactor-ctn {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 2%;
+}
+
+.left-ctn {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.left-h5 {
+    display: flex;
+    margin: auto 0;
+}
+
+.border-bot {
+    border-bottom: 1px solid #ddd;
+}
+
+.tittle-authen {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1%;
+    font-weight: 450;
+}
+
+.btn-authen-modif {
+    margin-top: 2%;
+}
+
+.log-btn {
+    width: 100%;
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    line-height: 2.4rem;
+}
+
+.login-icon {
+    line-height: 2.4rem;
+}
+
+.text-login {
+    margin: 0 1%;
+}
+
+.text-login__modif {
+    width: 80%;
+}
+
+
+.log-ctn {
+    display: flex;
+    justify-content: space-around;
+}
+
+.login-button-ctn {
+    display: flex;
+    width: 30%;
+    position: relative
+}
+
+.log-btn-profile {
+    width: 160px;
+    margin: 0 2%;
+}
+
+.forgot {
+    float: right;
+    font-size: 0.8rem;
+}
+
+.login-box-modif {
+    min-height: 650px !important;
+}
+
+.d3-color {
+    color: #ddd;
+}
+
+.pro5-img {
+    flex: 1;
 }
