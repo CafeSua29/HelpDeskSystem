@@ -17,6 +17,9 @@ namespace HelpDeskSystem.ViewModels
         [DisplayName("System Role")]
         public string RoleId { get; set; }
 
+        [DisplayName("Role name")]
+        public string RoleName { get; set; }
+
         [DisplayName("System Task")]
         public int TaskId { get; set; }
     }

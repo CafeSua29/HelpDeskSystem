@@ -87,7 +87,7 @@
                                         @Html.DisplayNameFor(model => model.PhoneNumber)
                                     </th>
                                     @* <th>
-                                        @Html.DisplayNameFor(model => model.IsLocked)
+                                    @Html.DisplayNameFor(model => model.IsLocked)
                                     </th> *@
                                     <th class="text-right">Action</th>
                                 </tr>
@@ -120,13 +120,13 @@
                                             @Html.DisplayFor(modelItem => item.PhoneNumber)
                                         </td>
                                         @* <td>
-                                            @Html.DisplayFor(modelItem => item.IsLocked)
-                                        </td> *@
+                                    @Html.DisplayFor(modelItem => item.IsLocked)
+                                    </td> *@
                                         <td class="text-right">
                                             <div class="actions">
                                                 @* <a asp-action="Activate" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2" title="Active">
-                                                    <i class="fas fa-pen"></i>
-                                                </a> *@
+                                            <i class="fas fa-pen"></i>
+                                            </a> *@
                                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2" title="Edit">
                                                     <i class="fas fa-pen"></i>
                                                 </a>
@@ -138,7 +138,8 @@
                                                    data-gender="@item.Gender.Description"
                                                    data-role="@item.Role.Name"
                                                    data-email="@item.Email"
-                                                   data-phone="@item.PhoneNumber">
+                                                   data-phone="@item.PhoneNumber"
+                                                   data-ava="@item.Avatar">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
@@ -174,6 +175,7 @@
                         <div class="about-info">
                             <h4>User information</h4>
                             <div class="media mt-3">
+                                <img src="" class="mr-3" alt="Avatar" id="itemAva">
                                 <div class="media-body">
                                     <ul>
                                         <li>
@@ -237,6 +239,7 @@
             var role = button.data('role');
             var email = button.data('email');
             var phone = button.data('phone');
+            var ava = '/assets/img/profiles/' + button.data('ava');
             var action = '/Users/Delete/' + id;
 
             var modal = $(this);
@@ -247,6 +250,7 @@
             modal.find('#itemRole').text(role);
             modal.find('#itemEmail').text(email);
             modal.find('#itemPhone').text(phone);
+            modal.find('#itemAva').attr('src', ava);
         });
     </script>
 }

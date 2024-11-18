@@ -1,4 +1,4 @@
-/*
+﻿/*
 Author       : Dreamguys
 Template Name: Preskool - Bootstrap Admin Template
 Version      : 1.0
@@ -4340,7 +4340,7 @@ table.table-inbox tbody tr.checked {
 
 .register-footer {
     left: 0 !important;
-    bottom: 0;
+    /*    bottom: 0;*/
 }
 
 .twofactor-ctn {
@@ -4429,4 +4429,41 @@ table.table-inbox tbody tr.checked {
 
 .pro5-img {
     flex: 1;
+}
+
+.del-wrap {
+    word-wrap: break-word;
+}
+
+/* General Treeview Styling */
+.hummingbird-treeview {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+    .hummingbird-treeview li {
+        border-left: none;
+    }
+
+    .hummingbird-treeview ul {
+        padding-left: 20px;
+    }
+
+    .hummingbird-treeview label:hover {
+        color: #007bff;
+        background-color: #f9f9f9;
+        cursor: pointer;
+    }
+
+.comment {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.replies {
+    margin-left: 20px;
+    padding-left: 10px;
+    border-left: 1px solid #ddd;
 }

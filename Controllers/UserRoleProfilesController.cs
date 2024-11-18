@@ -219,17 +219,19 @@ namespace HelpDeskSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> UserRights(string id)
+        public async Task<IActionResult> UserRights(string id, string name)
         {
             ProfileVM vm = new ProfileVM();
 
             vm.RoleId = id;
-            var allroles = await _context.Roles
-                .OrderBy(x => x.Name)
-                .Where(e => e.DelTime == null)
-                .ToListAsync();
+            vm.RoleName = name;
 
-            ViewBag.RoleId = new SelectList(allroles, "Id", "Name", id);
+            //var allroles = await _context.Roles
+            //    .OrderBy(x => x.Name)
+            //    .Where(e => e.DelTime == null)
+            //    .ToListAsync();
+
+            //ViewBag.RoleId = new SelectList(allroles, "Id", "Name", id);
 
             vm.SystemTasks = await _context.SystemTasks
                 .Include("ChildTasks.ChildTasks.ChildTasks")
@@ -248,12 +250,12 @@ namespace HelpDeskSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> UserRights(ProfileVM vm)
         {
-            var allroles = await _context.Roles
-                .OrderBy(x => x.Name)
-                .Where(e => e.DelTime == null)
-                .ToListAsync();
+            //var allroles = await _context.Roles
+            //    .OrderBy(x => x.Name)
+            //    .Where(e => e.DelTime == null)
+            //    .ToListAsync();
 
-            ViewBag.RoleId = new SelectList(allroles, "Id", "Name", vm.RoleId);
+            //ViewBag.RoleId = new SelectList(allroles, "Id", "Name", vm.RoleId);
 
             vm.SystemTasks = await _context.SystemTasks
                 .Include("ChildTasks.ChildTasks.ChildTasks")

@@ -50,10 +50,12 @@
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                             <div class="row">
                                 <div class="col-md-12">
+                                    <input type="hidden" asp-for="RoleId" />
                                     <div class="form-floating mb-6">
-                                        <select asp-for="RoleId" class="form-control onchange" asp-items="ViewBag.RoleId"></select>
-                                        <label asp-for="RoleId" class="control-label"></label>
-                                        <a class="CurrentRootUrl" href="~/UserRoleProfiles/UserRights/"></a>
+                                        @* <select asp-for="RoleId" class="form-control onchange" asp-items="ViewBag.RoleId"></select> *@
+                                        <input asp-for="RoleName" class="form-control" placeholder="" disabled />
+                                        <label asp-for="RoleName" class="control-label"></label>
+                                        <span asp-validation-for="RoleName" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="col-md-12 margin-top">
@@ -103,6 +105,9 @@
                                                 </li>
                                             </ul>
                                         </div>
+
+                                        <a href="#" class="btn btn-primary float-start mr-3" id="expandAll">Expand All</a>
+                                        <a href="#" class="btn btn-primary float-start" id="collapseAll">Collapse All</a>
                                     </div>
                                 </div>
                             </div>
@@ -128,6 +133,14 @@
         $(document).ready(function () {
             $("#treeview").hummingbird();
 
+            // Add expand/collapse all functionality
+            $("#expandAll").click(function () {
+                $("#treeview").hummingbird("expandAll");
+            });
+            $("#collapseAll").click(function () {
+                $("#treeview").hummingbird("collapseAll");
+            });
+
             window.setTimeout(function () {
                 $(".alert").fadeTo(500, 0).slideUp(500, function () {
                     $(this).remove();
@@ -139,9 +152,9 @@
         $.fn.hummingbird.defaults.collapsedSymbol = "fa-angle-right";
         $.fn.hummingbird.defaults.expandedSymbol = "fa-angle-down";
 
-        $('.onchange').on('change', function () {
-            window.location = $('.CurrentRootUrl').attr('href') + $('.onchange option:selected').val();
-        });
+        // $('.onchange').on('change', function () {
+        //     window.location = $('.CurrentRootUrl').attr('href') + $('.onchange option:selected').val();
+        // });
 
         // $('input.grandparent,input.parent,input.child').change(function () {
         //     $(this).siblings().find("input[type='checkbox']").prop('checked', this.checked);
