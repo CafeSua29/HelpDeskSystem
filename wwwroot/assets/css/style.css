@@ -4455,15 +4455,3 @@ table.table-inbox tbody tr.checked {
         background-color: #f9f9f9;
         cursor: pointer;
     }
-
-.comment {
-    margin-bottom: 20px;
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
-}
-
-.replies {
-    margin-left: 20px;
-    padding-left: 10px;
-    border-left: 1px solid #ddd;
-}

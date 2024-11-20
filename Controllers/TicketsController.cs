@@ -18,6 +18,7 @@ using HelpDeskSystem.ClaimsManagement;
 using Microsoft.AspNetCore.Authorization;
 using Elmah.ContentSyndication;
 using Microsoft.Extensions.Hosting;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -736,23 +737,18 @@ namespace HelpDeskSystem.Controllers
                 .Include(t => t.AssignedTo)
                 .FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
 
-            //AppUser user = new AppUser();
-            //user.Id = "";
-            //user.Name = "";
-
-            //if (ticket.AssignedToId == null)
-            //{
-            //    ticket.AssignedToId = "";
-            //    ticket.AssignedTo = user;
-            //}
-
-            //ViewBag.Ticket = ticket;
-
             ViewBag.Comments = await _context.Comments
-                .Where(x => x.TicketId == id && x.DelTime == null)
+                .Where(x => x.TicketId == id && x.ReplyId == null && x.DelTime == null)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
-                .OrderByDescending(c => c.CreatedOn)
+                .OrderBy(c => c.CreatedOn)
+                .ToListAsync();
+
+            ViewBag.Replies = await _context.Comments
+                .Where(x => x.TicketId == id && x.ReplyId != null && x.DelTime == null)
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .OrderBy(c => c.CreatedOn)
                 .ToListAsync();
 
             return View(ticket);
@@ -763,10 +759,17 @@ namespace HelpDeskSystem.Controllers
         public async Task<IActionResult> Comment(int id, string Desc, int? parentId, string? ownerId)
         {
             ViewBag.Comments = await _context.Comments
-                .Where(x => x.TicketId == id && x.DelTime == null)
+                .Where(x => x.TicketId == id && x.ReplyId == null && x.DelTime == null)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
-                .OrderByDescending(c => c.CreatedOn)
+                .OrderBy(c => c.CreatedOn)
+                .ToListAsync();
+
+            ViewBag.Replies = await _context.Comments
+                .Where(x => x.TicketId == id && x.ReplyId != null && x.DelTime == null)
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .OrderBy(c => c.CreatedOn)
                 .ToListAsync();
 
             try
@@ -780,8 +783,6 @@ namespace HelpDeskSystem.Controllers
                 comment.Id = 0;
                 comment.TicketId = id;
                 comment.Description = Desc;
-
-                _context.Add(comment);
 
                 if (parentId != null && ownerId != null)
                 {
@@ -807,30 +808,30 @@ namespace HelpDeskSystem.Controllers
                         _context.Add(reply);
                     }
                 }
-                else
+
+                _context.Add(comment);
+
+                var ticket = await _context.Tickets.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
+                if (ticket != null)
                 {
-                    var ticket = await _context.Tickets.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+                    var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == ticket.CreatedById && e.DelTime == null);
 
-                    if (ticket != null)
+                    if (user != null)
                     {
-                        var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == ticket.CreatedById && e.DelTime == null);
+                        user.Notification += 1;
 
-                        if (user != null)
-                        {
-                            user.Notification += 1;
+                        _context.Update(user);
 
-                            _context.Update(user);
+                        Reply reply = new Reply();
+                        reply.Message = Desc;
+                        reply.UserIdReply = userId;
+                        reply.ReplyToUserId = user.Id;
+                        reply.TicketId = id;
+                        reply.ReplyOn = DateTime.Now;
+                        reply.Id = 0;
 
-                            Reply reply = new Reply();
-                            reply.Message = Desc;
-                            reply.UserIdReply = userId;
-                            reply.ReplyToUserId = user.Id;
-                            reply.TicketId = id;
-                            reply.ReplyOn = DateTime.Now;
-                            reply.Id = 0;
-
-                            _context.Add(reply);
-                        }
+                        _context.Add(reply);
                     }
                 }
 

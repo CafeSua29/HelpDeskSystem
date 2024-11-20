@@ -38,10 +38,11 @@
                     </div>
                 }
 
+                <h3 class="tittle-authen">@ViewData["Title"]</h3>
+
                 if (Model.IsMachineRemembered)
                 {
                     <form method="post" style="display: inline-block;">
-                        <h3 class="tittle-authen">@ViewData["Title"]</h3>
                         <div class="left-ctn border-bot">
                             <h5 class="left-h5 d3-color">Forget this brower</h5><button type="submit" class="btn btn-primary btn-authen">Forget this browser</button>
                         </div>

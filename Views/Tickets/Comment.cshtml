@@ -1,11 +1,12 @@
-﻿@model HelpDeskSystem.Models.Ticket
+﻿@using HelpDeskSystem.ViewModels
+@model HelpDeskSystem.Models.Ticket
 
 @{
     ViewData["Title"] = "Comment";
 
     List<Comment> comments = ViewBag.Comments;
 
-    // Ticket ticket = ViewBag.Ticket;
+    List<Comment> replies = ViewBag.Replies;
 
     var user = User.FindFirst("UserId")?.Value ?? "";
 
@@ -52,65 +53,6 @@
                     <div class="about-info">
                         <h4>Ticket information</h4>
                         <div class="media mt-3">
-                            @* <div class="media-body">
-                                <ul>
-                                    <li>
-                                        <span class="title-span">Title:</span>
-                                        <span class="info-span">@ticket.Title</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">Description:</span>
-                                        <span class="info-span">@ticket.Description</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">Priority:</span>
-                                        <span class="info-span">@ticket.Priority.Description</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">Sub-Category:</span>
-                                        <span class="info-span">@ticket.SubCategory.Name</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">Attachment:</span>
-                                        <span class="info-span">
-                                            <a asp-action="DownloadAttachment" asp-route-fileName="@ticket.Attachment">
-                                                @ticket.Attachment
-                                            </a>
-                                        </span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">Created By:</span>
-                                        <span class="info-span">
-                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@ticket.CreatedById">
-                                                @ticket.CreatedBy.Name
-                                            </a>
-                                        </span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">Created On:</span>
-                                        <span class="info-span">@ticket.CreatedOn</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">Assigned To:</span>
-                                        <span class="info-span">
-                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@ticket.AssignedToId">
-                                                @ticket.AssignedTo.Name
-                                            </a>
-                                        </span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">Status:</span>
-                                        <span class="info-span">@ticket.Status.Description</span>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            @if (ticket.CreatedById.Equals(user) || user.Equals(ticket.AssignedToId) || admin)
-                            {
-                                <div>
-                                    <a asp-action="Edit" asp-route-id="@ticket?.Id" class="btn btn-primary">Edit</a>
-                                </div>
-                            } *@
 
                             <div class="media-body">
                                 <ul>
@@ -184,88 +126,29 @@
                 <div class="col-md-12">
                     <div class="skill-info">
                         <h4>Comment</h4>
-                        <div class="card card-table">
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-center mb-0 datatable">
-                                        <thead>
-                                            <tr>
-                                                <th>
-                                                    Created On
-                                                </th>
-                                                <th>
-                                                    Description
-                                                </th>
-                                                <th>
-                                                    Created By
-                                                </th>
-                                                <th class="text-right">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var item in comments)
-                                            {
-                                                <tr>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.CreatedOn)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Description)
-                                                    </td>
-                                                    <td>
-                                                        <a asp-controller="Users" asp-action="Details" asp-route-id="@item.CreatedById">
-                                                            @Html.DisplayFor(modelItem => item.CreatedBy.Name)
-                                                        </a>
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <div class="actions">
-                                                            <a class="btn btn-sm bg-success-light mr-2 replyBtn" title="Reply" data-cmt-id="@item.Id" data-cmt-owner="@item.CreatedById">
-                                                                <i class="fas fa-reply"></i>
-                                                            </a>
-                                                            @* <a asp-action="Reply" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2" title="Reply">
-                                                                <i class="fas fa-reply"></i>
-                                                            </a> *@
+                        @foreach (var comment in comments)
+                        {
+                            <partial name="_CommentPartial" model="new CommentVM
+                                        {
+                                            Comment = comment,
+                                            Replies = replies,
+                                            Depth = 0,
+                                            UserId = user,
+                                            isAdmin = admin
+                                        }" />
+                        }
 
-                                                            @if (item.CreatedById.Equals(user) || admin)
-                                                            {
-                                                                if (item.CreatedById.Equals(user))
-                                                                {
-                                                                    <a asp-controller="Comments" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm bg-success-light mr-2" title="Edit">
-                                                                        <i class="fas fa-pen"></i>
-                                                                    </a>
-                                                                }
-                                                                
-                                                                <a href="#" class="btn btn-sm bg-danger" data-toggle="modal" title="Delete"
-                                                                   data-target="#deleteConfirmationModal"
-                                                                   data-id="@item.Id"
-                                                                   data-desc="@item.Description"
-                                                                   data-by="@item.CreatedBy.Name"
-                                                                   data-on="@item.CreatedOn">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </a>
-                                                            }
-
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row"> 
+                        <div class="row">
                             <form asp-action="Comment" asp-route-id="@Model?.Id">
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                 <div class="form-group">
-                                    <textarea name="Desc" class="form-control" placeholder="Description" required></textarea>
+                                    <textarea name="Desc" class="form-control" placeholder="Description" id="commentInput" required></textarea>
                                     <input type="hidden" name="parentId" value="" id="parentIdInput" />
                                     <input type="hidden" name="ownerId" value="" id="ownerIdInput" />
                                 </div>
                                 <div class="form-group">
                                     <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
-                                    <input type="submit" value="Comment" class="btn btn-primary float-end" id="test"  />
+                                    <input type="submit" value="Comment" class="btn btn-primary float-end" id="test" />
                                 </div>
                             </form>
                         </div>
@@ -277,44 +160,7 @@
     </div>
 </div>
 
-<div>
-    <!-- Add new comment -->
-    <form asp-action="AddComment" method="post">
-        <input type="hidden" name="postId" value="" />
-        <textarea name="content" placeholder="Add a comment..." required></textarea>
-        <button type="submit">Comment</button>
-    </form>
-</div>
-
-<div>
-    @foreach (var comment in comments)
-    {
-        <div class="comment">
-            <strong>@comment.CreatedBy.Name</strong>
-            <p>@comment.Description</p>
-            <small>@comment.CreatedOn</small>
-
-            <!-- Reply form -->
-            <form asp-action="AddReply" method="post">
-                <input type="hidden" name="commentId" value="@comment.Id" />
-                <textarea name="content" placeholder="Write a reply..." required></textarea>
-                <button type="submit">Reply</button>
-            </form>
-
-            <!-- Display replies -->
-            <div class="replies">
-                @foreach (var reply in comments)
-                {
-                    <div class="reply">
-                        <strong>@comment.CreatedBy.Name</strong>
-                        <p>@comment.Description</p>
-                        <small>@comment.CreatedOn</small>
-                    </div>
-                }
-            </div>
-        </div>
-    }
-</div>
+<hr />
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
@@ -393,15 +239,56 @@
             modal.find('#itemOn').text(on);
         });
 
-        $('.replyBtn').on("click", function () {
-            var parentIdInput = $("#parentIdInput");
-            var ownerIdInput = $("#ownerIdInput");
-            var replyBtn = $(this);
-            var parentId = replyBtn.data("cmt-id");
-            var ownerId = replyBtn.data("cmt-owner");
+        function setReplyTarget(commentId, ownerId) {
+            const parentIdInput = document.getElementById("parentIdInput");
+            const ownerIdInput = document.getElementById("ownerIdInput");
+            const commentInput = document.getElementById("commentInput");
 
-            parentIdInput.attr("value", parentId);
-            ownerIdInput.attr("value", ownerId);
+            parentIdInput.value = commentId;
+            ownerIdInput.value = ownerId;
+            commentInput.focus();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".comment").forEach(function (commentElement) {
+                const userId = commentElement.getAttribute("data-user-id");
+
+                fetch(`/Users/GetUserAvatar?userId=${userId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const avatarImg = commentElement.querySelector(".ava");
+                        avatarImg.src = "/assets/img/profiles/" + data.AvatarUrl;
+                    })
+                    .catch(error => console.error("Error fetching avatar:", error));
+            });
         });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".comment").forEach(function (commentElement) {
+                const userId = commentElement.getAttribute("data-user-id");
+
+                fetch(`/Users/GetUserAvatar?userId=${userId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Response Data:", data); // Debug the API response
+
+                        if (data && data.AvatarUrl) {
+                            const avatarImg = commentElement.querySelector(".ava");
+                            console.log("Found img element:", avatarImg); // Debug DOM selection
+
+                            if (avatarImg) {
+                                avatarImg.src = data.AvatarUrl; // Update the src attribute
+                            } else {
+                                console.error("img tag not found inside comment element.");
+                            }
+                        } else {
+                            console.warn(`No AvatarUrl found for userId: ${userId}`);
+                        }
+                    })
+                    .catch(error => console.error("Error fetching avatar:", error));
+            });
+        });
+
+
     </script>
 }

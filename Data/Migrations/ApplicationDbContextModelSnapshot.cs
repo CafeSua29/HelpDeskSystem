@@ -245,7 +245,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AuditTrails");
+                    b.ToTable("AuditTrails", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.Comment", b =>
@@ -295,7 +295,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.Department", b =>
@@ -339,7 +339,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.Reply", b =>
@@ -381,7 +381,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("UserIdReply");
 
-                    b.ToTable("Replies");
+                    b.ToTable("Replies", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.SystemCode", b =>
@@ -425,7 +425,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("SystemCodes");
+                    b.ToTable("SystemCodes", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.SystemCodeDetail", b =>
@@ -477,7 +477,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("SystemCodeId");
 
-                    b.ToTable("SystemCodeDetails");
+                    b.ToTable("SystemCodeDetails", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.SystemSetting", b =>
@@ -524,7 +524,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("SystemSettings");
+                    b.ToTable("SystemSettings", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.SystemTask", b =>
@@ -576,7 +576,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("SystemTasks");
+                    b.ToTable("SystemTasks", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.Ticket", b =>
@@ -646,7 +646,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("SubCategoryId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.TicketCategory", b =>
@@ -690,7 +690,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("TicketCategories");
+                    b.ToTable("TicketCategories", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.TicketResolution", b =>
@@ -740,7 +740,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("TicketResolutions");
+                    b.ToTable("TicketResolutions", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.TicketSubCategory", b =>
@@ -789,7 +789,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("TicketSubCategories");
+                    b.ToTable("TicketSubCategories", (string)null);
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.TicketsPriorityView", b =>
@@ -879,7 +879,7 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("UserRoleProfiles");
+                    b.ToTable("UserRoleProfiles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

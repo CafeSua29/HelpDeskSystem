@@ -455,5 +455,21 @@ namespace HelpDeskSystem.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        [Route("Users/GetUserAvatar")]
+        public IActionResult GetUserAvatar(string userId)
+        {
+            var avatarUrl = _context.Users
+                                    .Where(u => u.Id == userId)
+                                    .Select(u => u.Avatar)
+                                    .FirstOrDefault();
+
+            if (avatarUrl == null)
+                return NotFound();
+
+            return Json(new { AvatarUrl = avatarUrl });
+        }
+
     }
 }
