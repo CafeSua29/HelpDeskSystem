@@ -4397,7 +4397,6 @@ table.table-inbox tbody tr.checked {
     width: 80%;
 }
 
-
 .log-ctn {
     display: flex;
     justify-content: space-around;
@@ -4417,10 +4416,6 @@ table.table-inbox tbody tr.checked {
 .forgot {
     float: right;
     font-size: 0.8rem;
-}
-
-.login-box-modif {
-    min-height: 650px !important;
 }
 
 .d3-color {
@@ -4531,7 +4526,7 @@ table.table-inbox tbody tr.checked {
 
 .login-right-wrap-modif {
     position: absolute;
-    top: 10%;
+    top: 5%;
     width: 80%;
 }
 
@@ -4573,4 +4568,28 @@ table.table-inbox tbody tr.checked {
 
 .login-box-modif {
     max-height: 501px !important;
+}
+
+.log-btn {
+    width: 100%;
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    line-height: 1.6rem !important;
+    height: 40px;
+}
+
+.login-icon {
+    line-height: 1.6rem !important;
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: auto;
+    word-wrap: break-word;
+}
+
+.modal-dialog-mod {
+    max-width: 40vw;
 }

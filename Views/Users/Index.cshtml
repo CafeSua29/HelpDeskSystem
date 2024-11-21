@@ -58,6 +58,9 @@
             <div class="col-auto text-right float-right ml-auto p-2">
                 <a asp-action="Create" class="btn btn-primary" title="Create"><i class="fas fa-plus"></i></a>
             </div>
+            <div class="col-auto text-right float-right ml-auto p-2">
+                <a asp-action="Create" class="btn btn-primary" title="Create"><i class="fas fa-plus"></i></a>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -157,7 +160,7 @@
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-mod" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="row">
@@ -177,29 +180,29 @@
                             <div class="media mt-3">
                                 <img src="" class="mr-3" alt="Avatar" id="itemAva">
                                 <div class="media-body">
-                                    <ul style="max-width:150px">
-                                        <li class="title-span-modif">
-                                            <span class="title-span ">@Html.DisplayNameFor(model => model.Name):</span>
+                                    <ul>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Name):</span>
                                             <span class="info-span" id="itemName"></span>
                                         </li>
-                                        <li class="title-span-modif">
-                                            <span class="title-span ">@Html.DisplayNameFor(model => model.DOB):</span>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.DOB):</span>
                                             <span class="info-span" id="itemDOB"></span>
                                         </li>
-                                        <li class="title-span-modif">
-                                            <span class="title-span ">@Html.DisplayNameFor(model => model.Gender):</span>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Gender):</span>
                                             <span class="info-span" id="itemGender"></span>
                                         </li>
-                                        <li class="title-span-modif">
-                                            <span class="title-span ">@Html.DisplayNameFor(model => model.Role):</span>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Role):</span>
                                             <span class="info-span" id="itemRole"></span>
                                         </li>
-                                        <li class="title-span-modif">
-                                            <span class="title-span ">@Html.DisplayNameFor(model => model.Email):</span>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Email):</span>
                                             <span class="info-span" id="itemEmail"></span>
                                         </li>
-                                        <li class="title-span-modif">
-                                            <span class="title-span ">@Html.DisplayNameFor(model => model.PhoneNumber):</span>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.PhoneNumber):</span>
                                             <span class="info-span" id="itemPhone"></span>
                                         </li>
                                     </ul>
