@@ -11,8 +11,8 @@
             <div class="loginbox login-box-modif">
                 <div class="login-left">
                 </div>
-                <div class="login-right">
-                    <div class="login-right-wrap">
+                <div class="login-right login-right-modif">
+                    <div class="login-right-wrap login-right-wrap-modif">
                         <h1>Login</h1>
                         <p class="account-subtitle">Use a local account to log in</p>
                         <form id="account" method="post">
@@ -44,23 +44,21 @@
                             <div class="form-group form-floating">
                                 <a asp-area="Identity" asp-page="/Account/Register">Don't have an account ? Register now !</a>
                             </div>
-                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                                <div class="log-ctn">
-
-                                    @foreach (var provider in Model.ExternalLogins!)
-                                    {
-                                        <div class="login-button-ctn"><button type="submit" class="btn btn-primary log-btn log-btn--google" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account"><i class="fa-brands fa-google login-icon"></i> <i class="text-login__modif"> @provider.DisplayName</i></button></div>
-
-                                    }
-                                    <div class="login-button-ctn"><button class="fb-log btn btn-primary log-btn log-btn--facebook "><i class="fa-brands fa-facebook-f login-icon"></i> <i class="text-login"> Facebook</i></button></div>
-                                    <div class="login-button-ctn"> <button class="x-log btn btn-primary log-btn log-btn--twitter "><i class="fa-brands fa-x-twitter login-icon"></i> <i class="text-login__modif">Twitter</i></button></div>
-
-
-                                </div>
-                            </form>
                         </form>
-                        <hr id="login-hr" />
-                       
+                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                            <div class="log-ctn">
+
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <div class="login-button-ctn"><button type="submit" class="btn btn-primary log-btn log-btn--google" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account"><i class="fa-brands fa-google login-icon"></i> <i class="text-login__modif"> @provider.DisplayName</i></button></div>
+
+                                }
+
+                                <div class="login-button-ctn"><button class="fb-log btn btn-primary log-btn log-btn--facebook"><i class="fa-brands fa-facebook-f login-icon"></i><i class="text-login"> Facebook</i></button></div>
+                                <div class="login-button-ctn"><button class="x-log btn btn-primary log-btn log-btn--twitter"><i class="fa-brands fa-x-twitter login-icon"></i><i class="text-login__modif">Twitter</i></button></div>
+
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

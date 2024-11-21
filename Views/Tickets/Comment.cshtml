@@ -254,41 +254,41 @@
                 const userId = commentElement.getAttribute("data-user-id");
 
                 fetch(`/Users/GetUserAvatar?userId=${userId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const avatarImg = commentElement.querySelector(".ava");
-                        avatarImg.src = "/assets/img/profiles/" + data.AvatarUrl;
+                    .then(response => {
+                        console.log("Raw Response:", response); // Logs the raw response object
+                        return response.json();
                     })
-                    .catch(error => console.error("Error fetching avatar:", error));
-            });
-        });
-
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll(".comment").forEach(function (commentElement) {
-                const userId = commentElement.getAttribute("data-user-id");
-
-                fetch(`/Users/GetUserAvatar?userId=${userId}`)
-                    .then(response => response.json())
                     .then(data => {
                         console.log("Response Data:", data); // Debug the API response
 
-                        if (data && data.AvatarUrl) {
+                        if (data && data.avatarUrl) {
                             const avatarImg = commentElement.querySelector(".ava");
                             console.log("Found img element:", avatarImg); // Debug DOM selection
 
                             if (avatarImg) {
-                                avatarImg.src = data.AvatarUrl; // Update the src attribute
+                                avatarImg.src = "/assets/img/profiles/" + data.avatarUrl; // Update the src attribute
                             } else {
                                 console.error("img tag not found inside comment element.");
                             }
                         } else {
-                            console.warn(`No AvatarUrl found for userId: ${userId}`);
+                            console.warn(`No avatarUrl found for userId: ${userId}`);
                         }
                     })
                     .catch(error => console.error("Error fetching avatar:", error));
             });
         });
 
+        function toggleReplies(commentId) {
+            const replies = document.getElementById(`replies-${commentId}`);
+            const toggleText = document.getElementById(`toggle-text-${commentId}`);
+            if (replies.style.display === "none") {
+                replies.style.display = "block";
+                toggleText.innerText = "Hide Replies";
+            } else {
+                replies.style.display = "none";
+                toggleText.innerText = "Show Replies";
+            }
+        }
 
     </script>
 }

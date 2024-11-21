@@ -42,15 +42,15 @@
                             <input name="Email" class="form-control" placeholder="Email" />
                         </div>
                         <div class="col-md-2 top-nav-search">
-                            <input name="Phone" class="form-control" placeholder="Phone number" />
+                            <input name="Phone" class="form-control form-control-modif" placeholder="Phone number" />
                         </div>
                         <div class="col-md-2 top-nav-search">
                             <select name="RoleId" class="form-control" asp-items="ViewBag.RoleId">
                                 <option value="">Role</option>
                             </select>
                         </div>
-                        <div class="col-md-1 text-right float-right ml-auto top-nav-search">
-                            <button class="btn"><i class="fas fa-search"> Search</i></button>
+                        <div class="col-md-1 text-right float-right ml-auto top-nav-search" style="margin-left:10% !important">
+                            <button class="btn search-btn"><i class="fas fa-search search-icon "> </i>Search</button>
                         </div>
                     </div>
                 </form>
@@ -177,29 +177,29 @@
                             <div class="media mt-3">
                                 <img src="" class="mr-3" alt="Avatar" id="itemAva">
                                 <div class="media-body">
-                                    <ul>
-                                        <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Name):</span>
+                                    <ul style="max-width:150px">
+                                        <li class="title-span-modif">
+                                            <span class="title-span ">@Html.DisplayNameFor(model => model.Name):</span>
                                             <span class="info-span" id="itemName"></span>
                                         </li>
-                                        <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.DOB):</span>
+                                        <li class="title-span-modif">
+                                            <span class="title-span ">@Html.DisplayNameFor(model => model.DOB):</span>
                                             <span class="info-span" id="itemDOB"></span>
                                         </li>
-                                        <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Gender):</span>
+                                        <li class="title-span-modif">
+                                            <span class="title-span ">@Html.DisplayNameFor(model => model.Gender):</span>
                                             <span class="info-span" id="itemGender"></span>
                                         </li>
-                                        <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Role):</span>
+                                        <li class="title-span-modif">
+                                            <span class="title-span ">@Html.DisplayNameFor(model => model.Role):</span>
                                             <span class="info-span" id="itemRole"></span>
                                         </li>
-                                        <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Email):</span>
+                                        <li class="title-span-modif">
+                                            <span class="title-span ">@Html.DisplayNameFor(model => model.Email):</span>
                                             <span class="info-span" id="itemEmail"></span>
                                         </li>
-                                        <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.PhoneNumber):</span>
+                                        <li class="title-span-modif">
+                                            <span class="title-span ">@Html.DisplayNameFor(model => model.PhoneNumber):</span>
                                             <span class="info-span" id="itemPhone"></span>
                                         </li>
                                     </ul>

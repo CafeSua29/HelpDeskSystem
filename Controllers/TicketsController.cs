@@ -807,31 +807,33 @@ namespace HelpDeskSystem.Controllers
 
                         _context.Add(reply);
                     }
+
+                    _context.Add(comment);
                 }
-
-                _context.Add(comment);
-
-                var ticket = await _context.Tickets.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
-
-                if (ticket != null)
+                else
                 {
-                    var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == ticket.CreatedById && e.DelTime == null);
+                    var ticket = await _context.Tickets.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
 
-                    if (user != null)
+                    if (ticket != null)
                     {
-                        user.Notification += 1;
+                        var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == ticket.CreatedById && e.DelTime == null);
 
-                        _context.Update(user);
+                        if (user != null)
+                        {
+                            user.Notification += 1;
 
-                        Reply reply = new Reply();
-                        reply.Message = Desc;
-                        reply.UserIdReply = userId;
-                        reply.ReplyToUserId = user.Id;
-                        reply.TicketId = id;
-                        reply.ReplyOn = DateTime.Now;
-                        reply.Id = 0;
+                            _context.Update(user);
 
-                        _context.Add(reply);
+                            Reply reply = new Reply();
+                            reply.Message = Desc;
+                            reply.UserIdReply = userId;
+                            reply.ReplyToUserId = user.Id;
+                            reply.TicketId = id;
+                            reply.ReplyOn = DateTime.Now;
+                            reply.Id = 0;
+
+                            _context.Add(reply);
+                        }
                     }
                 }
 

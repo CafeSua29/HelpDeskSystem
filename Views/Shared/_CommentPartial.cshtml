@@ -1,49 +1,66 @@
 ﻿@using HelpDeskSystem.ViewModels
 @model CommentVM
 
-<div class="card mb-3 ms-@(Model.Depth * 2) comment" data-user-id="@Model.Comment.CreatedById">
-    <div class="card-body">
-        <div class="d-flex align-items-center">
-            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.Comment.CreatedById" class="avatar avatar-sm mr-2">
-                <img class="avatar-img rounded-circle ava" src="~/assets/img/profiles/default-avatar.jpg" alt="User Image">
-            </a>
-            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.Comment.CreatedById">
-                <strong>@Model.Comment.CreatedBy.Name</strong>
-            </a>
-            
-            <small class="text-muted ms-2">@Model.Comment.CreatedOn.ToString("MMM dd, yyyy HH:mm")</small>
-        </div>
-        <p class="mt-2">@Model.Comment.Description</p>
-
-        <a href="#" class="mr-2" title="Reply" onclick="setReplyTarget('@Model.Comment.Id', '@Model.Comment.CreatedById')">
-            <i class="fas fa-reply"></i> Reply
+<div class="comment-container ms-@(Model.Depth * 20) comment" data-user-id="@Model.Comment.CreatedById">
+    <div class="d-flex">
+        <!-- User Avatar -->
+        <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.Comment.CreatedById" class="avatar avatar-sm mr-2">
+            <img class="avatar-img rounded-circle ava" src="~/assets/img/profiles/default-avatar.jpg" alt="User Image">
         </a>
 
-        @if (Model.Comment.CreatedById.Equals(Model.UserId) || Model.isAdmin)
-        {
-            if (Model.Comment.CreatedById.Equals(Model.UserId))
-            {
-                <a asp-controller="Comments" asp-action="Edit" asp-route-id="@Model.Comment.Id" class="mr-2" title="Edit">
-                    <i class="fas fa-pen"></i> Edit
+        <!-- Comment Content -->
+        <div class="comment-content">
+            <div class="comment-header">
+                <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.Comment.CreatedById">
+                    <strong>@Model.Comment.CreatedBy.Name</strong>
                 </a>
-            }
+                <small class="text-muted ms-2">@Model.Comment.CreatedOn.ToString("MMM dd, yyyy HH:mm")</small>
+            </div>
+            <div class="comment-body mt-1">
+                <p>@Model.Comment.Description</p>
+            </div>
+            <div class="comment-actions d-flex align-items-center">
+                <a class="mr-2" title="Reply" onclick="setReplyTarget('@Model.Comment.Id', '@Model.Comment.CreatedById')">
+                    <i class="fas fa-reply"></i> Reply
+                </a>
 
-            <a href="#" data-toggle="modal" title="Delete"
-               data-target="#deleteConfirmationModal"
-               data-id="@Model.Comment.Id"
-               data-desc="@Model.Comment.Description"
-               data-by="@Model.Comment.CreatedBy.Name"
-               data-on="@Model.Comment.CreatedOn">
-                <i class="fas fa-trash"></i> Delete
-            </a>
-        }
-
-        <div class="mt-3" id="replies-@Model.Comment.Id">
-            @foreach (var reply in Model.Replies)
-            {
-                if (reply.ReplyId == Model.Comment.Id)
+                @if (Model.Comment.CreatedById.Equals(Model.UserId) || Model.isAdmin)
                 {
-                    <partial name="_CommentPartial" model="new CommentVM
+                    if (Model.Comment.CreatedById.Equals(Model.UserId))
+                    {
+                        <a asp-controller="Comments" asp-action="Edit" asp-route-id="@Model.Comment.Id" class="mr-2" title="Edit">
+                            <i class="fas fa-pen"></i> Edit
+                        </a>
+                    }
+
+                    <a data-toggle="modal" title="Delete" class=""
+                       data-target="#deleteConfirmationModal"
+                       data-id="@Model.Comment.Id"
+                       data-desc="@Model.Comment.Description"
+                       data-by="@Model.Comment.CreatedBy.Name"
+                       data-on="@Model.Comment.CreatedOn">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                }
+            </div>
+
+            @if (Model.Replies != null && Model.Replies.Any())
+            {
+                <div class="comment-actions d-flex align-items-center">
+                    <a class="" onclick="toggleReplies(@Model.Comment.Id)">
+                        <span id="toggle-text-@Model.Comment.Id">Show Replies</span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="replies mt-3" id="replies-@Model.Comment.Id" style="display: none;">
+        @foreach (var reply in Model.Replies)
+        {
+            if (reply.ReplyId == Model.Comment.Id)
+            {
+                <partial name="_CommentPartial" model="new CommentVM
                     {
                         Comment = reply,
                         Replies = Model.Replies,
@@ -51,8 +68,7 @@
                         UserId = Model.UserId,
                         isAdmin = Model.isAdmin
                     }" />
-                }
             }
-        </div>
+        }
     </div>
 </div>

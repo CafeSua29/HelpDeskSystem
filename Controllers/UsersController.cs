@@ -468,7 +468,7 @@ namespace HelpDeskSystem.Controllers
             if (avatarUrl == null)
                 return NotFound();
 
-            return Json(new { AvatarUrl = avatarUrl });
+            return Json(new { avatarUrl = avatarUrl });
         }
 
     }

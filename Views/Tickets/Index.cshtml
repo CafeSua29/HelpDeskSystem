@@ -46,35 +46,35 @@
                         <a asp-controller="ExcelExports" asp-action="ExportTickets" class="btn btn-primary float-end"><i class="fas fa-download"></i> Download Excel</a>
                     }
                     
-                    <div class="row">
-                        <div class="col-md-2 top-nav-search">
-                            <input name="Title" class="form-control" placeholder="Search Ticket" />
+                    <div class="row row-ticket-modif">
+                        <div class="col-md-2 top-nav-search top-nav-search-modif">
+                            <input name="Title" class="form-control form-control-modif" placeholder="Search Ticket" />
                         </div>
-                        <div class="col-md-2 top-nav-search">
-                            <select name="StatusId" class="form-control" asp-items="ViewBag.StatusId">
+                        <div class="col-md-2 top-nav-search top-nav-search-modif ">
+                            <select name="StatusId" class="form-control form-control-modif" asp-items="ViewBag.StatusId">
                                 <option value="">Status</option>
                             </select>
                         </div>
-                        <div class="col-md-2 top-nav-search">
-                            <select name="CreatedById" class="form-control" asp-items="ViewBag.UsersId">
+                        <div class="col-md-2 top-nav-search top-nav-search-modif">
+                            <select name="CreatedById" class="form-control form-control-modif" asp-items="ViewBag.UsersId">
                                 <option value="">Created By</option>
                             </select>
                         </div>
-                        <div class="col-md-2 top-nav-search">
-                            <select name="AssignedToId" class="form-control" asp-items="ViewBag.UsersId">
+                        <div class="col-md-2 top-nav-search top-nav-search-modif">
+                            <select name="AssignedToId" class="form-control form-control-modif" asp-items="ViewBag.UsersId">
                                 <option value="">Assigned To</option>
                             </select>
                         </div>
-                        <div class="col-md-2 top-nav-search">
+                        <div class="col-md-2 top-nav-search top-nav-search-modif">
                             <input name="CreatedOn" class="form-control" type="date" />
                         </div>
-                        <div class="col-md-1 text-right float-right ml-auto top-nav-search">
-                            <button class="btn"><i class="fas fa-search"> Search</i></button>
+                        <div class="col-md-1 text-right float-right ml-auto top-nav-search search-margin-left">
+                            <button class="btn search-btn"><i class="fas fa-search search-icon"> </i>Search</button>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="col-auto text-right float-right ml-auto p-2">
+            <div class="col-auto text-right float-right ml-auto p-2" style="margin-right:0.5%">
                 <a asp-action="Create" class="btn btn-primary" title="Create"><i class="fas fa-plus"></i></a>
             </div>
         </div>
