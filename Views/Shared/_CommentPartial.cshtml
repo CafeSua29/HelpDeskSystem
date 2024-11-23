@@ -1,6 +1,20 @@
 ﻿@using HelpDeskSystem.ViewModels
 @model CommentVM
 
+@{
+    var hasReplies = false;
+
+    foreach (var reply in Model.Replies)
+    {
+        if (reply.ReplyId == Model.Comment.Id)
+        {
+            hasReplies = true;
+
+            break;
+        }
+    }
+}
+
 <div class="comment-container ms-@(Model.Depth * 20) comment" data-user-id="@Model.Comment.CreatedById">
     <div class="d-flex">
         <!-- User Avatar -->
@@ -44,18 +58,18 @@
                 }
             </div>
 
-            @if (Model.Replies != null && Model.Replies.Any())
+            @if (hasReplies)
             {
                 <div class="comment-actions d-flex align-items-center">
                     <a class="" onclick="toggleReplies(@Model.Comment.Id)">
-                        <span id="toggle-text-@Model.Comment.Id">Show Replies</span>
+                        <span id="toggle-text-@Model.Comment.Id">Hide Replies</span>
                     </a>
                 </div>
             }
         </div>
     </div>
 
-    <div class="replies mt-3" id="replies-@Model.Comment.Id" style="display: none;">
+    <div class="replies mt-3" id="replies-@Model.Comment.Id">
         @foreach (var reply in Model.Replies)
         {
             if (reply.ReplyId == Model.Comment.Id)

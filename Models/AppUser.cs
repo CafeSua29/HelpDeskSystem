@@ -1,10 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using NuGet.Common;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace HelpDeskSystem.Models
 {
     public class AppUser : IdentityUser
     {
+        [Required(ErrorMessage = "Name is required")]
+        [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Name can only contain alphabetic characters and spaces")]
+        [StringLength(30, ErrorMessage = "Name cannot exceed 30 characters")]
         [DisplayName("Name")]
         public string Name { get; set; }
 
@@ -24,7 +29,7 @@ namespace HelpDeskSystem.Models
         public AppRole Role { get; set; }
 
         [DisplayName("Avatar")]
-        public string Avatar { get; set; }
+        public string? Avatar { get; set; }
 
         public int AvatarCount { get; set; }
 

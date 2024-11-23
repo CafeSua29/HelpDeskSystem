@@ -16,7 +16,7 @@
             <div class="media mt-3">
                 <img src="~/assets/img/profiles/@userAvatar" class="pro5-img mr-3" alt="Avatar">
                 <div class="media-body">
-                    <form id="profile-form" method="post" enctype="multipart/form-data">
+                    <form id="profile-form userForm" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
                         <div class="form-floating mb-3">
                             <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
@@ -28,18 +28,20 @@
                             <span asp-validation-for="Input.Name" class="text-danger"></span>
                         </div>
                         <div class="form-floating mb-3">
-                            <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
+                            <input asp-for="Input.PhoneNumber" id="PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
                             <label asp-for="Input.PhoneNumber" class="form-label"></label>
                             <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                            <span id="PhoneNumberError" style="color: red; display: none;">Invalid phone number</span>
                         </div>
                         <div class="form-floating mb-3">
                             <select asp-for="Input.GenderId" class="form-control" asp-items="ViewBag.GenderId"></select>
                             <label asp-for="Input.GenderId" class="control-label"></label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input asp-for="Input.DOB" type="date" class="form-control" placeholder="" />
+                            <input asp-for="Input.DOB" type="date" class="form-control" id="DoB" max="" placeholder="" />
                             <label asp-for="Input.DOB" class="control-label"></label>
                             <span asp-validation-for="Input.DOB" class="text-danger"></span>
+                            <span id="dobError" style="color: red; display: none;">Date of birth cannot be in the future</span>
                         </div>
                         <div class="form-floating mb-3">
                             <input asp-for="Input.Avatar" class="form-control" type="file" accept=".jpg" placeholder="" />
@@ -56,4 +58,31 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 2000);
+        });
+
+        document.getElementById('userForm').addEventListener('submit', function (e) {
+            const phoneNumber = document.getElementById('PhoneNumber').value;
+            const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+            const errorElement = document.getElementById('PhoneNumberError');
+
+            if (!phoneRegex.test(phoneNumber)) {
+                e.preventDefault();
+                errorElement.style.display = 'inline';
+            } else {
+                errorElement.style.display = 'none';
+            }
+        });
+
+        const dobField = document.getElementById('DoB');
+        const today = new Date().toISOString().split('T')[0];
+        dobField.max = today;
+    </script>
 }

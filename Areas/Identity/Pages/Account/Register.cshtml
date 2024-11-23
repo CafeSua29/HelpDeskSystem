@@ -35,9 +35,10 @@
 
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input asp-for="Input.DOB" class="form-control" type="date" placeholder="" />
+                                        <input asp-for="Input.DOB" type="date" class="form-control" id="DoB" placeholder="" max="" />
                                         <label asp-for="Input.DOB" class="control-label">Date of birth</label>
                                         <span asp-validation-for="Input.DOB" class="text-danger"></span>
+                                        <span id="dobError" style="color: red; display: none;">Date of birth cannot be in the future</span>
                                     </div>
                                 </div>
 
@@ -83,4 +84,10 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const dobField = document.getElementById('DoB');
+        const today = new Date().toISOString().split('T')[0];
+        dobField.max = today;
+    </script>
 }

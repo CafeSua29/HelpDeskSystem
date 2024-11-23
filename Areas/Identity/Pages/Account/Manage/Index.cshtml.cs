@@ -70,16 +70,22 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Phone]
+            [Required(ErrorMessage = "Phone number is required")]
+            [RegularExpression(@"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$", ErrorMessage = "Invalid phone number format")]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
 
+            [Required(ErrorMessage = "Name is required")]
+            [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Name can only contain alphabetic characters and spaces")]
+            [StringLength(30, ErrorMessage = "Name cannot exceed 30 characters")]
             [Display(Name = "Name")]
             public string Name { get; set; }
 
             [Display(Name = "Gender")]
             public int GenderId { get; set; }
 
-            [Display(Name = "Date of Birth")]
+            [Required]
+            [Display(Name = "Date of birth")]
             public DateOnly DOB { get; set; }
 
             [Display(Name = "Avatar")]

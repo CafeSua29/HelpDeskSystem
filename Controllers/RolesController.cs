@@ -49,6 +49,11 @@ namespace HelpDeskSystem.Controllers
                 .Include(t => t.CreatedBy)
                 .FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
 
+            ViewBag.Rights = await _context.UserRoleProfiles
+                .Include(t => t.Task)
+                .Where(e => e.RoleId == id && e.DelTime == null)
+                .ToListAsync();
+
             if (role == null)
             {
                 return NotFound();

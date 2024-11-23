@@ -33,7 +33,7 @@
                         <div class="col-12">
                             <h5 class="form-title"><span>User details</span></h5>
                         </div>
-                        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <form asp-action="Edit" id="userForm" method="post" enctype="multipart/form-data">
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                             <div class="row">
                                 <input type="hidden" asp-for="Id" />
@@ -46,9 +46,10 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input asp-for="DOB" type="date" class="form-control" placeholder="" />
+                                        <input asp-for="DOB" type="date" class="form-control" id="DoB" placeholder="" max="" />
                                         <label asp-for="DOB" class="control-label"></label>
                                         <span asp-validation-for="DOB" class="text-danger"></span>
+                                        <span id="dobError" style="color: red; display: none;">Date of birth cannot be in the future</span>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -72,15 +73,16 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input asp-for="PhoneNumber" class="form-control" placeholder="" />
-                                        <label asp-for="PhoneNumber" class="control-label"></label>
+                                        <input asp-for="PhoneNumber" id="PhoneNumber" class="form-control" placeholder="" />
+                                        <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
                                         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                        <span id="PhoneNumberError" style="color: red; display: none;">Invalid phone number</span>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
                                         <input asp-for="PasswordHash" class="form-control" type="password" placeholder="password" />
-                                        <label asp-for="PasswordHash" class="control-label"></label>
+                                        <label asp-for="PasswordHash" class="control-label">Password</label>
                                         <span asp-validation-for="PasswordHash" class="text-danger"></span>
                                     </div>
                                 </div>
@@ -120,5 +122,22 @@
                 });
             }, 2000);
         });
+
+        document.getElementById('userForm').addEventListener('submit', function (e) {
+            const phoneNumber = document.getElementById('PhoneNumber').value;
+            const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; 
+            const errorElement = document.getElementById('PhoneNumberError');
+
+            if (!phoneRegex.test(phoneNumber)) {
+                e.preventDefault();
+                errorElement.style.display = 'inline';
+            } else {
+                errorElement.style.display = 'none';
+            }
+        });
+
+        const dobField = document.getElementById('DoB');
+        const today = new Date().toISOString().split('T')[0];
+        dobField.max = today;
     </script>
 }

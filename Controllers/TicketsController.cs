@@ -807,8 +807,6 @@ namespace HelpDeskSystem.Controllers
 
                         _context.Add(reply);
                     }
-
-                    _context.Add(comment);
                 }
                 else
                 {
@@ -836,6 +834,8 @@ namespace HelpDeskSystem.Controllers
                         }
                     }
                 }
+
+                _context.Add(comment);
 
                 await _context.MySaveChangesAsync(userId);
             }

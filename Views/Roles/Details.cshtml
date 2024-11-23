@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Details";
+
+    var rights = ViewBag.Rights;
 }
 
 <div class="content container-fluid">
@@ -47,6 +49,25 @@
                                         <span class="info-span">@Html.DisplayFor(model => model.Name)</span>
                                     </li>
                                     <li>
+                                        <span class="title-span">Rights:</span>
+                                        <span class="info-span">
+                                            <a href="#" class="" onclick="toggleRights()">
+                                                <span id="toggle-text">Show Rights</span>
+                                            </a>
+                                        </span>
+                                    </li>
+
+                                    <div id="rights" style="display: none;">
+                                        @foreach (var right in rights)
+                                        {
+                                            <li>
+                                                <span class="title-span"></span>
+                                                <span class="info-span">@right.Task.Name</span>
+                                            </li>
+                                        }
+                                    </div>
+
+                                    <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.CreatedBy.Name)</span>
                                     </li>
@@ -84,5 +105,17 @@
                 });
             }, 2000);
         });
+
+        function toggleRights() {
+            const rights = document.getElementById(`rights`);
+            const toggleText = document.getElementById(`toggle-text`);
+            if (rights.style.display === "none") {
+                rights.style.display = "block";
+                toggleText.innerText = "Hide Rights";
+            } else {
+                rights.style.display = "none";
+                toggleText.innerText = "Show Rights";
+            }
+        }
     </script>
 }

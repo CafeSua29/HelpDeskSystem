@@ -90,6 +90,8 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             [Required]
+            [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Name can only contain alphabetic characters and spaces")]
+            [StringLength(30, ErrorMessage = "Name cannot exceed 30 characters")]
             [Display(Name = "Name")]
             public string Name { get; set; }
 
