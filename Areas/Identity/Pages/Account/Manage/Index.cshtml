@@ -68,19 +68,6 @@
             }, 2000);
         });
 
-        document.getElementById('userForm').addEventListener('submit', function (e) {
-            const phoneNumber = document.getElementById('PhoneNumber').value;
-            const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
-            const errorElement = document.getElementById('PhoneNumberError');
-
-            if (!phoneRegex.test(phoneNumber)) {
-                e.preventDefault();
-                errorElement.style.display = 'inline';
-            } else {
-                errorElement.style.display = 'none';
-            }
-        });
-
         const dobField = document.getElementById('DoB');
         const today = new Date().toISOString().split('T')[0];
         dobField.max = today;

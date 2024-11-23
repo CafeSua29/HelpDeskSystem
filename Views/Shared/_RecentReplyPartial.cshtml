@@ -1,32 +1,6 @@
 ﻿@using HelpDeskSystem.ViewModels
 @model CommentVM
 
-@{
-    var hasReplies = false;
-
-    foreach (var reply in Model.Replies)
-    {
-        if (reply.ReplyId == Model.Comment.Id)
-        {
-            hasReplies = true;
-
-            break;
-        }
-    }
-
-    var recentReply = new Comment();
-
-    for (int i = Model.Replies.Count - 1; i >= 0; i--)
-    {
-        if (Model.Replies[i].ReplyId == Model.Comment.Id)
-        {
-            recentReply = Model.Replies[i];
-
-            break;
-        }
-    }
-}
-
 <div class="comment-container ms-@(Model.Depth * 20) comment" data-user-id="@Model.Comment.CreatedById">
     <div class="d-flex">
         <!-- User Avatar -->
@@ -69,24 +43,15 @@
                     </a>
                 }
             </div>
-
-            @if (hasReplies)
-            {
-                <div class="comment-actions d-flex align-items-center">
-                    <a class="" onclick="toggleReplies(@Model.Comment.Id)">
-                        <span id="toggle-text-@Model.Comment.Id">Show Replies</span>
-                    </a>
-                </div>
-            }
         </div>
     </div>
 
-    <div class="replies mt-3" id="replies-@Model.Comment.Id" style="display: none;">
+    <div class="replies mt-3" id="replies-@Model.Comment.Id">
         @foreach (var reply in Model.Replies)
         {
             if (reply.ReplyId == Model.Comment.Id)
             {
-                <partial name="_CommentPartial" model="new CommentVM
+                <partial name="_RecentReplyPartial" model="new CommentVM
                     {
                         Comment = reply,
                         Replies = Model.Replies,
@@ -97,18 +62,4 @@
             }
         }
     </div>
-
-    @if (recentReply.Id != null && recentReply.Id > 0)
-    {
-        <div class="replies mt-3" id="recent-reply-@Model.Comment.Id">
-            <partial name="_RecentReplyPartial" model="new CommentVM
-                    {
-                        Comment = recentReply,
-                        Replies = Model.Replies,
-                        Depth = Model.Depth + 1,
-                        UserId = Model.UserId,
-                        isAdmin = Model.isAdmin
-                    }" />
-        </div>
-    }
 </div>

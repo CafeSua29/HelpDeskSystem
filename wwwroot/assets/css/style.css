@@ -4451,69 +4451,6 @@ table.table-inbox tbody tr.checked {
         cursor: pointer;
     }
 
-.comment-container {
-    padding: 10px 0 10px 10px;
-    margin-bottom: 10px;
-}
-
-.comment-header {
-    font-size: 14px;
-}
-
-    .comment-header img {
-        object-fit: cover;
-    }
-
-    .comment-header strong {
-        font-size: 14px;
-        font-weight: bold;
-    }
-
-    .comment-header small {
-        font-size: 12px;
-        color: gray;
-    }
-
-.comment-body {
-    margin-top: 10px !important;
-}
-
-    .comment-body p {
-        margin: 0;
-        font-size: 14px;
-        color: #333;
-    }
-
-.comment-actions {
-    margin-top: 5px;
-}
-
-    .comment-actions button {
-        text-decoration: none;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-
-    .comment-actions a {
-        text-decoration: none;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: .25rem .5rem .25rem 0;
-        font-size: .875rem;
-    }
-
-.comment-content {
-    flex: 1;
-}
-
-.replies {
-    margin-left: 10px;
-    border-left: 1px dashed #ccc;
-    padding-left: 10px;
-}
-
 .title-span-modif {
     display: flex;
     justify-content: space-between;
@@ -4592,4 +4529,67 @@ table.table-inbox tbody tr.checked {
 
 .modal-dialog-mod {
     max-width: 40vw;
+}
+
+.comment-container {
+    padding: 10px 0 10px 10px;
+    margin-bottom: 10px;
+}
+
+.comment-header {
+    font-size: 14px;
+}
+
+    .comment-header img {
+        object-fit: cover;
+    }
+
+    .comment-header strong {
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .comment-header small {
+        font-size: 12px;
+        color: gray;
+    }
+
+.comment-body {
+    margin-top: 10px !important;
+}
+
+    .comment-body p {
+        margin: 0;
+        font-size: 14px;
+        color: #333;
+    }
+
+.comment-actions {
+    margin-top: 5px;
+}
+
+    .comment-actions button {
+        text-decoration: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .comment-actions a {
+        text-decoration: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: .25rem .5rem .25rem 0;
+        font-size: .875rem;
+    }
+
+.comment-content {
+    flex: 1;
+}
+
+.replies {
+    margin-left: 10px;
+    border-left: 1px dashed #ccc;
+    padding-left: 10px;
 }
