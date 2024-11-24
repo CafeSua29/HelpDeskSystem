@@ -160,6 +160,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 user.GenderId = notsetgenderid.Id;
                 user.Gender = notsetgenderid;
                 user.AvatarCount = 0;
+                user.Avatar = "default-avatar.jpg";
                 user.Notification = 0;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);

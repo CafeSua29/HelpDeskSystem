@@ -45,7 +45,7 @@
                     {
                         <a asp-controller="ExcelExports" asp-action="ExportTickets" class="btn btn-primary float-end"><i class="fas fa-download"></i> Download Excel</a>
                     }
-                    
+
                     <div class="row row-ticket-modif">
                         <div class="col-md-2 top-nav-search top-nav-search-modif">
                             <input name="Title" class="form-control form-control-modif" placeholder="Search Ticket" />
@@ -187,16 +187,17 @@
                                         </td>
                                         <td class="text-right">
                                             <div class="actions">
-                                                @* <a asp-controller="Comments" asp-action="TicketComments" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Comment">
-                                                    <i class="fas fa-comment"></i>
-                                                </a> *@
-
-                                                <a asp-action="Comment" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Comment">
-                                                    <i class="fas fa-comment"></i>
-                                                </a>
 
                                                 @if (item.Ticket.Status.Code != "Closed")
                                                 {
+                                                    @* <a asp-controller="Comments" asp-action="TicketComments" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Comment">
+                                                        <i class="fas fa-comment"></i>
+                                                    </a> *@
+
+                                                    <a asp-action="Comment" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Comment">
+                                                        <i class="fas fa-comment"></i>
+                                                    </a>
+
                                                     if (!string.IsNullOrEmpty(item.Ticket.AssignedToId))
                                                     {
                                                         if (item.Ticket.CreatedById.Equals(user) || item.Ticket.AssignedToId.Equals(user) || admin)
