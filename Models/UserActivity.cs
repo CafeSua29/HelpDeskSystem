@@ -25,5 +25,7 @@ namespace HelpDeskSystem.Models
         public DateTime? DelTime { get; set; }
 
         public string? Note { get; set; }
+
+        public bool? DelAble { get; set; }
     }
 }

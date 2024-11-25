@@ -73,6 +73,7 @@ namespace HelpDeskSystem.Controllers
 
                 systemSetting.CreatedOn = DateTime.Now;
                 systemSetting.CreatedById = userId;
+                systemSetting.DelAble = true;
 
                 _context.Add(systemSetting);
                 await _context.MySaveChangesAsync(userId);

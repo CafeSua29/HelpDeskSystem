@@ -76,7 +76,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account.Manage
             public string PhoneNumber { get; set; }
 
             [Required(ErrorMessage = "Name is required")]
-            [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Name can only contain alphabetic characters and spaces")]
+            [RegularExpression("^[a-zA-Z0-9][a-zA-Z0-9@. ]*$", ErrorMessage = "Name can only contain alphanemuric characters, spaces, @ and .")]
             [StringLength(30, ErrorMessage = "Name cannot exceed 30 characters")]
             [Display(Name = "Name")]
             public string Name { get; set; }

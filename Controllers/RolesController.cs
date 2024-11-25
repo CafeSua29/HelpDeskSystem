@@ -1,10 +1,12 @@
-﻿using ElmahCore;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ElmahCore;
 using HelpDeskSystem.ClaimsManagement;
 using HelpDeskSystem.Data;
 using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.Models;
 using HelpDeskSystem.Services;
 using HelpDeskSystem.ViewModels;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -77,6 +79,7 @@ namespace HelpDeskSystem.Controllers
 
                 role.CreatedOn = DateTime.Now;
                 role.CreatedById = userId;
+                role.DelAble = true;
 
                 var result = await _roleManager.CreateAsync(role);
 
@@ -140,9 +143,20 @@ namespace HelpDeskSystem.Controllers
                 _context.Update(role);
                 await _context.MySaveChangesAsync(userId);
 
-                TempData["Message"] = "Role Updated";
+                var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == userId && e.DelTime == null);
 
-                return RedirectToAction(nameof(Index));
+                if (role.Id == user.RoleId)
+                {
+                    await HttpContext.SignOutAsync();
+
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    TempData["Message"] = "Role Updated";
+
+                    return RedirectToAction(nameof(Index));
+                }
             }
             catch (Exception ex)
             {
@@ -180,15 +194,48 @@ namespace HelpDeskSystem.Controllers
                 var userId = User.GetUserId();
 
                 var role = await _context.Roles.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
                 if (role != null)
                 {
                     role.DelTime = DateTime.Now;
 
                     _context.Update(role);
+
+                    var normaluserid = _context.Roles.Where(c => c.Name == "Normal User" && c.DelTime == null).FirstOrDefault();
+
+                    var users = _context.Users.Where(c => c.RoleId == id && c.DelTime == null).ToList();
+
+                    foreach (var user in users)
+                    {
+                        user.RoleId = normaluserid.Id;
+
+                        _context.Update(user);
+                    }
+
+                    var rights = _context.UserRoleProfiles.Where(c => c.RoleId == id && c.DelTime == null).ToList();
+
+                    foreach (var right in rights)
+                    {
+                        right.DelTime = DateTime.Now;
+
+                        _context.Update(right);
+                    }
                 }
+
                 await _context.MySaveChangesAsync(userId);
 
-                TempData["Message"] = "Role Deleted";
+                var curruser = await _context.Users.FirstOrDefaultAsync(e => e.Id == userId && e.DelTime == null);
+
+                if (role.Id == curruser.RoleId)
+                {
+                    await HttpContext.SignOutAsync();
+
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    TempData["Message"] = "Role Deleted";
+                }
             }
             catch (Exception ex)
             {

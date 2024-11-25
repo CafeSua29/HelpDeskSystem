@@ -9,6 +9,8 @@ using HelpDeskSystem.Data;
 using HelpDeskSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using HelpDeskSystem.ClaimsManagement;
+using HelpDeskSystem.Data.Migrations;
+using ElmahCore;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -198,6 +200,23 @@ namespace HelpDeskSystem.Controllers
         private bool AuditTrailExists(int id)
         {
             return _context.AuditTrails.Any(e => e.Id == id);
+        }
+
+        public async Task<IActionResult> Clear()
+        {
+            try
+            {
+                _context.AuditTrails.RemoveRange(_context.AuditTrails);
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+            }
+
+            return RedirectToAction("Index"); 
         }
     }
 }

@@ -92,6 +92,7 @@ namespace HelpDeskSystem.Controllers
 
                 systemTask.CreatedOn = DateTime.Now;
                 systemTask.CreatedById = userId;
+                systemTask.DelAble = true;
 
                 _context.Add(systemTask);
                 await _context.MySaveChangesAsync(userId);
@@ -202,6 +203,15 @@ namespace HelpDeskSystem.Controllers
                     systemTask.DelTime = DateTime.Now;
 
                     _context.Update(systemTask);
+
+                    var rights = _context.UserRoleProfiles.Where(c => c.TaskId == id && c.DelTime == null).ToList();
+
+                    foreach (var right in rights)
+                    {
+                        right.DelTime = DateTime.Now;
+
+                        _context.Update(right);
+                    }
                 }
 
                 await _context.MySaveChangesAsync(userId);

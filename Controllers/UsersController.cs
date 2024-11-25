@@ -4,6 +4,7 @@ using HelpDeskSystem.Data;
 using HelpDeskSystem.Data.Migrations;
 using HelpDeskSystem.Models;
 using HelpDeskSystem.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -206,8 +207,6 @@ namespace HelpDeskSystem.Controllers
                 .Include(x => x.SystemCode)
                 .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
 
-            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
-
             return View(user);
         }
 
@@ -220,8 +219,6 @@ namespace HelpDeskSystem.Controllers
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
                 .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
-
-            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
 
             if (id != user1.Id)
             {
@@ -271,36 +268,29 @@ namespace HelpDeskSystem.Controllers
                     user.Name = user1.Name;
                     user.DOB = user1.DOB;
                     user.GenderId = user1.GenderId;
-                    user.RoleId = user1.RoleId;
                     user.PhoneNumber = user1.PhoneNumber;
                     user.PhoneNumberConfirmed = true;
 
-                    var rolesdetails = await _context.Roles.FirstOrDefaultAsync(x => x.Id == user.RoleId && x.DelTime == null);
+                    user.ModifiedOn = DateTime.Now;
+                    user.ModifiedById = userId;
+                    user.LockoutEnabled = true;
+                    user.LockoutEnd = null;
+                    user.AccessFailedCount = 0;
 
-                    await _userManager.RemovePasswordAsync(user);
-                    var result = await _userManager.AddPasswordAsync(user, user1.PasswordHash);
+                    _context.Update(user);
+                    await _context.MySaveChangesAsync(userId);
 
-                    if (result.Succeeded)
+                    if (userId == user1.Id)
                     {
-                        user.ModifiedOn = DateTime.Now;
-                        user.ModifiedById = userId;
-                        user.LockoutEnabled = true;
-                        user.LockoutEnd = null;
-                        user.AccessFailedCount = 0;
+                        await HttpContext.SignOutAsync();
 
-                        _context.Update(user);
-                        await _context.MySaveChangesAsync(userId);
-
-                        await _userManager.AddToRoleAsync(user, rolesdetails.Name);
-
-                        TempData["Message"] = "User Updated";
-
-                        return RedirectToAction(nameof(Index));
+                        return RedirectToAction("Index", "Home");
                     }
                     else
                     {
-                        TempData["Error"] = "Error, try again later !";
-                        return View(user1);
+                        TempData["Message"] = "User Updated";
+
+                        return RedirectToAction(nameof(Index));
                     }
                 }
                 else
@@ -469,6 +459,86 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
 
             return Json(new { avatarUrl = avatarUrl });
+        }
+
+        public async Task<ActionResult> AssignRole(string? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
+
+            return View(user);
+        }
+
+        // POST: UsersController/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> AssignRole(string id, AppUser user1)
+        {
+            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
+
+            if (id != user1.Id)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                var userId = User.GetUserId();
+
+                var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+
+                if (user != null)
+                {
+                    user.RoleId = user1.RoleId;
+
+                    var rolesdetails = await _context.Roles.FirstOrDefaultAsync(x => x.Id == user1.RoleId && x.DelTime == null);
+
+                    user.ModifiedOn = DateTime.Now;
+                    user.ModifiedById = userId;
+
+                    _context.Update(user);
+                    await _context.MySaveChangesAsync(userId);
+
+                    await _userManager.AddToRoleAsync(user, rolesdetails.Name);
+
+                    TempData["Message"] = "Role Assigned";
+
+                    if (userId == user1.Id)
+                    {
+                        await HttpContext.SignOutAsync();
+
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        TempData["Message"] = "User Updated";
+
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+                TempData["Error"] = "Error: " + ex.Message;
+
+                return View(user1);
+            }
         }
 
     }

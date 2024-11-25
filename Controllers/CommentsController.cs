@@ -217,7 +217,17 @@ namespace HelpDeskSystem.Controllers
                     //_context.Comments.Remove(comment);
 
                     comment.DelTime = DateTime.Now;
+
                     _context.Update(comment);
+
+                    var replies = _context.Comments.Where(x => x.ReplyId == id && x.DelTime == null).ToList();
+
+                    foreach (var reply in replies)
+                    {
+                        reply.DelTime = DateTime.Now;
+
+                        _context.Update(reply);
+                    }
                 }
 
                 await _context.MySaveChangesAsync(userId);

@@ -4,6 +4,7 @@ using HelpDeskSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HelpDeskSystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241125072435_fixdelete2")]
+    partial class fixdelete2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,9 +39,6 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
@@ -107,9 +107,6 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.Property<DateOnly>("DOB")
                         .HasColumnType("date");
-
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
@@ -269,9 +266,6 @@ namespace HelpDeskSystem.Data.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
 
@@ -325,9 +319,6 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
@@ -415,9 +406,6 @@ namespace HelpDeskSystem.Data.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
 
@@ -461,9 +449,6 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
@@ -517,9 +502,6 @@ namespace HelpDeskSystem.Data.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
 
@@ -566,9 +548,6 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
@@ -626,9 +605,6 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
@@ -695,9 +671,6 @@ namespace HelpDeskSystem.Data.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
 
@@ -737,9 +710,6 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
@@ -797,9 +767,6 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");
@@ -885,9 +852,6 @@ namespace HelpDeskSystem.Data.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool?>("DelAble")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("DelTime")
                         .HasColumnType("datetime2");

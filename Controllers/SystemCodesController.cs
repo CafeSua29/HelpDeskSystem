@@ -75,6 +75,7 @@ namespace HelpDeskSystem.Controllers
 
                 systemCode.CreatedOn = DateTime.Now;
                 systemCode.CreatedById = userId;
+                systemCode.DelAble = true;
 
                 _context.Add(systemCode);
                 await _context.MySaveChangesAsync(userId);

@@ -90,7 +90,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             [Required]
-            [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Name can only contain alphabetic characters and spaces")]
+            [RegularExpression("^[a-zA-Z0-9][a-zA-Z0-9@. ]*$", ErrorMessage = "Name can only contain alphanemuric characters, spaces, @ and .")]
             [StringLength(30, ErrorMessage = "Name cannot exceed 30 characters")]
             [Display(Name = "Name")]
             public string Name { get; set; }
@@ -129,7 +129,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
 
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
-                .Where(x => x.SystemCode.Code == "Gender"), "Id", "Description");
+                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -149,11 +149,11 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 user.CreatedById = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 var normaluserid = await _context.Roles
-                .Where(c => c.Name == "Normal User")
+                .Where(c => c.Name == "Normal User" && c.DelTime == null)
                 .FirstOrDefaultAsync();
 
                 var notsetgenderid = await _context.SystemCodeDetails
-                .Where(c => c.Code == "NotSet")
+                .Where(c => c.Code == "NotSet" && c.DelTime == null)
                 .FirstOrDefaultAsync();
 
                 user.RoleId = normaluserid.Id;
@@ -167,7 +167,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
                 var role = await _context.Roles.Where(x => x.Name == "Normal User").FirstOrDefaultAsync();
-                var rolesdetails = await _context.Roles.Where(x => x.Id == role.Id).FirstOrDefaultAsync();
+                var rolesdetails = await _context.Roles.Where(x => x.Id == role.Id && x.DelTime == null).FirstOrDefaultAsync();
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
 

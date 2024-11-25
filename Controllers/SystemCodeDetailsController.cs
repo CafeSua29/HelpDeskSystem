@@ -110,6 +110,7 @@ namespace HelpDeskSystem.Controllers
                 systemCodeDetail.CreatedOn = DateTime.Now;
                 systemCodeDetail.CreatedById = userId;
                 systemCodeDetail.Id = 0;
+                systemCodeDetail.DelAble = true;
 
                 _context.Add(systemCodeDetail);
                 await _context.MySaveChangesAsync(userId);
@@ -203,7 +204,7 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var systemCodeDetail = await _context.SystemCodeDetails.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
+            var systemCodeDetail = await _context.SystemCodeDetails.Include(s => s.SystemCode).FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
 
             try
             {
@@ -215,6 +216,51 @@ namespace HelpDeskSystem.Controllers
 
                     systemCodeDetail.DelTime = DateTime.Now;
                     _context.Update(systemCodeDetail);
+
+                    switch (systemCodeDetail.SystemCode.Code)
+                    {
+                        case "Status":
+                            var pendingstatusid = _context.SystemCodeDetails.FirstOrDefault(c => c.SystemCode.Code == "Status" && c.Code == "Pending" && c.DelTime == null);
+
+                            var tickets = _context.Tickets.Where(c => c.StatusId == id && c.DelTime == null).ToList();
+
+                            foreach (var ticket in tickets)
+                            {
+                                ticket.StatusId = pendingstatusid.Id;
+
+                                _context.Update(ticket);
+                            }
+
+                            break;
+
+                        case "Priority":
+                            var lowpriorityid = _context.SystemCodeDetails.FirstOrDefault(c => c.SystemCode.Code == "Priority" && c.Code == "Low" && c.DelTime == null);
+
+                            var listticket = _context.Tickets.Where(c => c.PriorityId == id && c.DelTime == null).ToList();
+
+                            foreach (var ticket in listticket)
+                            {
+                                ticket.PriorityId = lowpriorityid.Id;
+
+                                _context.Update(ticket);
+                            }
+
+                            break;
+
+                        case "Gender":
+                            var notsetid = _context.SystemCodeDetails.FirstOrDefault(c => c.SystemCode.Code == "Gender" && c.Code == "NotSet" && c.DelTime == null);
+
+                            var users = _context.Users.Where(c => c.GenderId == id && c.DelTime == null).ToList();
+
+                            foreach (var user in users)
+                            {
+                                user.GenderId = notsetid.Id;
+
+                                _context.Update(user);
+                            }
+
+                            break;
+                    }
                 }
 
                 await _context.MySaveChangesAsync(userId);

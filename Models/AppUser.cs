@@ -8,7 +8,7 @@ namespace HelpDeskSystem.Models
     public class AppUser : IdentityUser
     {
         [Required(ErrorMessage = "Name is required")]
-        [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Name can only contain alphabetic characters and spaces")]
+        [RegularExpression("^[a-zA-Z0-9][a-zA-Z0-9@. ]*$", ErrorMessage = "Name can only contain alphanemuric characters, spaces, @ and .")]
         [StringLength(30, ErrorMessage = "Name cannot exceed 30 characters")]
         [DisplayName("Name")]
         public string Name { get; set; }
@@ -59,5 +59,7 @@ namespace HelpDeskSystem.Models
         public DateTime? DelTime { get; set; }
 
         public string? Note { get; set; }
+
+        public bool? DelAble { get; set; }
     }
 }

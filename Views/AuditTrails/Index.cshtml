@@ -32,25 +32,27 @@
             }
 
             <div class="col-md-12">
+                <a asp-action="Clear" class="btn btn-primary float-end" onclick="return confirm('Are you sure you want to clear all the audit trails ?')"><i class="fas fa-trash"></i> Clear History</a>
+
                 <form asp-action="Index" method="post">
-                    <div class="row">
-                        <div class="col-md-2 top-nav-search">
-                            <select name="ActionCode" class="form-control" asp-items="ViewBag.ActionCode">
+                    <div class="row row-ticket-modif">
+                        <div class="col-md-2 top-nav-search top-nav-search-modif">
+                            <select name="ActionCode" class="form-control form-control-modif" asp-items="ViewBag.ActionCode">
                                 <option value="">Action</option>
                             </select>
                         </div>
-                        <div class="col-md-2 top-nav-search">
-                            <input name="Module" class="form-control" placeholder="Module" />
+                        <div class="col-md-2 top-nav-search top-nav-search-modif">
+                            <input name="Module" class="form-control form-control-modif" placeholder="Module" />
                         </div>
-                        <div class="col-md-2 top-nav-search">
-                            <input name="AffectedTable" class="form-control" placeholder="Affected Table" />
+                        <div class="col-md-2 top-nav-search top-nav-search-modif">
+                            <input name="AffectedTable" class="form-control form-control-modif" placeholder="Affected Table" />
                         </div>
-                        <div class="col-md-2 top-nav-search">
-                            <select name="ByUserId" class="form-control" asp-items="ViewBag.UsersId">
+                        <div class="col-md-2 top-nav-search top-nav-search-modif">
+                            <select name="ByUserId" class="form-control form-control-modif" asp-items="ViewBag.UsersId">
                                 <option value="">By User</option>
                             </select>
                         </div>
-                        <div class="col-md-1 text-right float-right ml-auto top-nav-search">
+                        <div class="col-md-1 text-right float-right ml-auto top-nav-search search-margin-left">
                             <button class="btn"><i class="fas fa-search"> Search</i></button>
                         </div>
                     </div>

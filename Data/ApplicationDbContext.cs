@@ -165,7 +165,7 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.Ticket)
                 .WithMany()
                 .HasForeignKey(c => c.TicketId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Comment>()
                 .HasOne(c => c.ReplyComment)
@@ -201,7 +201,7 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.Category)
                 .WithMany()
                 .HasForeignKey(c => c.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<SystemCode>()
                 .HasOne(c => c.CreatedBy)
@@ -231,7 +231,7 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.SystemCode)
                 .WithMany()
                 .HasForeignKey(c => c.SystemCodeId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Ticket>()
                 .HasOne(c => c.Priority)
@@ -249,13 +249,13 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.Status)
                 .WithMany()
                 .HasForeignKey(c => c.StatusId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<TicketResolution>()
                 .HasOne(c => c.Ticket)
                 .WithMany()
                 .HasForeignKey(c => c.TicketId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Ticket>()
                 .HasOne(c => c.AssignedTo)
@@ -333,7 +333,7 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.ReplyToUser)
                 .WithMany()
                 .HasForeignKey(c => c.ReplyToUserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Reply>()
                 .HasOne(c => c.Ticket)
@@ -345,7 +345,7 @@ namespace HelpDeskSystem.Data
                 .HasOne(c => c.Comment)
                 .WithMany()
                 .HasForeignKey(c => c.CommentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

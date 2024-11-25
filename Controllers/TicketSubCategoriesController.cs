@@ -111,6 +111,7 @@ namespace HelpDeskSystem.Controllers
                 ticketSubCategory.CreatedOn = DateTime.Now;
                 ticketSubCategory.CreatedById = userId;
                 ticketSubCategory.Id = 0;
+                ticketSubCategory.DelAble = true;
 
                 _context.Add(ticketSubCategory);
                 await _context.MySaveChangesAsync(userId);
@@ -218,6 +219,17 @@ namespace HelpDeskSystem.Controllers
 
                     ticketSubCategory.DelTime = DateTime.Now;
                     _context.Update(ticketSubCategory);
+
+                    var defaultsub = _context.TicketSubCategories.FirstOrDefault(c => c.Code == "Defaultsub" && c.DelTime == null);
+
+                    var tickets = _context.Tickets.Where(c => c.SubCategoryId == id && c.DelTime == null).ToList();
+
+                    foreach (var ticket in tickets)
+                    {
+                        ticket.SubCategoryId = defaultsub.Id;
+
+                        _context.Update(ticket);
+                    }
                 }
 
                 await _context.MySaveChangesAsync(userId);

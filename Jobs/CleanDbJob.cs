@@ -274,35 +274,56 @@ namespace HelpDeskSystem.Jobs
             }
         }
 
+        private async Task CleanRolesTb()
+        {
+            try
+            {
+                var roles = _context.Roles.Where(t => t.DelTime != null).ToList();
+
+                foreach (var role in roles)
+                {
+                    _context.Roles.Remove(role);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                ElmahExtensions.RaiseError(ex);
+            }
+        }
+
         public async Task Execute(IJobExecutionContext context)
         {
             try
             {
-                await CleanAuditsTb();
+                //await CleanAuditsTb();
 
-                await CleanSystemSettingsTb();
+                //await CleanSystemSettingsTb();
 
-                await CleanSystemTasksTb();
+                //await CleanSystemTasksTb();
 
-                await CleanSystemCodeDetailsTb();
+                //await CleanSystemCodeDetailsTb();
 
-                await CleanSystemCodesTb();
+                //await CleanSystemCodesTb();
 
-                await CleanCommentsTb();
+                //await CleanCommentsTb();
 
-                await CleanDepartmentsTb();
+                //await CleanDepartmentsTb();
 
-                await CleanTicketSubCategoriesTb();
+                //await CleanTicketSubCategoriesTb();
 
-                await CleanTicketCategoriesTb();
+                //await CleanTicketCategoriesTb();
 
-                await CleanTicketResolutionsTb();
+                //await CleanTicketResolutionsTb();
 
-                await CleanTicketsTb();
+                //await CleanTicketsTb();
 
-                await CleanUserRoleProfilesTb();
+                //await CleanUserRoleProfilesTb();
 
-                await CleanUsersTb();
+                //await CleanUsersTb();
+
+                //await CleanRolesTb();
             }
             catch (Exception ex)
             {

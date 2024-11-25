@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authorization;
 using HelpDeskSystem.ClaimsManagement;
 using ElmahCore;
 using HelpDeskSystem.Data.Migrations;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.AspNetCore.Authentication;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -87,6 +89,7 @@ namespace HelpDeskSystem.Controllers
 
                 userRoleProfile.CreatedOn = DateTime.Now;
                 userRoleProfile.CreatedById = userId;
+                userRoleProfile.DelAble = true;
 
                 _context.Add(userRoleProfile);
                 await _context.MySaveChangesAsync(userId);
@@ -226,13 +229,6 @@ namespace HelpDeskSystem.Controllers
             vm.RoleId = id;
             vm.RoleName = name;
 
-            //var allroles = await _context.Roles
-            //    .OrderBy(x => x.Name)
-            //    .Where(e => e.DelTime == null)
-            //    .ToListAsync();
-
-            //ViewBag.RoleId = new SelectList(allroles, "Id", "Name", id);
-
             vm.SystemTasks = await _context.SystemTasks
                 .Include("ChildTasks.ChildTasks.ChildTasks")
                 .OrderBy(x => x.OrderNo)
@@ -250,24 +246,6 @@ namespace HelpDeskSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> UserRights(ProfileVM vm)
         {
-            //var allroles = await _context.Roles
-            //    .OrderBy(x => x.Name)
-            //    .Where(e => e.DelTime == null)
-            //    .ToListAsync();
-
-            //ViewBag.RoleId = new SelectList(allroles, "Id", "Name", vm.RoleId);
-
-            vm.SystemTasks = await _context.SystemTasks
-                .Include("ChildTasks.ChildTasks.ChildTasks")
-                .OrderBy(x => x.OrderNo)
-                .Where(x => x.Parent == null && x.DelTime == null)
-                .ToListAsync();
-
-            vm.RightsIdAssigned = await _context.UserRoleProfiles
-                .Where(x => x.RoleId == vm.RoleId && x.DelTime == null)
-                .Select(x => x.TaskId)
-                .ToListAsync();
-
             try
             {
                 var allprofile = _context.UserRoleProfiles.Where(x => x.RoleId == vm.RoleId && x.DelTime == null).ToList();
@@ -288,12 +266,24 @@ namespace HelpDeskSystem.Controllers
                         _context.UserRoleProfiles.Add(right);
                     }
                 }
+                var userId = User.GetUserId();
 
-                await _context.MySaveChangesAsync(User.GetUserId());
+                var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == userId && e.DelTime == null);
 
-                TempData["Message"] = "Right Assigned";
+                await _context.MySaveChangesAsync(userId);
 
-                return RedirectToAction("Index", "Roles");
+                if (vm.RoleId == user.RoleId)
+                {
+                    await HttpContext.SignOutAsync();
+
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    TempData["Message"] = "Right Assigned";
+
+                    return RedirectToAction("Index", "Roles");
+                }
             }
             catch (Exception ex)
             {

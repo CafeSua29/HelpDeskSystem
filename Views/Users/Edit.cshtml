@@ -60,12 +60,6 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <select asp-for="RoleId" class="form-control" asp-items="ViewBag.RoleId"></select>
-                                        <label asp-for="RoleId" class="control-label"></label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
                                         <input asp-for="Email" class="form-control" placeholder="" />
                                         <label asp-for="Email" class="control-label"></label>
                                         <span asp-validation-for="Email" class="text-danger"></span>
@@ -77,13 +71,6 @@
                                         <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
                                         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                                         <span id="PhoneNumberError" style="color: red; display: none;">Invalid phone number</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input asp-for="PasswordHash" class="form-control" type="password" placeholder="password" />
-                                        <label asp-for="PasswordHash" class="control-label">Password</label>
-                                        <span asp-validation-for="PasswordHash" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="col-md-6">

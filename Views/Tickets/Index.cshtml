@@ -84,9 +84,12 @@
             <div class="card card-table">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover table-center mb-0 datatable">
+                        <table class="table table-hover table-center mb-0 datatable" id="TicketsTb">
                             <thead>
                                 <tr>
+                                    <th style="display: none;">
+                                        @Html.DisplayNameFor(model => model.Ticket.Id)
+                                    </th>
                                     <th>
                                         @Html.DisplayNameFor(model => model.Ticket.Title)
                                     </th>
@@ -121,6 +124,9 @@
                                 @foreach (var item in Model)
                                 {
                                     <tr>
+                                        <td style="display: none;">
+                                            @Html.DisplayFor(modelItem => item.Ticket.Id)
+                                        </td>
                                         <td>
                                             <a asp-action="Details" asp-route-id="@item.Ticket.Id">
                                                 @Html.DisplayFor(modelItem => item.Ticket.Title)
@@ -348,6 +354,23 @@
                     $(this).remove();
                 });
             }, 2000);
+
+            $(document).ready(function () {
+                if ($.fn.DataTable.isDataTable('#TicketsTb')) {
+                    $('#TicketsTb').DataTable().destroy();
+                }
+
+                if (!$.fn.DataTable.isDataTable('#TicketsTb')) {
+                    $('#TicketsTb').DataTable({
+                        order: [[0, 'desc']]
+                    });
+                }
+            });
+
+
+            // $('#TicketsTb').DataTable({
+            //     ordering: false
+            // });
         });
 
         $('#deleteConfirmationModal').on('show.bs.modal', function (event) {
