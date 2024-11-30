@@ -152,13 +152,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 .Where(c => c.Name == "Normal User" && c.DelTime == null)
                 .FirstOrDefaultAsync();
 
-                var notsetgenderid = await _context.SystemCodeDetails
-                .Where(c => c.Code == "NotSet" && c.DelTime == null)
-                .FirstOrDefaultAsync();
-
                 user.RoleId = normaluserid.Id;
-                user.GenderId = notsetgenderid.Id;
-                user.Gender = notsetgenderid;
                 user.AvatarCount = 0;
                 user.Avatar = "default-avatar.jpg";
                 user.Notification = 0;

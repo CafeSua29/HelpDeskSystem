@@ -116,9 +116,12 @@
                         <div class="card card-table">
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-hover table-center mb-0 datatable">
+                                    <table class="table table-hover table-center mb-0 datatable" id="resolutionsTb">
                                         <thead>
                                             <tr>
+                                                <th style="display: none;">
+                                                    Id
+                                                </th>
                                                 <th>
                                                     Description
                                                 </th>
@@ -137,6 +140,9 @@
                                             @foreach (var item in resolutions)
                                             {
                                                 <tr>
+                                                    <td style="display: none;">
+                                                        @Html.DisplayFor(modelItem => item.Id)
+                                                    </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.Description)
                                                     </td>
@@ -195,6 +201,16 @@
             }, 2000);
 
             $('#mypicker').picker({ search: true });
+
+            if ($.fn.DataTable.isDataTable('#resolutionsTb')) {
+                $('#resolutionsTb').DataTable().destroy();
+            }
+
+            if (!$.fn.DataTable.isDataTable('#resolutionsTb')) {
+                $('#resolutionsTb').DataTable({
+                    order: [[0, 'desc']]
+                });
+            }
         });
     </script>
 }

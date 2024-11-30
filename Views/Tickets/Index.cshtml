@@ -355,22 +355,16 @@
                 });
             }, 2000);
 
-            $(document).ready(function () {
-                if ($.fn.DataTable.isDataTable('#TicketsTb')) {
-                    $('#TicketsTb').DataTable().destroy();
-                }
+            if ($.fn.DataTable.isDataTable('#TicketsTb')) {
+                $('#TicketsTb').DataTable().destroy();
+            }
 
-                if (!$.fn.DataTable.isDataTable('#TicketsTb')) {
-                    $('#TicketsTb').DataTable({
-                        order: [[0, 'desc']]
-                    });
-                }
-            });
-
-
-            // $('#TicketsTb').DataTable({
-            //     ordering: false
-            // });
+            if (!$.fn.DataTable.isDataTable('#TicketsTb')) {
+                $('#TicketsTb').DataTable({
+                    order: [[0, 'desc']],
+                    searching: false
+                });
+            }
         });
 
         $('#deleteConfirmationModal').on('show.bs.modal', function (event) {

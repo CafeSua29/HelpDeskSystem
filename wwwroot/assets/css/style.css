@@ -4555,7 +4555,7 @@ table.table-inbox tbody tr.checked {
     }
 
 .comment-body {
-    margin-top: 10px !important;
+/*    margin-top: 10px !important;*/
 }
 
     .comment-body p {

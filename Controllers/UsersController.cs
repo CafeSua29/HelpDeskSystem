@@ -19,7 +19,7 @@ using static System.Net.Mime.MediaTypeNames;
 namespace HelpDeskSystem.Controllers
 {
     [Authorize]
-    [Permission(":USERS")]
+    
     public class UsersController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
@@ -38,7 +38,7 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: UsersController
-        //[Permission("DASHBOARD:VIEW")]
+        [Permission(":USERS")]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<ActionResult> Index(string Name, string Email, string Phone, string RoleId)
         {
@@ -96,6 +96,7 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: UsersController/Create
+        [Permission(":USERS")]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public ActionResult Create()
         {
@@ -112,6 +113,7 @@ namespace HelpDeskSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        [Permission(":USERS")]
         public async Task<ActionResult> Create(AppUser user, IFormFile Avatar)
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
@@ -189,6 +191,7 @@ namespace HelpDeskSystem.Controllers
 
         // GET: UsersController/Edit/5
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        [Permission(":USERS")]
         public async Task<ActionResult> Edit(string? id)
         {
             if (id == null)
@@ -214,6 +217,7 @@ namespace HelpDeskSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        [Permission(":USERS")]
         public async Task<ActionResult> Edit(string id, AppUser user1, string? Avatar, IFormFile? NewAvatar)
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
@@ -308,6 +312,7 @@ namespace HelpDeskSystem.Controllers
         }
 
         // GET: UsersController/Delete/5
+        [Permission(":USERS")]
         public async Task<IActionResult> Delete(string? id)
         {
             if (id == null)
@@ -349,6 +354,7 @@ namespace HelpDeskSystem.Controllers
         // POST: Tickets/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Permission(":USERS")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             try
@@ -376,11 +382,13 @@ namespace HelpDeskSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Permission(":USERS")]
         private bool UserExists(string id)
         {
             return _context.Users.Any(e => e.Id == id && e.DelTime == null);
         }
 
+        [Permission(":USERS")]
         public async Task<ActionResult> Activate(string id)
         {
             var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);
@@ -401,6 +409,7 @@ namespace HelpDeskSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(":USERS")]
         public async Task<ActionResult> Activate(string id, AppUser user1)
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
@@ -448,6 +457,7 @@ namespace HelpDeskSystem.Controllers
 
         [HttpGet]
         [Route("Users/GetUserAvatar")]
+        [Permission(":USERS")]
         public IActionResult GetUserAvatar(string userId)
         {
             var avatarUrl = _context.Users
@@ -461,6 +471,7 @@ namespace HelpDeskSystem.Controllers
             return Json(new { avatarUrl = avatarUrl });
         }
 
+        [Permission(":USERS")]
         public async Task<ActionResult> AssignRole(string? id)
         {
             if (id == null)
@@ -483,6 +494,7 @@ namespace HelpDeskSystem.Controllers
         // POST: UsersController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(":USERS")]
         public async Task<ActionResult> AssignRole(string id, AppUser user1)
         {
             ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");

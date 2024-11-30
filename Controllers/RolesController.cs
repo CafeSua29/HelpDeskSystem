@@ -191,6 +191,9 @@ namespace HelpDeskSystem.Controllers
         {
             try
             {
+                //var allprofile = _context.UserRoleProfiles.Where(x => x.RoleId == id && x.DelTime == null).ToList();
+                //_context.UserRoleProfiles.RemoveRange(allprofile);
+
                 var userId = User.GetUserId();
 
                 var role = await _context.Roles.FirstOrDefaultAsync(e => e.Id == id && e.DelTime == null);

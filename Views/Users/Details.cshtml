@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = "Details";
+
+    var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
+
+    var canViewUser = allUserPermissions.Contains(":USERS");
 }
 
 <div class="content container-fluid">
@@ -72,7 +76,12 @@
                         </div>
                         <div class="margin-top">
                             <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
-                            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary float-end">Edit</a>
+
+                            @if (canViewUser)
+                            {
+                                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary float-end">Edit</a>
+                            }
+
                         </div>
                         <div class="row mt-3">
                             <div class="col-md-12">
