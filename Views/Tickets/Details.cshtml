@@ -118,62 +118,6 @@
             <div class="row mt-2">
                 <div class="col-md-12">
                     <div class="skill-info">
-                        <h4>Comments</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Description
-                                    </th>
-                                    <th>
-                                        Created By
-                                    </th>
-                                    <th>
-                                        Created On
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in comments)
-                                {
-                                    <tr>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.Description)
-                                        </td>
-                                        <td>
-                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@item.CreatedById">
-                                                @Html.DisplayFor(modelItem => item.CreatedBy.Name)
-                                            </a>
-                                        </td>
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.CreatedOn)
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-
-                        @* @if (Model?.Status.Code != "Closed")
-                        {
-                            <div>
-                                <form asp-action="AddComment" asp-route-id="@Model?.Id">
-                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                                    <div class="form-group">
-                                        <textarea name="Desc" class="form-control" required></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="submit" value="Comment" class="btn btn-primary" />
-                                    </div>
-                                </form>
-                            </div>
-                        } *@
-                        
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-12">
-                    <div class="skill-info">
                         <h4>Resolution History</h4>
                         <table class="table">
                             <thead>
