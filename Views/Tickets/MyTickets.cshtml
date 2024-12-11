@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<HelpDeskSystem.ViewModels.TicketVM>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "My Tickets";
 
     int duration = ViewBag.Duration;
 
@@ -47,14 +47,12 @@
                     }
 
                     <div class="row row-ticket-modif">
-                        <div class="col-md-2 top-nav-search top-nav-search-modif">
-                            <input name="Title" class="form-control form-control-modif" placeholder="Search Ticket" />
+                        <div class="col-md-2 top-nav-search top-nav-search-modif" hidden>
+                            <input name="id" value="@user" />
                         </div>
 
                         <div class="col-md-2 top-nav-search top-nav-search-modif">
-                            <select name="CreatedById" class="form-control form-control-modif" asp-items="ViewBag.UsersId">
-                                <option value="">Created By</option>
-                            </select>
+                            <input name="Title" class="form-control form-control-modif" placeholder="Search Ticket" />
                         </div>
 
                         @if (admin)

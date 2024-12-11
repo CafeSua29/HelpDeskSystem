@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.IO;
 using System.Net.Mail;
 using System.Security.Claims;
 using static System.Net.Mime.MediaTypeNames;
@@ -137,8 +138,11 @@ namespace HelpDeskSystem.Controllers
                     var path = _configuration["FileSettings:AvatarsFolder"];
                     var filePath = Path.Combine(path, fileName);
 
-                    var stream = new FileStream(filePath, FileMode.Create);
-                    await Avatar.CopyToAsync(stream);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await Avatar.CopyToAsync(stream);
+                    }
+                    
                     user1.Avatar = fileName;
                     user1.AvatarCount += 1;
                 }
@@ -158,6 +162,7 @@ namespace HelpDeskSystem.Controllers
                 user1.PhoneNumber = user.PhoneNumber;
                 user1.PhoneNumberConfirmed = true;
                 user1.Notification = 0;
+                user1.Reputation = 0;
 
                 user1.CreatedOn = DateTime.Now;
                 user1.CreatedById = userId;
@@ -208,7 +213,7 @@ namespace HelpDeskSystem.Controllers
 
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
-                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
+                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description", user.GenderId);
 
             return View(user);
         }
@@ -222,7 +227,7 @@ namespace HelpDeskSystem.Controllers
         {
             ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
-                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description");
+                .Where(x => x.SystemCode.Code == "Gender" && x.DelTime == null), "Id", "Description", user1.GenderId);
 
             if (id != user1.Id)
             {
@@ -457,7 +462,6 @@ namespace HelpDeskSystem.Controllers
 
         [HttpGet]
         [Route("Users/GetUserAvatar")]
-        [Permission(":USERS")]
         public IActionResult GetUserAvatar(string userId)
         {
             var avatarUrl = _context.Users
@@ -469,6 +473,23 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
 
             return Json(new { avatarUrl = avatarUrl });
+        }
+
+        [HttpGet]
+        [Route("Users/GetUserReputationAndBadge")]
+        public IActionResult GetUserReputationAndBadge(string userId)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null) return NotFound();
+
+            var reputation = user.Reputation;
+            var badge = user.Badge;
+
+            if (reputation == null || reputation < 0 || badge == null)
+                return NotFound();
+
+            return Json(new { reputation = reputation, badge = badge });
         }
 
         [Permission(":USERS")]
@@ -486,7 +507,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
+            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name", user.RoleId);
 
             return View(user);
         }
@@ -497,7 +518,7 @@ namespace HelpDeskSystem.Controllers
         [Permission(":USERS")]
         public async Task<ActionResult> AssignRole(string id, AppUser user1)
         {
-            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name");
+            ViewData["RoleId"] = new SelectList(_context.Roles.Where(e => e.DelTime == null), "Id", "Name", user1.RoleId);
 
             if (id != user1.Id)
             {

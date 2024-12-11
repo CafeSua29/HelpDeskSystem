@@ -33,7 +33,7 @@ namespace HelpDeskSystem.Controllers
             }
             else
             {
-                vm.TicketsSummary =  await _context.TicketsSummaryView.FirstOrDefaultAsync();
+                vm.TicketsSummary = await _context.TicketsSummaryView.FirstOrDefaultAsync();
 
                 vm.TicketsPriority = await _context.TicketsPriorityView.FirstOrDefaultAsync();
 

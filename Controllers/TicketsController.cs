@@ -19,6 +19,9 @@ using Microsoft.AspNetCore.Authorization;
 using Elmah.ContentSyndication;
 using Microsoft.Extensions.Hosting;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Comment = HelpDeskSystem.Models.Comment;
+using Azure.Core;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -40,7 +43,7 @@ namespace HelpDeskSystem.Controllers
 
         [Permission(":TICKETS")]
         // GET: Tickets
-        public async Task<IActionResult> Index(string Title, int StatusId, string CreatedById, string AssignedToId, DateTime CreatedOn)
+        public async Task<IActionResult> Index(string Title, int StatusId, int SubCateId, string CreatedById, DateTime CreatedOn)
         {
             var allticket = _context.Tickets
                 .Include(c => c.CreatedBy)
@@ -62,14 +65,14 @@ namespace HelpDeskSystem.Controllers
                 allticket = allticket.Where(x => x.StatusId == StatusId);
             }
 
+            if (SubCateId > 0)
+            {
+                allticket = allticket.Where(x => x.SubCategoryId == SubCateId);
+            }
+
             if (!string.IsNullOrEmpty(CreatedById))
             {
                 allticket = allticket.Where(x => x.CreatedById == CreatedById);
-            }
-
-            if (!string.IsNullOrEmpty(AssignedToId))
-            {
-                allticket = allticket.Where(x => x.AssignedToId == AssignedToId);
             }
 
             DateTime dt = new DateTime();
@@ -101,6 +104,90 @@ namespace HelpDeskSystem.Controllers
             ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails
                 .Include(x => x.SystemCode)
                 .Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
+
+            ViewData["SubCateId"] = new SelectList(_context.TicketSubCategories
+                .Include(x => x.Category)
+                .Where(x => x.DelTime == null), "Id", "Name");
+
+            ViewData["UsersId"] = new SelectList(_context.Users.Where(t => t.DelTime == null), "Id", "Name");
+
+            var ss = await _context.SystemSettings
+                .Where(x => x.Code == "TicketResolutionDays" && x.DelTime == null)
+                .FirstOrDefaultAsync();
+
+            ViewBag.Duration = ss.Value;
+
+            return View(ticketVMs);
+        }
+
+        [Permission(":TICKETS")]
+        // GET: Tickets
+        public async Task<IActionResult> MyTickets(string id, string Title, int StatusId, int SubCateId, string CreatedById, DateTime CreatedOn)
+        {
+            var allticket = _context.Tickets
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Status)
+                .Include(c => c.Priority)
+                .Include(t => t.SubCategory)
+                .Include(t => t.AssignedTo)
+                .Where(t => t.DelTime == null && t.CreatedById == id)
+                .OrderByDescending(c => c.CreatedOn)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(Title))
+            {
+                allticket = allticket.Where(x => x.Title.Contains(Title) || x.Description.Contains(Title));
+            }
+
+            if (StatusId > 0)
+            {
+                allticket = allticket.Where(x => x.StatusId == StatusId);
+            }
+
+            if (SubCateId > 0)
+            {
+                allticket = allticket.Where(x => x.SubCategoryId == SubCateId);
+            }
+
+            if (!string.IsNullOrEmpty(CreatedById))
+            {
+                allticket = allticket.Where(x => x.CreatedById == CreatedById);
+            }
+
+            DateTime dt = new DateTime();
+
+            if (DateTime.Compare(CreatedOn, dt) > 0)
+            {
+                allticket = allticket.Where(x => DateOnly.FromDateTime(x.CreatedOn).CompareTo(DateOnly.FromDateTime(CreatedOn)) == 0);
+            }
+
+            List<Ticket> tickets = allticket.ToList();
+
+            List<TicketVM> ticketVMs = new List<TicketVM>();
+
+            foreach (Ticket ticket in tickets)
+            {
+                TicketVM ticketVM = new TicketVM();
+
+                ticketVM.Ticket = ticket;
+
+                ticketVM.Comments = _context.Comments
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Ticket)
+                .Where(c => c.TicketId == ticket.Id && c.DelTime == null)
+                .Count();
+
+                ticketVMs.Add(ticketVM);
+            }
+
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
+
+            ViewData["SubCateId"] = new SelectList(_context.TicketSubCategories
+                .Include(x => x.Category)
+                .Where(x => x.DelTime == null), "Id", "Name");
+
             ViewData["UsersId"] = new SelectList(_context.Users.Where(t => t.DelTime == null), "Id", "Name");
 
             var ss = await _context.SystemSettings
@@ -181,8 +268,11 @@ namespace HelpDeskSystem.Controllers
                     var path = _configuration["FileSettings:UploadsFolder"];
                     var filepath = Path.Combine(path, filename);
 
-                    var stream = new FileStream(filepath, FileMode.Create);
-                    await Attachment.CopyToAsync(stream);
+                    using (var stream = new FileStream(filepath, FileMode.Create))
+                    {
+                        await Attachment.CopyToAsync(stream);
+                    }
+                    
                     ticket.Attachment = filename;
                 }
 
@@ -232,15 +322,15 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
+            var ticket = await _context.Tickets.Include(c => c.SubCategory).FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
             if (ticket == null)
             {
                 return NotFound();
             }
 
-            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority" && x.DelTime == null), "Id", "Description");
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
-            ViewData["CategoryId"] = new SelectList(_context.TicketCategories.Where(x => x.DelTime == null), "Id", "Name");
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority" && x.DelTime == null), "Id", "Description", ticket.PriorityId);
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description", ticket.StatusId);
+            ViewData["CategoryId"] = new SelectList(_context.TicketCategories.Where(x => x.DelTime == null), "Id", "Name", ticket.SubCategory.CategoryId);
 
             return View(ticket);
         }
@@ -252,8 +342,8 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Ticket ticket, string? Attachment, IFormFile? NewAttachment)
         {
-            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority" && x.DelTime == null), "Id", "Description");
-            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description");
+            ViewData["PriorityId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Priority" && x.DelTime == null), "Id", "Description", ticket.PriorityId);
+            ViewData["StatusId"] = new SelectList(_context.SystemCodeDetails.Include(x => x.SystemCode).Where(x => x.SystemCode.Code == "Status" && x.DelTime == null), "Id", "Description", ticket.StatusId);
             ViewData["CategoryId"] = new SelectList(_context.TicketCategories.Where(x => x.DelTime == null), "Id", "Name");
 
             if (id != ticket.Id)
@@ -536,7 +626,7 @@ namespace HelpDeskSystem.Controllers
                 resolution.CreatedById = userId;
                 resolution.Id = 0;
                 resolution.TicketId = id;
-                resolution.Description = "Closed by owner";
+                resolution.Description = "Closed";
                 resolution.StatusId = closedstatusid.Id;
 
                 _context.Add(resolution);
@@ -577,7 +667,7 @@ namespace HelpDeskSystem.Controllers
                 resolution.CreatedById = userId;
                 resolution.Id = 0;
                 resolution.TicketId = id;
-                resolution.Description = "Re-open by owner";
+                resolution.Description = "Re-open";
                 resolution.StatusId = waitingstatusid.Id;
 
                 _context.Add(resolution);
@@ -628,7 +718,7 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
-            ViewData["UsersId"] = new SelectList(_context.Users.Where(c => c.DelTime == null), "Id", "Name");
+            ViewData["UsersId"] = new SelectList(_context.Users.Where(c => c.DelTime == null), "Id", "Name", ticket.AssignedToId);
 
             return View(ticket);
         }
@@ -729,6 +819,8 @@ namespace HelpDeskSystem.Controllers
                 return NotFound();
             }
 
+            var userId = User.GetUserId();
+
             var ticket = await _context.Tickets
                 .Include(t => t.CreatedBy)
                 .Include(c => c.Status)
@@ -737,12 +829,29 @@ namespace HelpDeskSystem.Controllers
                 .Include(t => t.AssignedTo)
                 .FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
 
-            ViewBag.Comments = await _context.Comments
+            var cmts = await _context.Comments
                 .Where(x => x.TicketId == id && x.ReplyId == null && x.DelTime == null)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
-                .OrderBy(c => c.CreatedOn)
+                .OrderByDescending(c => c.VoteValue)
                 .ToListAsync();
+
+            var listCmtVoteVM = new List<CommentVoteVM>();
+
+            foreach (var cmt in cmts)
+            {
+                var existingVote = await _context.Votes.FirstOrDefaultAsync(v => v.CommentId == cmt.Id && v.UserId == userId);
+
+                var cmtVoteVM = new CommentVoteVM
+                {
+                    Comment = cmt,
+                    CurrentUserVote = existingVote == null ? 0 : existingVote.Value
+                };
+
+                listCmtVoteVM.Add(cmtVoteVM);
+            }
+
+            ViewBag.Comments = listCmtVoteVM;
 
             ViewBag.Replies = await _context.Comments
                 .Where(x => x.TicketId == id && x.ReplyId != null && x.DelTime == null)
@@ -758,12 +867,31 @@ namespace HelpDeskSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Comment(int id, string Desc, int? parentId, string? ownerId)
         {
-            ViewBag.Comments = await _context.Comments
+            var userId = User.GetUserId();
+
+            var cmts = await _context.Comments
                 .Where(x => x.TicketId == id && x.ReplyId == null && x.DelTime == null)
                 .Include(c => c.CreatedBy)
                 .Include(c => c.Ticket)
-                .OrderBy(c => c.CreatedOn)
+                .OrderByDescending(c => c.VoteValue)
                 .ToListAsync();
+
+            var listCmtVoteVM = new List<CommentVoteVM>();
+
+            foreach (var cmt in cmts)
+            {
+                var existingVote = await _context.Votes.FirstOrDefaultAsync(v => v.CommentId == cmt.Id && v.UserId == userId);
+
+                var cmtVoteVM = new CommentVoteVM
+                {
+                    Comment = cmt,
+                    CurrentUserVote = existingVote == null ? 0 : existingVote.Value
+                };
+
+                listCmtVoteVM.Add(cmtVoteVM);
+            }
+
+            ViewBag.Comments = listCmtVoteVM;
 
             ViewBag.Replies = await _context.Comments
                 .Where(x => x.TicketId == id && x.ReplyId != null && x.DelTime == null)
@@ -776,13 +904,12 @@ namespace HelpDeskSystem.Controllers
             {
                 Comment comment = new Comment();
 
-                var userId = User.GetUserId();
-
                 comment.CreatedOn = DateTime.Now;
                 comment.CreatedById = userId;
                 comment.Id = 0;
                 comment.TicketId = id;
                 comment.Description = Desc;
+                comment.VoteValue = 0;
 
                 if (parentId != null && ownerId != null)
                 {
@@ -790,22 +917,28 @@ namespace HelpDeskSystem.Controllers
 
                     if (user != null)
                     {
-                        user.Notification += 1;
-
-                        _context.Update(user);
-
                         comment.ReplyId = parentId;
 
-                        Reply reply = new Reply();
-                        reply.Message = Desc;
-                        reply.UserIdReply = userId;
-                        reply.ReplyToUserId = ownerId;
-                        reply.TicketId = id;
-                        reply.CommentId = (int)parentId;
-                        reply.ReplyOn = DateTime.Now;
-                        reply.Id = 0;
+                        var currUserId = User.GetUserId();
 
-                        _context.Add(reply);
+                        if (currUserId != ownerId)
+                        {
+                            user.Notification += 1;
+
+                            _context.Update(user);
+
+                            Reply reply = new Reply();
+                            reply.Message = Desc;
+                            reply.UserIdReply = userId;
+                            reply.ReplyToUserId = ownerId;
+                            reply.TicketId = id;
+                            reply.CommentId = (int)parentId;
+                            reply.ReplyOn = DateTime.Now;
+                            reply.Id = 0;
+                            reply.NotiMsg = "replied your comment:";
+
+                            _context.Add(reply);
+                        }
                     }
                 }
                 else
@@ -818,19 +951,25 @@ namespace HelpDeskSystem.Controllers
 
                         if (user != null)
                         {
-                            user.Notification += 1;
+                            var currUserId = User.GetUserId();
 
-                            _context.Update(user);
+                            if (currUserId != ticket.CreatedById)
+                            {
+                                user.Notification += 1;
 
-                            Reply reply = new Reply();
-                            reply.Message = Desc;
-                            reply.UserIdReply = userId;
-                            reply.ReplyToUserId = user.Id;
-                            reply.TicketId = id;
-                            reply.ReplyOn = DateTime.Now;
-                            reply.Id = 0;
+                                _context.Update(user);
 
-                            _context.Add(reply);
+                                Reply reply = new Reply();
+                                reply.Message = Desc;
+                                reply.UserIdReply = userId;
+                                reply.ReplyToUserId = user.Id;
+                                reply.TicketId = id;
+                                reply.ReplyOn = DateTime.Now;
+                                reply.Id = 0;
+                                reply.NotiMsg = "commented in your ticket:";
+
+                                _context.Add(reply);
+                            }
                         }
                     }
                 }

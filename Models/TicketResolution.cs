@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using HelpDeskSystem.Helper;
+using System.ComponentModel;
 
 namespace HelpDeskSystem.Models
 {
@@ -21,5 +22,13 @@ namespace HelpDeskSystem.Models
 
         [DisplayName("Status")]
         public SystemCodeDetail Status { get; set; }
+
+        public string ParsedContent
+        {
+            get
+            {
+                return CommentHelper.ConvertLinks(Description);
+            }
+        }
     }
 }

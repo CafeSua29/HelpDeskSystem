@@ -23,5 +23,7 @@
         public Comment? Comment { get; set; }
 
         public DateTime ReplyOn { get; set; }
+
+        public string NotiMsg { get; set; }
     }
 }

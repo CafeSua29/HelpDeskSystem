@@ -29,10 +29,41 @@
 
 <div class="comment-container ms-@(Model.Depth * 20) comment" data-user-id="@Model.Comment.CreatedById">
     <div class="d-flex">
-        <!-- User Avatar -->
-        <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.Comment.CreatedById" class="avatar avatar-sm mr-2">
-            <img class="avatar-img rounded-circle ava" src="~/assets/img/profiles/default-avatar.jpg" alt="User Image">
-        </a>
+        <div class="d-flex flex-column align-items-center mr-4">
+            <!-- User Avatar -->
+            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.Comment.CreatedById" class="avatar avatar-sm">
+                <img class="avatar-img rounded-circle ava" src="~/assets/img/profiles/default-avatar.jpg" alt="User Image">
+            </a>
+
+            @{
+                var reputation = Model.Comment.CreatedBy.Reputation;
+                string award;
+
+                if (reputation >= 1000)
+                    award = "Expert";
+                else if (reputation >= 100)
+                    award = "Contributor";
+                else
+                    award = "Newbie";
+            }
+
+            <span class="ava-badge mt-2"><i class="@Model.Comment.CreatedBy.Badge"></i> @award</span>
+        </div>
+
+        @if (Model.UserId != Model.Comment.CreatedById)
+        {
+            <div class="vote-buttons voting-section d-flex flex-column align-items-center me-3">
+                <button id="upvote-@Model.Comment.Id" class="vote-btn upvote @(Model.CurrentUserVote == 1 ? "active" : "")" onclick="voteComment(@Model.Comment.Id, 1)">
+                    <i class="bi bi-caret-up-fill"></i>
+                </button>
+
+                <div id="vote-value-@Model.Comment.Id" class="vote-value">@Model.Comment.VoteValue</div>
+
+                <button id="downvote-@Model.Comment.Id" class="vote-btn downvote @(Model.CurrentUserVote == -1 ? "active" : "")" onclick="voteComment(@Model.Comment.Id, -1)">
+                    <i class="bi bi-caret-down-fill"></i>
+                </button>
+            </div>
+        }
 
         <!-- Comment Content -->
         <div class="comment-content">
@@ -43,7 +74,7 @@
                 <small class="text-muted ms-2">@Model.Comment.CreatedOn.ToString("MMM dd, yyyy HH:mm")</small>
             </div>
             <div class="comment-body">
-                <p>@Model.Comment.Description</p>
+                <p>@Html.Raw(Model.Comment.ParsedContent)</p>
             </div>
             <div class="comment-actions d-flex align-items-center">
                 <a class="mr-2" title="Reply" onclick="setReplyTarget('@Model.Comment.Id', '@Model.Comment.CreatedById')">

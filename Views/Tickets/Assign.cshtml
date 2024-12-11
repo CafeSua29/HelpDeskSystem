@@ -4,6 +4,10 @@
     ViewData["Title"] = "Assign";
 
     List<TicketResolution> resolutions = ViewBag.Resolutions;
+
+    var allUserPermissions = User.FindFirst("UserPermission")?.Value ?? "";
+
+    var admin = allUserPermissions.Contains(":SYSTEM");
 }
 
 <div class="content container-fluid">
@@ -44,32 +48,19 @@
                     <div class="about-info">
                         <h4>Ticket information</h4>
                         <div class="media mt-3">
+
+                            @if (Model.Attachment != null)
+                            {
+                                <img src="~/ClientUpload/@Model.Attachment" class="mr-3" alt="Attachment">
+                            }
+
                             <div class="media-body">
                                 <ul>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.Title):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.Title)</span>
                                     </li>
-                                    <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Description):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.Description)</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Priority):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.Priority.Description)</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.SubCategory):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.SubCategory.Name)</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Attachment):</span>
-                                        <span class="info-span">
-                                            <a asp-action="DownloadAttachment" asp-route-fileName="@Model.Attachment">
-                                                @Html.DisplayFor(model => model.Attachment)
-                                            </a>
-                                        </span>
-                                    </li>
+                                    
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
 
@@ -83,21 +74,53 @@
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.CreatedOn)</span>
                                     </li>
+
+                                    @if (admin)
+                                    {
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Priority):</span>
+                                            <span class="info-span">@Html.DisplayFor(model => model.Priority.Description)</span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.SubCategory):</span>
+                                            <span class="info-span">@Html.DisplayFor(model => model.SubCategory.Name)</span>
+                                        </li>
+
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.AssignedTo):</span>
+                                            <span class="info-span">
+                                                <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.AssignedToId">
+                                                    @Html.DisplayFor(model => model.AssignedTo.Name)
+                                                </a>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.AssignedOn):</span>
+                                            <span class="info-span">@Html.DisplayFor(model => model.AssignedOn)</span>
+                                        </li>
+                                    }
+
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.AssignedTo):</span>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Status):</span>
                                         <span class="info-span">
-                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.AssignedToId">
-                                                @Html.DisplayFor(model => model.AssignedTo.Name)
-                                            </a>
+                                            @switch (Model.Status.Code)
+                                            {
+                                                case "Resolved":
+                                                    <span class="badge badge-success">@Html.DisplayFor(model => model.Status.Description)</span>
+                                                    break;
+
+                                                case "Closed":
+                                                    <span class="badge badge-danger">@Html.DisplayFor(model => model.Status.Description)</span>
+                                                    break;
+
+                                                default:
+                                                    <span class="badge badge-warning">@Html.DisplayFor(model => model.Status.Description)</span>
+                                                    break;
+                                            }
                                         </span>
                                     </li>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.AssignedOn):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.AssignedOn)</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Status):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.Status.Description)</span>
+                                        <span class="">@Html.DisplayFor(model => model.Description)</span>
                                     </li>
                                 </ul>
                             </div>

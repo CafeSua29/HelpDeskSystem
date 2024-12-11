@@ -71,14 +71,37 @@
                                         <span class="title-span">@Html.DisplayNameFor(model => model.PhoneNumber):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.PhoneNumber)</span>
                                     </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Reputation):</span>
+                                        <span class="info-span">@Html.DisplayFor(model => model.Reputation)</span>
+                                    </li>
+                                    <li>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Badge):</span>
+                                        <span class="info-span">
+
+                                            @{
+                                                var reputation = Model.Reputation;
+                                                string award;
+
+                                                if (reputation >= 1000)
+                                                    award = "Expert";
+                                                else if (reputation >= 100)
+                                                    award = "Contributor";
+                                                else
+                                                    award = "Newbie";
+                                            }
+
+                                            <span class=""><i class="@Model.Badge"></i> @award</span>
+                                        </span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                         <div class="margin-top">
-                            <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
 
                             @if (canViewUser)
                             {
+                                <a asp-action="Index" class="btn btn-primary float-start"><i class="fas fa-arrow-left"></i> Back to List</a>
                                 <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary float-end">Edit</a>
                             }
 

@@ -4593,3 +4593,62 @@ table.table-inbox tbody tr.checked {
     border-left: 1px dashed #ccc;
     padding-left: 10px;
 }
+
+/* Voting Section */
+.voting-section {
+    width: 50px; /* Aligns well with the circular buttons */
+    text-align: center;
+    color: #6c757d; /* Default icon color */
+}
+
+/* Circular Buttons */
+.vote-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px; /* Equal width and height ensure a perfect circle */
+    height: 35px; /* Equal width and height ensure a perfect circle */
+    border: 2px solid #e0e0e0; /* Light gray border for clarity */
+    border-radius: 50%; /* 50% ensures the shape is circular */
+    background-color: white; /* Default background */
+    cursor: pointer;
+    color: #6c757d; /* Default icon color */
+    font-size: 20px; /* Icon size */
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+    /* Hover Effects */
+    .vote-btn:hover {
+        color: #009ce7; /* Stack Overflow orange on hover */
+        border-color: #009ce7; /* Border changes to orange on hover */
+        /*background-color: #fff8f0;*/ /* Slightly orange background */
+    }
+
+/* Vote Count */
+.vote-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333; /* Darker for contrast */
+    margin: 0; /* Space around the vote count */
+}
+
+.vote-btn.active {
+    color: #009ce7; /* Highlight color for active votes */
+    border-color: #009ce7;
+}
+
+.text-gold {
+    color: #ffd700;
+}
+
+.text-silver {
+    color: #c0c0c0;
+}
+
+.text-bronze {
+    color: #cd7f32;
+}
+
+.ava-badge {
+    font-size: 14px;
+}

@@ -15,6 +15,10 @@ using HelpDeskSystem.ClaimsManagement;
 using ElmahCore;
 using System.Net.Mail;
 using System.Xml.Linq;
+using HelpDeskSystem.ViewModels;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Comment = HelpDeskSystem.Models.Comment;
 
 namespace HelpDeskSystem.Controllers
 {
@@ -314,6 +318,84 @@ namespace HelpDeskSystem.Controllers
 
                 return View(comment);
             }
+        }
+
+        [HttpPost]
+        [Route("Comments/Vote")]
+        public async Task<IActionResult> Vote([FromBody] VoteRequest request)
+        {
+            if (request == null || request.CommentId <= 0)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+            var userId = User.GetUserId();
+
+            // Check if the user has already voted on this comment
+            var existingVote = await _context.Votes.FirstOrDefaultAsync(v => v.CommentId == request.CommentId && v.UserId == userId);
+
+            var comment = await _context.Comments.Include(c => c.CreatedBy).FirstOrDefaultAsync(c => c.Id == request.CommentId);
+
+            if (comment == null)
+            {
+                return BadRequest("Comment not found.");
+            }
+
+            int newVoteValue = 0; // Default is no vote
+
+            if (existingVote != null)
+            {
+                if (existingVote.Value == request.VoteValue)
+                {
+                    // Unvote if the same vote is clicked again
+                    comment.VoteValue -= existingVote.Value;
+
+                    comment.CreatedBy.Reputation -= request.VoteValue;
+
+                    _context.Votes.Remove(existingVote);
+                }
+                else
+                {
+                    // Change the vote if it's different
+                    comment.VoteValue -= existingVote.Value; // Revert the previous vote
+                    comment.VoteValue += request.VoteValue;      // Apply the new vote
+
+                    comment.CreatedBy.Reputation -= existingVote.Value;
+                    comment.CreatedBy.Reputation += request.VoteValue;
+
+                    existingVote.Value = request.VoteValue;
+
+                    newVoteValue = request.VoteValue;
+                }
+            }
+            else
+            {
+                // Add a new vote
+                var vote = new Vote
+                {
+                    UserId = userId,
+                    CommentId = request.CommentId,
+                    Value = request.VoteValue
+                };
+
+                await _context.Votes.AddAsync(vote);
+
+                comment.VoteValue += request.VoteValue;
+                comment.CreatedBy.Reputation += request.VoteValue; // Update reputation
+
+                newVoteValue = request.VoteValue;
+            }
+
+            try
+            {
+                await _context.MySaveChangesAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error updating database: {ex.Message}");
+            }
+
+            return Json(new { voteValue = comment.VoteValue, currentVote = newVoteValue });
         }
 
     }

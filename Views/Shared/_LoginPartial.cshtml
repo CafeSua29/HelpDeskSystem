@@ -97,7 +97,7 @@
                                                 <div class="media-body">
                                                     <p class="noti-details">
                                                         <span class="noti-title">@reply.UserReply.Name</span>
-                                                        has mentioned you: <span class="noti-title">@reply.Message</span>
+                                                        @reply.NotiMsg <span class="noti-title">@reply.Message</span>
                                                     </p>
                                                     <p class="noti-time"><span class="notification-time">@reply.ReplyOn</span></p>
                                                 </div>
@@ -248,6 +248,7 @@
                             <a href="#"><i class="fas fa-ticket"></i> <span>Tickets</span> <span class="menu-arrow"></span></a>
                             <ul>
                                 <li><a class="" asp-area="" asp-controller="Tickets" asp-action="Index">Tickets</a></li>
+                                <li><a class="" asp-area="" asp-controller="Tickets" asp-action="MyTickets" asp-route-id="@userId">My Tickets</a></li>
                                 @* <li><a class="" asp-area="" asp-controller="Comments" asp-action="Index">Comments</a></li> *@
                             </ul>
                         </li>

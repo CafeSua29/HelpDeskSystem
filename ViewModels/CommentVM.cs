@@ -13,5 +13,7 @@ namespace HelpDeskSystem.ViewModels
         public string UserId { get; set; }
 
         public bool isAdmin { get; set; }
+
+        public int? CurrentUserVote { get; set; }
     }
 }

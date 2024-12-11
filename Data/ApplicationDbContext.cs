@@ -43,6 +43,8 @@ namespace HelpDeskSystem.Data
         public DbSet<TicketsPriorityView> TicketsPriorityView { get; set; }
 
         public DbSet<Reply> Replies { get; set; }
+        public DbSet<Vote> Votes { get; set; }
+
 
         public virtual async Task<int> MySaveChangesAsync(string userid = null)
         {
@@ -346,6 +348,18 @@ namespace HelpDeskSystem.Data
                 .WithMany()
                 .HasForeignKey(c => c.CommentId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Vote>()
+                .HasOne(c => c.Comment)
+                .WithMany()
+                .HasForeignKey(c => c.CommentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Vote>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

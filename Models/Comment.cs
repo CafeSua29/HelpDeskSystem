@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using HelpDeskSystem.Helper;
+using SendGrid.Helpers.Mail;
+using System.ComponentModel;
 
 namespace HelpDeskSystem.Models
 {
@@ -8,6 +10,7 @@ namespace HelpDeskSystem.Models
 
         [DisplayName("Description")]
         public string Description { get; set; }
+
 
         [DisplayName("Ticket")]
         public int TicketId { get; set; }
@@ -20,5 +23,15 @@ namespace HelpDeskSystem.Models
 
         [DisplayName("Reply to")]
         public Comment? ReplyComment { get; set; }
+
+        public int VoteValue { get; set; }
+
+        public string ParsedContent
+        {
+            get
+            {
+                return CommentHelper.ConvertLinks(Description);
+            }
+        }
     }
 }

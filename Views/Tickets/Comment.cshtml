@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "Comment";
 
-    List<Comment> comments = ViewBag.Comments;
+    List<CommentVoteVM> comments = ViewBag.Comments;
 
     List<Comment> replies = ViewBag.Replies;
 
@@ -54,32 +54,18 @@
                         <h4>Ticket information</h4>
                         <div class="media mt-3">
 
+                            @if (Model.Attachment != null)
+                            {
+                                <img src="~/ClientUpload/@Model.Attachment" class="mr-3" alt="Attachment">
+                            }
+
                             <div class="media-body">
                                 <ul>
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.Title):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.Title)</span>
                                     </li>
-                                    <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Description):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.Description)</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Priority):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.Priority.Description)</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.SubCategory):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.SubCategory.Name)</span>
-                                    </li>
-                                    <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Attachment):</span>
-                                        <span class="info-span">
-                                            <a asp-action="DownloadAttachment" asp-route-fileName="@Model.Attachment">
-                                                @Html.DisplayFor(model => model.Attachment)
-                                            </a>
-                                        </span>
-                                    </li>
+
                                     <li>
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedBy):</span>
                                         <span class="info-span">
@@ -92,17 +78,49 @@
                                         <span class="title-span">@Html.DisplayNameFor(model => model.CreatedOn):</span>
                                         <span class="info-span">@Html.DisplayFor(model => model.CreatedOn)</span>
                                     </li>
+
+                                    @if (admin)
+                                    {
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.Priority):</span>
+                                            <span class="info-span">@Html.DisplayFor(model => model.Priority.Description)</span>
+                                        </li>
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.SubCategory):</span>
+                                            <span class="info-span">@Html.DisplayFor(model => model.SubCategory.Name)</span>
+                                        </li>
+
+                                        <li>
+                                            <span class="title-span">@Html.DisplayNameFor(model => model.AssignedTo):</span>
+                                            <span class="info-span">
+                                                <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.AssignedToId">
+                                                    @Html.DisplayFor(model => model.AssignedTo.Name)
+                                                </a>
+                                            </span>
+                                        </li>
+                                    }
+
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.AssignedTo):</span>
+                                        <span class="title-span">@Html.DisplayNameFor(model => model.Status):</span>
                                         <span class="info-span">
-                                            <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.AssignedToId">
-                                                @Html.DisplayFor(model => model.AssignedTo.Name)
-                                            </a>
+                                            @switch (Model.Status.Code)
+                                            {
+                                                case "Resolved":
+                                                    <span class="badge badge-success">@Html.DisplayFor(model => model.Status.Description)</span>
+                                                    break;
+
+                                                case "Closed":
+                                                    <span class="badge badge-danger">@Html.DisplayFor(model => model.Status.Description)</span>
+                                                    break;
+
+                                                default:
+                                                    <span class="badge badge-warning">@Html.DisplayFor(model => model.Status.Description)</span>
+                                                    break;
+                                            }
                                         </span>
                                     </li>
                                     <li>
-                                        <span class="title-span">@Html.DisplayNameFor(model => model.Status):</span>
-                                        <span class="info-span">@Html.DisplayFor(model => model.Status.Description)</span>
+                                        <span class="">@Html.DisplayFor(model => model.Description)</span>
                                     </li>
                                 </ul>
                             </div>
@@ -122,6 +140,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="row mt-2">
                 <div class="col-md-12">
                     <div class="skill-info">
@@ -130,11 +149,12 @@
                         {
                             <partial name="_CommentPartial" model="new CommentVM
                                         {
-                                            Comment = comment,
+                                            Comment = comment.Comment,
                                             Replies = replies,
                                             Depth = 0,
                                             UserId = user,
-                                            isAdmin = admin
+                                            isAdmin = admin,
+                                            CurrentUserVote = comment.CurrentUserVote
                                         }" />
                         }
 
@@ -156,6 +176,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -292,6 +313,50 @@
                 recentReply.style.display = "block";
                 toggleText.innerText = "Show Replies";
             }
+        }
+
+        function voteComment(commentId, voteValue) {
+            fetch('/Comments/Vote', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ commentId: commentId, voteValue: voteValue }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => {
+                        alert(error.message || "Failed to vote.");
+                        throw new Error(error.message || "Failed to vote.");
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                const voteValueElement = document.getElementById(`vote-value-${commentId}`);
+                voteValueElement.textContent = data.voteValue;
+
+                // Update button styles based on the vote
+                const upvoteButton = document.getElementById(`upvote-${commentId}`);
+                const downvoteButton = document.getElementById(`downvote-${commentId}`);
+
+                if (data.currentVote === 1) {
+                    upvoteButton.classList.add('active');
+                    downvoteButton.classList.remove('active');
+                } else if (data.currentVote === -1) {
+                    downvoteButton.classList.add('active');
+                    upvoteButton.classList.remove('active');
+                } else {
+                    // Handle unvoting (if needed)
+                    upvoteButton.classList.remove('active');
+                    downvoteButton.classList.remove('active');
+                }
+
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error.message);
+            });
         }
 
     </script>

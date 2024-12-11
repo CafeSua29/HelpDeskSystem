@@ -35,6 +35,24 @@ namespace HelpDeskSystem.Models
 
         public int Notification { get; set; }
 
+        [DisplayName("Reputation")]
+        public int Reputation { get; set; }
+
+        [DisplayName("Award")]
+        public string Badge
+        {
+            get
+            {
+                var bronzeThreshold = 0;
+                var silverThreshold = 100;
+                var goldThreshold = 1000;
+
+                if (Reputation >= goldThreshold) return "fa fa-medal text-gold";
+                if (Reputation >= silverThreshold) return "fa fa-medal text-silver";
+                return "fa fa-medal text-bronze";
+            }
+        }
+
         [DisplayName("Locked")]
         public bool? IsLocked { get; set; }
 
