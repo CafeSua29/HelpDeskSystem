@@ -92,12 +92,23 @@
                                             <div class="media">
                                                 <span class="avatar avatar-sm">
                                                     <img class="avatar-img rounded-circle" alt="User Image"
-                                                         src="~/assets/img/profiles/@reply.UserReply.Avatar">
+                                                    src="~/assets/img/profiles/@reply.UserReply.Avatar">
                                                 </span>
                                                 <div class="media-body">
                                                     <p class="noti-details">
                                                         <span class="noti-title">@reply.UserReply.Name</span>
-                                                        @reply.NotiMsg <span class="noti-title">@reply.Message</span>
+                                                        @reply.NotiMsg <span class="noti-title">
+                                                            @{
+                                                                string msg;
+
+                                                                if (reply.Message.Length > 30)
+                                                                    msg = reply.Message.Substring(0, 30) + "...";
+                                                                else
+                                                                    msg = reply.Message;
+                                                            }
+
+                                                            @msg
+                                                        </span>
                                                     </p>
                                                     <p class="noti-time"><span class="notification-time">@reply.ReplyOn</span></p>
                                                 </div>
