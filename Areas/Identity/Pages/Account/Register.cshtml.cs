@@ -136,10 +136,23 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
+                .Include(x => x.SystemCode)
+                .Where(x => x.SystemCode.Code == "Gender"), "Id", "Description");
+
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
+                var existUser = await _context.Users.FirstOrDefaultAsync(c => c.Email.Equals(Input.Email)  && c.DelTime == null);
+
+                if (existUser != null)
+                {
+                    TempData["Error"] = "Email has been used, please choose another email !";
+
+                    return Page();
+                }
+
                 var user = CreateUser();
 
                 user.Name = Input.Name;
@@ -202,9 +215,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
             }
 
             // If we got this far, something failed, redisplay form
-            ViewData["GenderId"] = new SelectList(_context.SystemCodeDetails
-                .Include(x => x.SystemCode)
-                .Where(x => x.SystemCode.Code == "Gender"), "Id", "Description");
+            
             return Page();
         }
 

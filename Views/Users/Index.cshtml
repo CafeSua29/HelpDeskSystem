@@ -106,8 +106,18 @@
                                             <a asp-action="Details" asp-route-id="@item.Id" class="avatar avatar-sm mr-2">
                                                 <img class="avatar-img rounded-circle" src="~/assets/img/profiles/@item.Avatar" alt="User Image">
                                             </a>
+
+                                            @{
+                                                string name;
+
+                                                if (item.Name.Length > 30)
+                                                    name = item.Name.Substring(0, 30) + "...";
+                                                else
+                                                    name = item.Name;
+                                            }
+
                                             <a asp-action="Details" asp-route-id="@item.Id">
-                                                @Html.DisplayFor(modelItem => item.Name)
+                                                @name
                                             </a>
                                         </td>
                                         <td>

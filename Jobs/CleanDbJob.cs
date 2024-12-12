@@ -8,10 +8,12 @@ namespace HelpDeskSystem.Jobs
     public class CleanDbJob : IJob
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public CleanDbJob(ApplicationDbContext context)
+        public CleanDbJob(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         private async Task CleanAuditsTb()
@@ -159,7 +161,9 @@ namespace HelpDeskSystem.Jobs
                     {
                         if (!string.IsNullOrEmpty(ticket.Attachment))
                         {
-                            var filePath = Path.Combine("ClientUpload", ticket.Attachment);
+                            var path = _configuration["FileSettings:UploadsFolder"];
+
+                            var filePath = Path.Combine(path, ticket.Attachment);
 
                             if (System.IO.File.Exists(filePath))
                             {

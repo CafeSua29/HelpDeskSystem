@@ -138,8 +138,18 @@
                                             @Html.DisplayFor(modelItem => item.Ticket.Id)
                                         </td>
                                         <td>
+
+                                            @{
+                                                string title;
+
+                                                if (item.Ticket.Title.Length > 30)
+                                                    title = item.Ticket.Title.Substring(0, 30) + "...";
+                                                else
+                                                    title = item.Ticket.Title;
+                                            }
+
                                             <a asp-action="Details" asp-route-id="@item.Ticket.Id">
-                                                @Html.DisplayFor(modelItem => item.Ticket.Title)
+                                                @title
                                             </a>
                                         </td>
                                         <td>
@@ -212,68 +222,43 @@
                                                         <i class="fas fa-comment"></i>
                                                     </a> *@
 
-                                                    <a asp-action="Comment" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Comment">
-                                                        <i class="fas fa-comment"></i>
-                                                    </a>
-
-                                                    if (!string.IsNullOrEmpty(item.Ticket.AssignedToId))
+                                                    if (item.Ticket.CreatedById.Equals(user) || admin)
                                                     {
-                                                        if (item.Ticket.CreatedById.Equals(user) || item.Ticket.AssignedToId.Equals(user) || admin)
-                                                        {
-                                                            <a asp-action="Assign" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Assign">
-                                                                <i class="fas fa-user-plus"></i>
-                                                            </a>
-                                                            <a asp-action="Resolve" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Resolve">
-                                                                <i class="fas fa-wrench"></i>
-                                                            </a>
-                                                            <a asp-action="Edit" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Edit">
-                                                                <i class="fas fa-pen"></i>
-                                                            </a>
-                                                            <a href="#" class="btn btn-sm bg-danger" data-toggle="modal" title="Delete"
-                                                               data-target="#deleteConfirmationModal"
-                                                               data-id="@item.Ticket.Id"
-                                                               data-title="@item.Ticket.Title"
-                                                               data-description="@item.Ticket.Description"
-                                                               data-status="@item.Ticket.Status.Description"
-                                                               data-priority="@item.Ticket.Priority.Description"
-                                                               data-sub="@item.Ticket.SubCategory.Name"
-                                                               data-by="@item.Ticket.CreatedBy.Name"
-                                                               data-on="@item.Ticket.CreatedOn">
-                                                                <i class="fas fa-trash"></i>
-                                                            </a>
-                                                        }
+                                                        <a asp-action="Comment" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Comment">
+                                                            <i class="fas fa-comment"></i>
+                                                        </a>
+                                                        <a asp-action="Assign" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Assign">
+                                                            <i class="fas fa-user-plus"></i>
+                                                        </a>
+                                                        <a asp-action="Resolve" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Resolve">
+                                                            <i class="fas fa-wrench"></i>
+                                                        </a>
+                                                        <a asp-action="Edit" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Edit">
+                                                            <i class="fas fa-pen"></i>
+                                                        </a>
+                                                        <a href="#" class="btn btn-sm bg-danger" data-toggle="modal" title="Delete"
+                                                           data-target="#deleteConfirmationModal"
+                                                           data-id="@item.Ticket.Id"
+                                                           data-title="@item.Ticket.Title"
+                                                           data-description="@item.Ticket.Description"
+                                                           data-status="@item.Ticket.Status.Description"
+                                                           data-priority="@item.Ticket.Priority.Description"
+                                                           data-sub="@item.Ticket.SubCategory.Name"
+                                                           data-by="@item.Ticket.CreatedBy.Name"
+                                                           data-on="@item.Ticket.CreatedOn">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
                                                     }
                                                     else
                                                     {
-                                                        if (item.Ticket.CreatedById.Equals(user) || admin)
-                                                        {
-                                                            <a asp-action="Assign" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Assign">
-                                                                <i class="fas fa-user-plus"></i>
-                                                            </a>
-                                                            <a asp-action="Resolve" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Resolve">
-                                                                <i class="fas fa-wrench"></i>
-                                                            </a>
-                                                            <a asp-action="Edit" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="Edit">
-                                                                <i class="fas fa-pen"></i>
-                                                            </a>
-                                                            <a href="#" class="btn btn-sm bg-danger" data-toggle="modal" title="Delete"
-                                                               data-target="#deleteConfirmationModal"
-                                                               data-id="@item.Ticket.Id"
-                                                               data-title="@item.Ticket.Title"
-                                                               data-description="@item.Ticket.Description"
-                                                               data-status="@item.Ticket.Status.Description"
-                                                               data-priority="@item.Ticket.Priority.Description"
-                                                               data-sub="@item.Ticket.SubCategory.Name"
-                                                               data-by="@item.Ticket.CreatedBy.Name"
-                                                               data-on="@item.Ticket.CreatedOn">
-                                                                <i class="fas fa-trash"></i>
-                                                            </a>
-                                                        }
+                                                        <a asp-action="Comment" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light" title="Comment">
+                                                            <i class="fas fa-comment"></i>
+                                                        </a>
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    <a asp-action="ReOpen" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light mr-2" title="ReOpen">
+                                                    <a asp-action="ReOpen" asp-route-id="@item.Ticket.Id" class="btn btn-sm bg-success-light" title="ReOpen">
                                                         <i class="fas fa-unlock"></i>
                                                     </a>
                                                 }
@@ -316,10 +301,7 @@
                                             <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.Title):</span>
                                             <span class="info-span" id="itemTitle"></span>
                                         </li>
-                                        <li>
-                                            <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.Description):</span>
-                                            <span class="info-span" id="itemDesc"></span>
-                                        </li>
+                                        
                                         <li>
                                             <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.Priority):</span>
                                             <span class="info-span" id="itemPriority"></span>
@@ -339,6 +321,10 @@
                                         <li>
                                             <span class="title-span">@Html.DisplayNameFor(model => model.Ticket.Status):</span>
                                             <span class="info-span" id="itemStatus"></span>
+                                        </li>
+
+                                        <li>
+                                            <span class="info-span" id="itemDesc"></span>
                                         </li>
                                     </ul>
                                 </div>

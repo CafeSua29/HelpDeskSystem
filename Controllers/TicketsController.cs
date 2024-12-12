@@ -261,21 +261,6 @@ namespace HelpDeskSystem.Controllers
 
             try
             {
-                if (Attachment != null && Attachment.Length > 0)
-                {
-                    var filename = ticket.Title + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + Attachment.FileName;
-
-                    var path = _configuration["FileSettings:UploadsFolder"];
-                    var filepath = Path.Combine(path, filename);
-
-                    using (var stream = new FileStream(filepath, FileMode.Create))
-                    {
-                        await Attachment.CopyToAsync(stream);
-                    }
-                    
-                    ticket.Attachment = filename;
-                }
-
                 if (ticket.StatusId == 0 || ticket.PriorityId == 0)
                 {
                     var pendingstatusid = await _context.SystemCodeDetails
@@ -300,6 +285,28 @@ namespace HelpDeskSystem.Controllers
 
                 _context.Add(ticket);
                 await _context.MySaveChangesAsync(userId);
+
+                if (Attachment != null && Attachment.Length > 0)
+                {
+                    var highestId = _context.Tickets.Max(item => item.Id);
+
+                    var lastTicket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == highestId);
+
+                    var filename = highestId + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + Attachment.FileName;
+
+                    var path = _configuration["FileSettings:UploadsFolder"];
+                    var filepath = Path.Combine(path, filename);
+
+                    using (var stream = new FileStream(filepath, FileMode.Create))
+                    {
+                        await Attachment.CopyToAsync(stream);
+                    }
+
+                    lastTicket.Attachment = filename;
+
+                    _context.Update(lastTicket);
+                    await _context.MySaveChangesAsync(userId);
+                }
 
                 TempData["Message"] = "Ticket Created";
 
@@ -367,7 +374,7 @@ namespace HelpDeskSystem.Controllers
                         }
                     }
 
-                    var filename = ticket.Title + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + NewAttachment.FileName;
+                    var filename = ticket.Id + "_" + DateTime.Now.ToString("yyyy-MM-dd") + "_" + NewAttachment.FileName;
 
                     var filepath = Path.Combine(path, filename);
 
@@ -581,6 +588,18 @@ namespace HelpDeskSystem.Controllers
                     .Include(c => c.SystemCode)
                     .FirstOrDefaultAsync(c => c.SystemCode.Code == "Status" && c.Code == statuscode.Code && c.DelTime == null);
 
+                var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
+
+                if (ticket.StatusId == statusid.Id)
+                {
+                    TempData["Error"] = "This ticket is already have that resolution !";
+                    return RedirectToAction("Resolve", new { id = id });
+                }
+
+                ticket.StatusId = statusid.Id;
+
+                _context.Update(ticket);
+
                 TicketResolution resolution = new TicketResolution();
 
                 var userId = User.GetUserId();
@@ -593,11 +612,6 @@ namespace HelpDeskSystem.Controllers
                 resolution.StatusId = statusid.Id;
 
                 _context.Add(resolution);
-
-                var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.DelTime == null && t.Id == id);
-                ticket.StatusId = statusid.Id;
-
-                _context.Update(ticket);
 
                 await _context.MySaveChangesAsync(userId);
             }
@@ -795,7 +809,9 @@ namespace HelpDeskSystem.Controllers
             if (string.IsNullOrEmpty(fileName))
                 return NotFound();
 
-            var filePath = Path.Combine("ClientUpload", fileName);
+            var path = _configuration["FileSettings:UploadsFolder"];
+
+            var filePath = Path.Combine(path, fileName);
 
             if (!System.IO.File.Exists(filePath))
             {
