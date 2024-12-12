@@ -170,6 +170,7 @@ namespace HelpDeskSystem.Areas.Identity.Pages.Account
                 user.Avatar = "default-avatar.jpg";
                 user.Notification = 0;
                 user.Reputation = 0;
+                user.DelAble = true;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

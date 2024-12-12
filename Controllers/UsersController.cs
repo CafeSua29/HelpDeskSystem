@@ -163,6 +163,7 @@ namespace HelpDeskSystem.Controllers
                 user1.PhoneNumberConfirmed = true;
                 user1.Notification = 0;
                 user1.Reputation = 0;
+                user1.DelAble = true;
 
                 user1.CreatedOn = DateTime.Now;
                 user1.CreatedById = userId;
