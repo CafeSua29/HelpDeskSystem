@@ -303,15 +303,12 @@
         function toggleReplies(commentId) {
             const replies = document.getElementById(`replies-${commentId}`);
             const toggleText = document.getElementById(`toggle-text-${commentId}`);
-            const recentReply = document.getElementById(`recent-reply-${commentId}`);
 
             if (replies.style.display === "none") {
                 replies.style.display = "block";
-                recentReply.style.display = "none";
                 toggleText.innerText = "Hide Replies";
             } else {
                 replies.style.display = "none";
-                recentReply.style.display = "block";
                 toggleText.innerText = "Show Replies";
             }
         }
